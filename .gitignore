@@ -1,0 +1,46 @@
+# .gitignore
+# Tells Git which files must NEVER be uploaded to GitHub.
+
+# ---- Python caches (created automatically when the app runs) ----
+__pycache__/
+*.py[cod]
+
+# ---- Virtual environments (ORBIT's lives outside this folder, but just in case) ----
+venv/
+.venv/
+env/
+ENV/
+
+# ---- Secrets and private settings ----
+.env
+.env.*
+*.env
+.streamlit/secrets.toml
+*.pem
+*.key
+
+# ---- Downloaded AI models and caches ----
+# The emotion model is downloaded automatically into the Hugging Face cache
+# on each computer, so it never needs to be uploaded.
+.cache/
+huggingface/
+*.onnx
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# ---- Testing leftovers ----
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---- Local tool and editor settings ----
+.claude/
+.vscode/
+.idea/
+
+# ---- Operating-system files ----
+Thumbs.db
+Desktop.ini
+.DS_Store

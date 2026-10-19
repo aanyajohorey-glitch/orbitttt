@@ -1,0 +1,14 @@
+# Streamlit settings for ORBIT.
+# The [theme] colours match ORBIT's design system. Extra styling
+# (fonts, glass cards, planets) lives in styles.py.
+
+[theme]
+base = "light"
+primaryColor = "#C9B9E8"              # dusty lavender (primary accent)
+backgroundColor = "#F8F6F2"           # warm ivory (main background)
+secondaryBackgroundColor = "#EFEAF5"  # pale lavender (input boxes)
+textColor = "#34313B"                 # charcoal (text)
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"               # hide developer menu items
