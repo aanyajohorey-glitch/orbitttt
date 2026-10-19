@@ -56,6 +56,8 @@ def load_model():
 
     tokenizer = Tokenizer.from_file(get_file(TOKENIZER_FILE))
     tokenizer.enable_truncation(max_length=512)  # the model's maximum length
+    # Note: the model's tokenizer.json already pads every text to 128 tokens.
+    # Keep that setting: the model's scores depend slightly on padding.
 
     with open(get_file(CONFIG_FILE), encoding="utf-8") as file:
         id_to_label = json.load(file)["id2label"]
@@ -87,6 +89,79 @@ def detect_emotions(text):
     results = [(label, float(score)) for label, score in zip(model["labels"], scores)]
     results.sort(key=lambda pair: pair[1], reverse=True)
     return results
+
+
+def score_texts(texts):
+    """Score several texts. Returns one {emotion: score} dictionary per text.
+
+    The texts are scored one at a time on purpose: this compressed
+    ("quantized") model gives slightly different scores when texts are
+    batched together, and batching was not faster in our tests.
+    """
+    return [dict(detect_emotions(text)) for text in texts]
+
+
+# ---------------------------------------------------------------
+# Emotion families
+# The 28 emotions are grouped into 7 families. Families decide a planet's
+# colour, which coping tool is suggested and how the journal charts look.
+# ---------------------------------------------------------------
+EMOTION_GROUPS = {
+    "Joy": ["joy", "amusement", "excitement", "pride", "optimism", "relief", "approval"],
+    "Warmth": ["love", "caring", "gratitude", "admiration", "desire"],
+    "Sadness": ["sadness", "grief", "disappointment", "remorse"],
+    "Fear": ["fear", "nervousness", "embarrassment"],
+    "Anger": ["anger", "annoyance", "disgust", "disapproval"],
+    "Wonder": ["curiosity", "confusion", "surprise", "realization"],
+    "Neutral": ["neutral"],
+}
+GROUP_OF = {label: group for group, labels in EMOTION_GROUPS.items() for label in labels}
+
+# Planet colours for each family: (light, dark)
+GROUP_COLOURS = {
+    "Joy": ("#F6E7CC", "#CDAA78"),
+    "Warmth": ("#F6E1E9", "#C695AA"),
+    "Sadness": ("#DCE5F7", "#7F93BF"),
+    "Fear": ("#E6DCF6", "#A895D2"),
+    "Anger": ("#DCD2EA", "#6E5A8A"),
+    "Wonder": ("#E2EADC", "#98AA8C"),
+    "Neutral": ("#F1EDE6", "#B3AB9C"),
+}
+
+# How a person might say each emotion ("you're feeling ...")
+FEELING_WORDS = {
+    "admiration": "admiration", "amusement": "amused", "anger": "angry", "annoyance": "annoyed",
+    "approval": "okay with how things are", "caring": "caring", "confusion": "confused",
+    "curiosity": "curious", "desire": "a kind of longing", "disappointment": "disappointed",
+    "disapproval": "unhappy with how things went", "disgust": "put off", "embarrassment": "embarrassed",
+    "excitement": "excited", "fear": "scared", "gratitude": "grateful", "grief": "grief",
+    "joy": "happy", "love": "love", "nervousness": "nervous", "optimism": "hopeful", "pride": "proud",
+    "realization": "like something just clicked", "relief": "relieved", "remorse": "regretful",
+    "sadness": "sad", "surprise": "surprised", "neutral": "fairly steady",
+}
+
+POSITIVE_GROUPS = {"Joy", "Warmth"}
+NEGATIVE_GROUPS = {"Sadness", "Fear", "Anger"}
+
+
+def group_scores(emotions):
+    """Add up the scores in each family, e.g. {"Joy": 0.8, "Fear": 0.2, ...}."""
+    totals = {group: 0.0 for group in EMOTION_GROUPS}
+    for label, score in emotions:
+        totals[GROUP_OF[label]] += score
+    return totals
+
+
+def mood_score(emotions):
+    """One number from -1 (very low) to +1 (very positive) for the journal charts.
+
+    (positive - negative) divided by ALL emotion weight, so a mostly neutral
+    or curious message lands near 0 instead of jumping to an extreme.
+    """
+    totals = group_scores(emotions)
+    positive = sum(totals[g] for g in POSITIVE_GROUPS)
+    negative = sum(totals[g] for g in NEGATIVE_GROUPS)
+    return (positive - negative) / max(sum(totals.values()), 1e-6)
 
 
 def describe_intensity(score, emotion=None):

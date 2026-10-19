@@ -44,3 +44,7 @@ htmlcov/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# ---- ORBIT private data (journal, saved worlds, sessions) ----
+data/orbit.db
+data/*.db-journal

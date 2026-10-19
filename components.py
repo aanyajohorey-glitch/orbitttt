@@ -14,6 +14,7 @@ from uuid import uuid4
 
 import streamlit as st
 
+import storage
 from world_data import get_world
 
 
@@ -99,8 +100,9 @@ def note(text):
 
 # ---------------------------------------------------------------
 # Session state helpers
-# st.session_state is the app's short-term memory. It survives button
-# clicks but resets when the page is refreshed or the app restarts.
+# st.session_state is the app's short-term memory for this browser tab.
+# Saved worlds are ALSO written to data/orbit.db (storage.py), so they
+# survive a page refresh and an app restart.
 # ---------------------------------------------------------------
 def go_to(page):
     """Switch to another page (used by the navigation buttons)."""
@@ -111,30 +113,31 @@ def save_world(world_name, source, intent, prompt, note_text="", constraint=""):
     """Add a world to My Collection (it also appears in ORBIT Universe)."""
     for item in st.session_state.collection:
         if item["world"] == world_name and item["prompt"] == prompt:
-            st.session_state.flash = f"{world_name} is already in your collection."
+            st.session_state.flash.append(f"{world_name} is already in your collection.")
             return
 
-    st.session_state.collection.append(
-        {
-            "id": uuid4().hex[:8],
-            "world": world_name,
-            "source": source,
-            "intent": intent,
-            "prompt": prompt,
-            "constraint": constraint,
-            "note": note_text,
-            "saved_at": datetime.now().strftime("%d %b, %H:%M"),
-        }
-    )
-    st.session_state.flash = f"Saved {world_name} to your collection."
+    item = {
+        "id": uuid4().hex[:8],
+        "world": world_name,
+        "source": source,
+        "intent": intent,
+        "prompt": prompt,
+        "constraint": constraint,
+        "note": note_text,
+        "saved_at": datetime.now().strftime("%d %b, %H:%M"),
+    }
+    storage.add_collection_item(item)
+    st.session_state.collection.append(item)
+    st.session_state.flash.append(f"Saved {world_name} to your collection.")
 
 
 def remove_world(item_id):
     """Remove one saved world from the collection."""
+    storage.remove_collection_item(item_id)
     st.session_state.collection = [
         item for item in st.session_state.collection if item["id"] != item_id
     ]
-    st.session_state.flash = "Removed from your collection."
+    st.session_state.flash.append("Removed from your collection.")
 
 
 # ---------------------------------------------------------------
@@ -181,7 +184,7 @@ def top_bar():
     st.html(
         '<div class="topbar"><div class="brand">'
         + planet_html("#E6DCF6", "#A895D2", 20)
-        + '<span>ORBIT</span></div><div class="topbar-meta">Prototype · v0.2</div></div>'
+        + '<span>ORBIT</span></div><div class="topbar-meta">Prototype · v0.3</div></div>'
     )
 
 

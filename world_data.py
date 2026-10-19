@@ -75,9 +75,6 @@ def match_world(emotion_scores):
 # ---------------------------------------------------------------
 # Aesthetic Vending Machine
 # ---------------------------------------------------------------
-# Colours of the six mystery capsules.
-CAPSULE_COLOURS = ["#C9B9E8", "#B9C8EA", "#EBCBD7", "#C7D3C0", "#E3D3B8", "#9C90B3"]
-
 # A small creative challenge added to every pack.
 CONSTRAINTS = [
     "Use only three colours from the palette.",

@@ -3,3 +3,4 @@ pandas
 onnxruntime
 tokenizers
 huggingface_hub
+altair

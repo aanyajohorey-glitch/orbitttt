@@ -2,67 +2,123 @@
 
 *Every feeling has a universe.*
 
-A Class 12 CBSE Artificial Intelligence project. You describe how you
-feel, and ORBIT turns it into a personalised aesthetic world: a palette,
-textures, a creative prompt and a music vibe.
+ORBIT is an AI emotional-wellbeing companion built for a Class 12 CBSE
+Artificial Intelligence project. Students describe how they feel, in English,
+Hinglish or Hindi. ORBIT then:
 
-Built with **Python**, **Streamlit** and **pandas**.
+1. detects the emotions in their words,
+2. replies like a caring listener,
+3. keeps them safe,
+4. suggests an evidence-based coping exercise,
+5. and turns the feeling into a creative "world" with a palette and prompt.
 
-> Status: prototype v0.2. The emotion model powers both **Home** and the
-> **Mood Lab**.
+Built with **Python**, **Streamlit**, **pandas**, **Altair**, **SQLite**
+and a **pre-trained transformer model** running offline.
 
-## The AI model
+> Status: prototype v0.3.
 
-ORBIT uses a **pre-trained** emotion model:
-[`SamLowe/roberta-base-go_emotions-onnx`](https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx)
-(MIT licence).
+## The real-world problem and the SDGs
 
-- **What it is:** RoBERTa, a transformer language model, fine-tuned on
-  Google's **GoEmotions** dataset (about 58,000 Reddit comments labelled
-  by people with 27 emotions plus "neutral").
-- **What it does:** gives every one of the 28 emotions its own score from
-  0 to 1 (multi-label), so mixed feelings like "excited but nervous" show
-  up as two emotions.
-- **How ORBIT runs it:** the small quantized ONNX version (about 125 MB),
-  using `onnxruntime` on the computer's CPU. It's downloaded once into
-  the Hugging Face cache (`C:\Users\<you>\.cache\huggingface`) and then
-  works offline. No API key and no cost.
-- **How a world is chosen:** each world in `data/worlds.csv` lists the
-  emotions it belongs to. ORBIT adds up the model's scores for those
-  emotions and recommends the world with the highest total
-  (`match_world()` in `world_data.py`).
-- **Limitations:** English only; it can misread sarcasm and very short
-  texts; it has no labels for nostalgia, loneliness or calm, so those
-  worlds are matched through nearby emotions (love, grief, neutral).
+Exam pressure, loneliness and anxiety are common among teenagers, and many
+can't easily reach a counsellor. ORBIT is free, private and works offline.
+
+| SDG | How ORBIT helps |
+|---|---|
+| **SDG 3: Good Health and Well-being** (target 3.4: mental health) | Emotional check-ins, a listening companion, coping tools, a crisis safety net with helplines |
+| **SDG 4: Quality Education** | Designed for students and exam stress; teaches emotional vocabulary and CBT skills |
+| **SDG 10: Reduced Inequalities** | Free, offline and private; Hinglish and Hindi support for users who don't think in English |
 
 ## Pages
 
 | Page | What it does |
 |---|---|
-| Home | Describe your feelings, pick an optional creative intent and press **Find my orbit**. The emotion model detects your emotions and ORBIT recommends a matching world with a prompt for your intent. Also shows example worlds. |
-| Mood Lab | Runs the emotion model on your description: primary emotion, intensity, top five emotions and a suggested world you can save. |
-| Vending Machine | Choose a mystery capsule to reveal a random creative pack. You can reroll or save it. |
-| ORBIT | Your universe: every saved world as a planet. Open one to see its details. |
-| Soundspace | Music-vibe suggestions (genres, tempo, moods). It doesn't play music. |
-| My Collection | A list of saved worlds. Saved worlds reset when the session ends. |
+| **Home** | Daily check-in. The companion replies, the emotion model shows the main feelings, a world and creative prompt are suggested, and a coping tool is offered. |
+| **Companion** | A chat. Every message is analysed for emotion and safety, and ORBIT replies by reflecting, validating and asking one gentle question. It remembers patterns from the journal. |
+| **Mood Lab** | Detailed analysis: the top five emotions, **"Why does ORBIT think this?"** (the words that drove the decision), Hinglish translation and voice notes. |
+| **Calm Room** | Breathing with an animated planet (box, 4-6, 4-7-8), 5-4-3-2-1 grounding, a **CBT thought reframe** (spots thinking traps and uses the model to show the feeling getting lighter) and a gratitude jar. Mood before and after is recorded. |
+| **Journal** | Private mood history: an "emotional weather" chart, feeling families by day, weekday patterns, written insights and a **galaxy where every check-in is a planet**. Includes a clearly marked demo journal for presentations. |
+| **Vending Machine** | A realistic arcade vending machine: insert a token, punch a code (A1 to C3), watch the capsule drop, push the flap, open a creative pack. Tokens are **earned by self-care**. |
+| **ORBIT** | The universe of saved worlds as planets on an orbit. |
+| **Soundspace** | Music-vibe suggestions with **playable soundscapes generated by Python maths** (rain, waves, chords, crickets, a focus drone). |
+| **My Collection** | Saved worlds, kept on this computer. |
+| **AI Lab** | How the AI works, its **accuracy on 70 labelled sentences**, a confusion matrix, a before/after test of the Hinglish translator, the **impact study** (mood before vs after Calm Room sessions) and a model card. |
+| **Care** | Responsible-AI principles, helplines, and privacy controls (name, journal on/off, delete everything). |
+
+## The AI
+
+**Emotion model:** [`SamLowe/roberta-base-go_emotions-onnx`](https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx), MIT licence.
+
+- **What it is:** RoBERTa, fine-tuned on Google's **GoEmotions** dataset (about 58,000 Reddit
+  comments labelled by people). It gives 28 independent emotion scores (multi-label).
+- **How it runs:** the quantized ONNX version (about 125 MB) runs on the CPU with `onnxruntime`. It's
+  downloaded once into the Hugging Face cache and then works offline.
+
+The pipeline (`analysis.py`) has five steps:
+1. **Check:** reject text with no words.
+2. **Translate:** Hinglish and Hindi words become English, using a dictionary in `hinglish.py`.
+3. **Detect:** the model scores the 28 emotions.
+4. **Match:** `match_world()` adds up each world's emotion scores from `data/worlds.csv`.
+5. **Protect:** `safety.py` checks for crisis phrases *before* any reply is written.
+
+**Explainable AI** (`explain.py`) uses *occlusion*: remove one word, re-score, and measure the drop.
+The biggest drops are the words that mattered most.
+
+**Companion replies** (`companion.py`) are hand-written templates chosen by the detected emotions.
+They reflect the feeling, validate it, remember patterns from the journal, ask one question and
+offer one coping tool. If **Ollama** (a free local AI runner) is installed and running, a small local
+language model writes the replies instead. Either way, ORBIT says it is an AI, and crisis messages
+always get a fixed safety reply.
+
+### Evaluation results (AI Lab)
+| Test | Result |
+|---|---|
+| Overall accuracy (70 sentences, 7 emotion families) | 91% |
+| English (49 sentences) | 88% |
+| Hinglish + Hindi (21 sentences), before → after translator | 14% → 100% |
+
+**Honest limitations:**
+- The Hinglish dictionary was written while looking at these test sentences, so 100% is optimistic.
+  Add fresh sentences from classmates to `data/eval_set.csv` for a fair test.
+- The model can misread sarcasm, very short texts, and feelings described only through the body (for
+  example, "my heart is racing before the presentation" was read as joy).
+- It was trained on English Reddit comments, so its idea of emotions reflects that data.
+
+## Safety and privacy
+- If someone writes about suicide or self-harm, ORBIT shows **Tele-MANAS 14416 / 1-800-891-4416**
+  (Government of India, free, 24/7) and **112** for emergencies, and stops creative suggestions.
+- All data (journal, saved worlds, sessions, feedback) is stored in `data/orbit.db` **on this computer
+  only**. It's listed in `.gitignore`, so it's never uploaded. It can be deleted from the Care page.
+- ORBIT is a student project, not a medical device, and it doesn't diagnose.
 
 ## Project structure
 
 ```
 Mood-to-World/
-├── app.py               # Main file: page settings, navigation, picks the page to show.
-├── views.py             # One function per page (Home, Mood Lab, ...).
-├── components.py        # Reusable pieces: planets, cards, saving worlds, details pop-up.
-├── world_data.py        # Sample content; loads data/worlds.csv with pandas; matches emotions to worlds.
-├── emotion_model.py     # Loads the pre-trained emotion model and scores 28 emotions.
-├── styles.py            # Colours, fonts, glass cards and planets (CSS).
-├── requirements.txt     # Python packages the app needs.
-├── README.md            # This file.
-├── .streamlit/
-│   └── config.toml      # Streamlit theme colours.
+├── app.py            # Page settings, navigation, which page to show
+├── views.py          # Home, Mood Lab, ORBIT Universe, Soundspace, My Collection
+├── companion.py      # Companion chat + how replies are written (templates / local AI)
+├── calm_room.py      # Breathing, grounding, thought reframe, gratitude jar
+├── journal.py        # Journal charts, insights, emotion galaxy, demo data
+├── vending.py        # Arcade vending machine (a state machine)
+├── ai_lab.py         # Evaluation, confusion matrix, impact study, model card
+├── care.py           # Principles, helplines, privacy controls
+├── analysis.py       # The shared AI pipeline
+├── emotion_model.py  # Loads the model, scores emotions, emotion families
+├── hinglish.py       # Hinglish/Hindi to English word translator
+├── explain.py        # "Why did ORBIT think this?" (occlusion)
+├── safety.py         # Crisis and concern detection, helplines
+├── storage.py        # SQLite database on this computer
+├── soundscapes.py    # Generated soundscapes and arcade sound effects
+├── voice.py          # Optional voice notes (needs faster-whisper)
+├── components.py     # Reusable pieces: planets, cards, saving worlds
+├── styles.py         # All the visual design (CSS)
+├── world_data.py     # Loads worlds.csv, matches emotions to worlds, Soundspace data
+├── requirements.txt
+├── .streamlit/config.toml
 └── data/
-    ├── worlds.csv       # The sample aesthetic worlds.
-    └── README.md        # Explains the data files.
+    ├── worlds.csv    # The aesthetic worlds and their emotion mappings
+    ├── eval_set.csv  # 70 labelled test sentences for the AI Lab
+    └── README.md
 ```
 
 ## Setup
@@ -70,45 +126,28 @@ Mood-to-World/
 You need Python 3.11 or newer (ORBIT is developed on Python 3.12).
 pandas 3 and onnxruntime do not support older versions.
 
-The project folder is `Documents\Mood-to-World`. The virtual environment
-(the separate place where Streamlit is installed) is kept **outside** the
-project, at `C:\Users\aakal\.venvs\mood-to-world`. This keeps it out of
-OneDrive and avoids Windows' long-path problems.
+The project folder is `Documents\Mood-to-World`. The virtual environment is
+kept **outside** the project, at `C:\Users\<you>\.venvs\mood-to-world`.
 
-### Running the app (already set up on this computer)
+### Running the app
 
-1. Open PowerShell in the project folder.
+Open PowerShell in the project folder and run:
 
-2. Turn on the virtual environment:
+```
+& "$env:USERPROFILE\.venvs\mood-to-world\Scripts\streamlit.exe" run app.py
+```
 
-   ```
-   & "$env:USERPROFILE\.venvs\mood-to-world\Scripts\Activate.ps1"
-   ```
-
-   If PowerShell blocks this with an "execution policy" error, skip this
-   step and use the full path in step 3 instead:
-   `& "$env:USERPROFILE\.venvs\mood-to-world\Scripts\streamlit.exe" run app.py`
-
-3. Run the app:
-
-   ```
-   streamlit run app.py
-   ```
-
-   Your browser will open at `http://localhost:8501`.
-
-To stop the app, press `Ctrl + C` in the terminal.
+Your browser opens at `http://localhost:8501`. Press `Ctrl + C` to stop.
 
 ### Setting up on a new computer
 
-1. Create the virtual environment:
+```
+python -m venv "$env:USERPROFILE\.venvs\mood-to-world"
+& "$env:USERPROFILE\.venvs\mood-to-world\Scripts\python.exe" -m pip install -r requirements.txt
+```
 
-   ```
-   python -m venv "$env:USERPROFILE\.venvs\mood-to-world"
-   ```
-
-2. Turn it on (see step 2 above), then install the required packages:
-
-   ```
-   pip install -r requirements.txt
-   ```
+### Optional extras
+- **Richer companion replies:** install [Ollama](https://ollama.com), then run `ollama pull llama3.2:3b`.
+  ORBIT detects it automatically.
+- **Voice notes:** `pip install faster-whisper` inside the virtual environment. The speech model
+  downloads on first use.

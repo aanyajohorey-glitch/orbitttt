@@ -1,0 +1,76 @@
+"""
+care.py
+The Care page: ORBIT's responsible-AI promises, helplines and privacy controls.
+
+Principles shown here (and built into the code):
+- Safety first   : crisis words trigger helplines before anything else (safety.py)
+- Honesty        : ORBIT always says it is an AI and shows which reply style is used
+- Privacy        : everything stays on this computer; the user can download or delete it
+- Fairness       : limitations and bias are measured and shown in the AI Lab
+- Not a therapist: ORBIT supports wellbeing and points to real people for real help
+"""
+import streamlit as st
+
+import storage
+from components import note, section_header
+from safety import helplines_html
+
+PRINCIPLES = [
+    ("Safety first", "If someone writes about suicide or self-harm, ORBIT stops and shows free helplines before "
+                     "anything else. These messages are never sent to an AI model."),
+    ("Always honest", "ORBIT never pretends to be a person. Every reply shows whether it came from hand-written "
+                      "templates or a local AI model."),
+    ("Private by design", "Your journal, sessions and saved worlds stay in a file on this computer. Nothing is "
+                          "uploaded, and you can delete it all below."),
+    ("Fair and measured", "The AI Lab shows how accurate the model is, including where it struggles (for example "
+                          "Hinglish, sarcasm and very short messages)."),
+    ("Not a therapist", "ORBIT can help you notice and name feelings and try coping exercises. For anything "
+                        "serious, please talk to a trusted adult, a counsellor or a doctor."),
+]
+
+
+def save_name():
+    storage.set_setting("name", st.session_state.care_name.strip())
+    st.session_state.flash.append("Saved.")
+
+
+def toggle_journal():
+    storage.set_setting("journal_on", "1" if st.session_state.care_journal else "0")
+
+
+def delete_everything():
+    storage.delete_everything()
+    st.session_state.collection = []
+    st.session_state.chat = []
+    st.session_state.flash.append("All ORBIT data on this computer has been deleted.")
+
+
+def care_page():
+    section_header(
+        "Care",
+        "How ORBIT looks after you",
+        "The promises built into ORBIT, where to find real help, and full control over your data.",
+        first=True,
+    )
+    st.html('<div class="principles">' + "".join(
+        f'<div class="principle"><b>{title}</b><p class="body">{text}</p></div>' for title, text in PRINCIPLES
+    ) + "</div>")
+
+    with st.container(key="glass-help"):
+        st.html('<div class="eyebrow">Real people who can help, any time</div>'
+                '<p class="body" style="margin:.3rem 0 .6rem">Free and confidential in India:</p>'
+                + helplines_html())
+
+    with st.container(key="glass-privacy"):
+        st.html('<div class="eyebrow">Your data</div>')
+        st.text_input("What should ORBIT call you? (optional)", value=storage.get_setting("name", ""),
+                      key="care_name", on_change=save_name, max_chars=30)
+        st.toggle("Keep a private journal of my check-ins on this computer", value=storage.journal_enabled(),
+                  key="care_journal", on_change=toggle_journal)
+        counts = (len(storage.list_entries()), len(storage.list_collection()), len(storage.list_wellbeing()),
+                  len(storage.list_feedback()))
+        st.html(f'<p class="body">Stored on this computer: {counts[0]} journal entries, {counts[1]} saved worlds, '
+                f"{counts[2]} calm sessions, {counts[3]} feedback responses.</p>")
+        sure = st.checkbox("I understand this permanently deletes all of my ORBIT data", key="care_sure")
+        st.button("Delete all my data", key="care_delete", on_click=delete_everything, disabled=not sure)
+    note("ORBIT is a Class 12 student project. It is not a medical device and does not give diagnoses.")
