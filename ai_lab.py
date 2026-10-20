@@ -52,7 +52,7 @@ def out_of_fold(train_version, model_version):
     table = datasets.load("train")
     for variant in ("C", "D"):
         _, _, meta = orbit_head.load(orbit_head.CANDIDATES[variant])
-        probs = train_head.out_of_fold(variant == "D", meta["l2"])
+        probs = train_head.out_of_fold(variant == "D", meta["l2"], meta.get("temperature", 1.0))
         table[f"pred_{variant}"] = [FAMILIES[i] for i in probs.argmax(axis=1)]
         if variant == adopted_variant():
             table["confidence"] = probs.max(axis=1)

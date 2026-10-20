@@ -74,6 +74,29 @@ def test_result_has_confidence_and_a_world_in_the_same_family():
     assert len(final["alternatives"]) == 3
 
 
+def test_vague_messages_are_flagged():
+    for text in ["today was weird", "hmm", "I feel okay I guess", "kuch nahi bas aise hi"]:
+        assert analysis.is_vague(text), text
+    for text in ["I had a good book club meeting today", "My exam went really well and I am proud"]:
+        assert not analysis.is_vague(text), text
+
+
+def test_temperature_does_not_change_the_winner():
+    rng = np.random.default_rng(1)
+    X = rng.normal(size=(20, 5)).astype(np.float32)
+    W = rng.normal(size=(5, 7)).astype(np.float32)
+    b = np.zeros(7, dtype=np.float32)
+    plain, softened = orbit_head.predict_proba(X, W, b), orbit_head.predict_proba(X, W, b, temperature=2.0)
+    assert np.array_equal(plain.argmax(axis=1), softened.argmax(axis=1))
+    assert np.all(softened.max(axis=1) <= plain.max(axis=1) + 1e-6)
+
+
+@needs_model
+def test_vague_message_makes_orbit_ask():
+    final = analysis.interpret("today was weird")["final"]
+    assert final["vague"] and final["unsure"]
+
+
 @needs_model
 def test_hinglish_anger_is_understood():
     assert analysis.interpret("yaar mujhe bahut gussa aa raha hai")["final"]["family"] == "Anger"

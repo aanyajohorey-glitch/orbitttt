@@ -11,6 +11,7 @@ Principles shown here (and built into the code):
 """
 import streamlit as st
 
+import orbit_head
 import storage
 from components import note, section_header
 from safety import helplines_html
@@ -38,8 +39,17 @@ def toggle_journal():
     storage.set_setting("journal_on", "1" if st.session_state.care_journal else "0")
 
 
+def delete_corrections():
+    storage.clear_corrections()
+    if orbit_head.PERSONAL_MODEL.exists():
+        orbit_head.PERSONAL_MODEL.unlink()
+    st.session_state.flash.append("Teach Orbit corrections and your personal model were deleted.")
+
+
 def delete_everything():
     storage.delete_everything()
+    if orbit_head.PERSONAL_MODEL.exists():
+        orbit_head.PERSONAL_MODEL.unlink()   # it was trained on your corrections
     st.session_state.collection = []
     st.session_state.chat = []
     st.session_state.flash.append("All ORBIT data on this computer has been deleted.")
@@ -68,9 +78,12 @@ def care_page():
         st.toggle("Keep a private journal of my check-ins on this computer", value=storage.journal_enabled(),
                   key="care_journal", on_change=toggle_journal)
         counts = (len(storage.list_entries()), len(storage.list_collection()), len(storage.list_wellbeing()),
-                  len(storage.list_feedback()))
+                  len(storage.list_feedback()), len(storage.list_corrections()))
         st.html(f'<p class="body">Stored on this computer: {counts[0]} journal entries, {counts[1]} saved worlds, '
-                f"{counts[2]} calm sessions, {counts[3]} feedback responses.</p>")
+                f"{counts[2]} calm sessions, {counts[3]} feedback responses, {counts[4]} Teach Orbit corrections. "
+                "Crisis messages are never stored.</p>")
+        st.button("Delete my Teach Orbit corrections", key="care_del_corrections", type="tertiary",
+                  disabled=counts[4] == 0 and not orbit_head.PERSONAL_MODEL.exists(), on_click=delete_corrections)
         sure = st.checkbox("I understand this permanently deletes all of my ORBIT data", key="care_sure")
         st.button("Delete all my data", key="care_delete", on_click=delete_everything, disabled=not sure)
     note("ORBIT is a Class 12 student project. It is not a medical device and does not give diagnoses.")

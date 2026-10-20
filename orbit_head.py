@@ -126,8 +126,22 @@ def train(X, y, sample_weight=None, l2=1e-3, steps=800, lr=0.5, seed=0):
     return W, b
 
 
-def predict_proba(X, W, b):
-    return softmax(X @ W + b)
+def predict_proba(X, W, b, temperature=1.0):
+    """Family probabilities. temperature > 1 makes over-confident scores more honest
+    (temperature scaling) without changing which family wins."""
+    return softmax((X @ W + b) / temperature)
+
+
+def fit_temperature(logits, y):
+    """Find the temperature that best fits held-out (out-of-fold) predictions,
+    by minimising log-loss (how surprised the model is by the right answers)."""
+    def log_loss(t):
+        p = softmax(logits / t)
+        return -np.mean(np.log(p[np.arange(len(y)), y] + 1e-12))
+    grid = np.exp(np.linspace(np.log(0.5), np.log(20), 200))
+    losses = [log_loss(t) for t in grid]
+    best = float(grid[int(np.argmin(losses))])
+    return best, log_loss(1.0), log_loss(best)
 
 
 def class_weights(y):

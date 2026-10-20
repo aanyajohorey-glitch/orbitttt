@@ -15,6 +15,7 @@ It also records check-ins in the private journal and gives arcade tokens,
 following ORBIT's rules: nothing is stored and no games are offered when
 someone may be in crisis.
 """
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -29,6 +30,18 @@ from safety import check as safety_check
 from world_data import match_world
 
 UNSURE_BELOW = 0.5   # chosen from out-of-fold accuracy by confidence (docs/methodology.md)
+
+# Vague-message guard. Even after temperature scaling, the classifier can be
+# very confident about short or vague messages it has never seen anything like
+# ("today was weird" -> anger 98%). For these ORBIT always asks first.
+VAGUE = re.compile(r"\b(idk|i don'?t know|dunno|weird|meh|whatever|okay|ok|fine|it is what it is|not sure|"
+                   r"mixed feelings|kuch nahi|pata nahi|aise hi)\b", re.IGNORECASE)
+
+
+def is_vague(text):
+    words = re.findall(r"[^\s.,!?।]+", text)
+    return len(words) <= 3 or bool(VAGUE.search(text))
+
 
 # If the classifier picks a family but the base model gave every emotion in it
 # a tiny score, this emotion represents the family.
@@ -76,7 +89,7 @@ def interpret(text):
         W, b, meta = head
         dict_scores = dict(emotions) if meta.get("uses_dictionary") else None
         features = orbit_head.features(text, raw_scores, load_model()["labels"], dict_scores)
-        probs = orbit_head.predict_proba(features[None, :], W, b)[0]
+        probs = orbit_head.predict_proba(features[None, :], W, b, meta.get("temperature", 1.0))[0]
         order = np.argsort(probs)[::-1]
         family_probs = [(orbit_head.FAMILIES[i], float(probs[i])) for i in order]
         source = "ORBIT classifier" + (" (personal)" if meta.get("corrections") else "")
@@ -84,6 +97,7 @@ def interpret(text):
         family_probs = [(GROUP_OF[emotions[0][0]], float(emotions[0][1]))]
         source = "RoBERTa + dictionary"
     family, confidence = family_probs[0]
+    vague = is_vague(text)
 
     result = {
         "text": text,
@@ -91,8 +105,8 @@ def interpret(text):
         "translated": translated,
         "emotions": emotions,           # base model scores (shown as bars)
         "raw_scores": raw_scores,       # base model scores for the ORIGINAL text (classifier input)
-        "final": {"family": family, "confidence": confidence, "unsure": confidence < UNSURE_BELOW,
-                  "alternatives": family_probs[:3]},
+        "final": {"family": family, "confidence": confidence, "unsure": confidence < UNSURE_BELOW or vague,
+                  "vague": vague, "alternatives": family_probs[:3]},
         "safety": safety_check(text) or safety_check(model_text, emotions),
     }
     return apply_family(result, family, source)

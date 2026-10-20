@@ -51,7 +51,7 @@ def feature_matrix(texts, raw_scores, dict_scores=None):
 def model_probs(model, texts, raw, translated):
     W, b, meta = model
     X = feature_matrix(texts, raw, translated if meta.get("uses_dictionary") else None)
-    return orbit_head.predict_proba(X, W, b)
+    return orbit_head.predict_proba(X, W, b, meta.get("temperature", 1.0))
 
 
 def predict(table, model=None, private=False):

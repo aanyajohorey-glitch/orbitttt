@@ -60,15 +60,19 @@ def folds_for(y, k=5, seed=0):
     return fold
 
 
-def out_of_fold(use_dictionary, l2):
-    """Predicted family for every training sentence, from a model that never saw it."""
+def out_of_fold(use_dictionary, l2, temperature=1.0):
+    """Family probabilities for every training sentence, from a model that never saw it."""
+    return orbit_head.softmax(out_of_fold_logits(use_dictionary, l2) / temperature)
+
+
+def out_of_fold_logits(use_dictionary, l2):
     X, y, w = training_arrays(use_dictionary=use_dictionary)
     fold = folds_for(y)
-    probs = np.zeros((len(y), len(FAMILIES)))
+    logits = np.zeros((len(y), len(FAMILIES)))
     for f in range(5):
         W, b = orbit_head.train(X[fold != f], y[fold != f], w[fold != f], l2=l2)
-        probs[fold == f] = orbit_head.predict_proba(X[fold == f], W, b)
-    return probs
+        logits[fold == f] = X[fold == f] @ W + b
+    return logits
 
 
 def fit(use_dictionary, path, extra=None, verbose=True):
@@ -80,7 +84,13 @@ def fit(use_dictionary, path, extra=None, verbose=True):
         print(f"Variant {name}: cross-validation on training data (macro-F1)")
         print("   " + "  ".join(f"l2={l2:g}: {f1:.3f}" for l2, (f1, _) in cv.items()) + f"   -> chose {best_l2:g}")
     W, b = orbit_head.train(X, y, w, l2=best_l2)
+    # Temperature scaling, fitted on out-of-fold predictions (never on test sets)
+    temperature, loss_before, loss_after = orbit_head.fit_temperature(
+        out_of_fold_logits(use_dictionary, best_l2), y)
+    if verbose:
+        print(f"   temperature scaling: T={temperature:.2f}, out-of-fold log-loss {loss_before:.3f} -> {loss_after:.3f}")
     meta = {"l2": best_l2, "cv_macro_f1": cv[best_l2][0], "cv_accuracy": cv[best_l2][1],
+            "temperature": temperature, "log_loss_before": loss_before, "log_loss_after": loss_after,
             "train_sentences": int(len(y)), "corrections": len(extra or []),
             "uses_dictionary": use_dictionary, "trained_on": str(date.today()), "families": FAMILIES}
     orbit_head.save(path, W, b, meta)
