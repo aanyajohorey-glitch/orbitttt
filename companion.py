@@ -19,24 +19,22 @@ Two reply styles:
 ORBIT always says it is an AI. Crisis messages are NEVER sent to the AI:
 they get a fixed, safe reply with helplines (see safety.py).
 """
-import json
-import os
 import random
-import urllib.request
 import zlib
 from datetime import datetime, timedelta
 
 import streamlit as st
 
+import llm
 import storage
+from feedback_ui import thumbs
+from nudges import nudge_card
 from analysis import analyse, earn_token, games_allowed, may_store
 from components import esc, go_to, section_header, note, tags_html
 from emotion_model import FEELING_WORDS, GROUP_OF
 from safety import safety_card_html
 from teach_ui import clarify, confidence_html, teach_panel
 
-OLLAMA_URL = os.environ.get("ORBIT_OLLAMA_URL", "http://localhost:11434")
-PREFERRED_MODEL = os.environ.get("ORBIT_LLM", "llama3.2:3b")
 
 # ---------------------------------------------------------------
 # Hand-written reply pieces, one set per emotion family
@@ -194,57 +192,19 @@ def template_reply(result, name=""):
     return " ".join(parts)
 
 
-# ---------------------------------------------------------------
-# Optional local AI (Ollama)
-# ---------------------------------------------------------------
-@st.cache_data(ttl=30, show_spinner=False)
-def local_ai_model():
-    """The name of a local Ollama model if one is running, otherwise None."""
-    try:
-        with urllib.request.urlopen(f"{OLLAMA_URL}/api/tags", timeout=0.6) as response:
-            models = [m["name"] for m in json.load(response).get("models", [])]
-    except Exception:
-        return None
-    if PREFERRED_MODEL in models:
-        return PREFERRED_MODEL
-    return models[0] if models else None
-
-
-def llm_reply(model, result, history, name):
-    top = ", ".join(f"{label} {score:.0%}" for label, score in result["emotions"][:4])
-    top += (f". ORBIT's classifier reads the main feeling as {result['final']['family']} "
-            f"({result['final']['confidence']:.0%} confident)")
-    if result["final"].get("unsure"):
-        top += "; it is NOT sure, so gently ask which feeling is closer instead of assuming"
-    system = (
-        "You are ORBIT, a warm, gentle emotional-support companion in a student wellbeing app. "
-        "You are an AI, not a human, and you never pretend to be one. Reply in 2 to 4 short sentences. "
-        "Reflect the user's feelings in your own words, validate them, and ask at most one gentle, open question. "
-        "Do not diagnose, give medical advice or lecture. If the user seems to be struggling a lot, gently "
-        "encourage them to talk to a trusted adult or call Tele-MANAS on 14416. "
-        f"An emotion model detected these feelings in their latest message: {top}."
-        + (f" The user's name is {name}." if name else "")
-    )
-    messages = [{"role": "system", "content": system}]
-    messages += [{"role": m["role"], "content": m["content"]} for m in history[-8:]]
-    body = json.dumps({"model": model, "messages": messages, "stream": False,
-                       "options": {"temperature": 0.7}}).encode("utf-8")
-    request = urllib.request.Request(f"{OLLAMA_URL}/api/chat", data=body,
-                                     headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(request, timeout=90) as response:
-        return json.load(response)["message"]["content"].strip()
-
-
 def reply(result, history=(), name=""):
-    """Return (reply_text, style) for an analysed message."""
+    """Return (reply_text, style) for an analysed message.
+
+    Crisis messages ALWAYS get the fixed safety reply: they never reach any AI
+    model (local or cloud). Otherwise an AI reply is tried if one is set up
+    (llm.py, with prompt-injection and output checks), and templates are the
+    fallback.
+    """
     if result["safety"] == "crisis":
         return CRISIS_REPLY, "Safety reply"
-    model = local_ai_model()
-    if model:
-        try:
-            return llm_reply(model, result, list(history), name), f"Local AI · {model}"
-        except Exception:
-            pass  # fall back to templates if the local AI fails
+    written = llm.ai_reply(result, list(history), name)
+    if written:
+        return written
     return template_reply(result, name), "ORBIT templates"
 
 
@@ -327,12 +287,12 @@ def companion_page():
         "and helps you take a small next step.",
         first=True,
     )
-    style = f"Local AI · {local_ai_model()}" if local_ai_model() else "ORBIT templates"
+    style = llm.mode_label()
     note(
-        f"ORBIT is an AI, not a person, and not a replacement for a counsellor. Replies are written by "
-        f"<b>{esc(style)}</b>{' (install Ollama for richer local AI replies)' if style == 'ORBIT templates' else ''}. "
-        "If you are ever in danger, call Tele-MANAS on 14416 or 112."
+        f"ORBIT is an AI, not a person, and not a replacement for a counsellor. Replies: <b>{esc(style)}</b> "
+        "(change this in About → Settings). If you are ever in danger, call Tele-MANAS on 14416 or 112."
     )
+    nudge_card()
 
     typed = st.chat_input("Tell ORBIT how you're feeling…", key="chat_input")
     pending = st.session_state.pop("chat_pending", None)
@@ -345,7 +305,7 @@ def companion_page():
             greeting = f"Hi {name}. " if name else "Hi. "
             st.markdown(greeting + "I'm ORBIT, an AI companion. I'm not a person, but I'm here to listen. "
                         "How are you feeling right now?")
-        for message in chat:
+        for index, message in enumerate(chat):
             avatar = ":material/person:" if message["role"] == "user" else ":material/blur_on:"
             with st.chat_message(message["role"], avatar=avatar):
                 st.markdown(esc(message["content"]))
@@ -355,6 +315,8 @@ def companion_page():
                     if message["result"]["safety"]:
                         st.html(safety_card_html(message["result"]["safety"]))
                     st.html(f'<span class="mode-badge">Reply style: {esc(message["style"])}</span>')
+                    if message["result"]["safety"] != "crisis":
+                        thumbs("reply", message["style"], key=f"fb_chat_{index}")
 
     if not chat:
         st.html('<div class="field-label" style="margin-top:1rem">Not sure how to start? Try one:</div>')
