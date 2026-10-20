@@ -41,15 +41,15 @@ def toggle_journal():
 
 def delete_corrections():
     storage.clear_corrections()
-    if orbit_head.PERSONAL_MODEL.exists():
-        orbit_head.PERSONAL_MODEL.unlink()
+    if orbit_head.personal_model().exists():
+        orbit_head.personal_model().unlink()
     st.session_state.flash.append("Teach Orbit corrections and your personal model were deleted.")
 
 
 def delete_everything():
     storage.delete_everything()
-    if orbit_head.PERSONAL_MODEL.exists():
-        orbit_head.PERSONAL_MODEL.unlink()   # it was trained on your corrections
+    if orbit_head.personal_model().exists():
+        orbit_head.personal_model().unlink()   # it was trained on your corrections
     st.session_state.collection = []
     st.session_state.chat = []
     st.session_state.flash.append("All ORBIT data on this computer has been deleted.")
@@ -78,12 +78,15 @@ def care_page():
         st.toggle("Keep a private journal of my check-ins on this computer", value=storage.journal_enabled(),
                   key="care_journal", on_change=toggle_journal)
         counts = (len(storage.list_entries()), len(storage.list_collection()), len(storage.list_wellbeing()),
-                  len(storage.list_feedback()), len(storage.list_corrections()))
+                  len(storage.list_feedback()), len(storage.list_corrections()), len(storage.list_ratings()))
         st.html(f'<p class="body">Stored on this computer: {counts[0]} journal entries, {counts[1]} saved worlds, '
-                f"{counts[2]} calm sessions, {counts[3]} feedback responses, {counts[4]} Teach Orbit corrections. "
+                f"{counts[2]} calm sessions, {counts[3]} feedback responses, {counts[4]} Teach Orbit corrections, "
+                f"{counts[5]} thumbs ratings. "
                 "Crisis messages are never stored.</p>")
         st.button("Delete my Teach Orbit corrections", key="care_del_corrections", type="tertiary",
-                  disabled=counts[4] == 0 and not orbit_head.PERSONAL_MODEL.exists(), on_click=delete_corrections)
+                  disabled=counts[4] == 0 and not orbit_head.personal_model().exists(), on_click=delete_corrections)
         sure = st.checkbox("I understand this permanently deletes all of my ORBIT data", key="care_sure")
         st.button("Delete all my data", key="care_delete", on_click=delete_everything, disabled=not sure)
+        st.html('<p class="body">To download or import your data, see <b>Settings</b>. In a hurry? The '
+                "<b>Panic wipe</b> button at the top of every page deletes everything at once, no questions asked.</p>")
     note("ORBIT is a Class 12 student project. It is not a medical device and does not give diagnoses.")

@@ -56,7 +56,7 @@ def _head(path, modified):
 
 def current_head():
     """The personal model (after Teach Orbit retraining) or the shared one."""
-    for path in (orbit_head.PERSONAL_MODEL, orbit_head.SHARED_MODEL):
+    for path in (orbit_head.personal_model(), orbit_head.SHARED_MODEL):
         if path.exists():
             return _head(str(path), path.stat().st_mtime)
     return None
@@ -124,15 +124,25 @@ def analyse(text, empty_message):
         st.warning("ORBIT reads words. Try describing how you feel in a sentence or two.")
         return None
 
-    try:
-        with st.spinner("Waking up the emotion model…"):
-            load_model()
-    except Exception:
-        st.error(
-            "The emotion model couldn't be loaded. The first run needs an internet "
-            "connection to download it (about 125 MB); after that it works offline."
-        )
-        return None
+    import demo_mode   # imported here to avoid a circular import
+
+    if not demo_mode.enabled():
+        try:
+            with st.spinner("Waking up the emotion model…"):
+                load_model()
+        except Exception:
+            st.session_state.model_failed = True
+            st.warning(
+                "The emotion model couldn't be loaded (the first run needs internet to download it, about "
+                "125 MB). ORBIT has switched to offline demo mode so you can keep going."
+            )
+
+    if demo_mode.enabled():
+        try:
+            return demo_mode.interpret_offline(text)
+        except Exception:
+            st.error("Offline demo mode isn't available. Please check the data/model folder.")
+            return None
 
     try:
         with st.spinner("Reading your words…"):
