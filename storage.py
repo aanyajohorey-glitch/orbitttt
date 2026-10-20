@@ -43,6 +43,10 @@ CREATE TABLE IF NOT EXISTS feedback (
     created_at TEXT, rating INTEGER, comment TEXT
 );
 CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
+CREATE TABLE IF NOT EXISTS corrections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at TEXT, text TEXT, predicted TEXT, corrected TEXT, raw_scores TEXT, source TEXT
+);
 """
 
 
@@ -83,8 +87,12 @@ def journal_enabled():
 # ---------------------------------------------------------------
 # Journal entries
 # ---------------------------------------------------------------
-def add_entry(source, text, emotions, world, created_at=None, demo=False):
-    primary, score = emotions[0]
+def add_entry(source, text, emotions, world, created_at=None, demo=False, primary=None):
+    """primary: ORBIT's final emotion (from the trained classifier). Defaults to
+    the base model's strongest emotion."""
+    scores = dict(emotions)
+    primary = primary or emotions[0][0]
+    score = scores.get(primary, emotions[0][1])
     run(
         "INSERT INTO entries (created_at, source, text, primary_emotion, primary_score, emotions, world, demo) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -160,7 +168,26 @@ def list_feedback():
     return run("SELECT * FROM feedback ORDER BY created_at")
 
 
+# ---------------------------------------------------------------
+# Teach Orbit corrections (human-in-the-loop labels)
+# ---------------------------------------------------------------
+def add_correction(text, predicted, corrected, raw_scores, source):
+    run("INSERT INTO corrections (created_at, text, predicted, corrected, raw_scores, source) "
+        "VALUES (?, ?, ?, ?, ?, ?)", (now(), text, predicted, corrected, json.dumps(raw_scores), source))
+
+
+def list_corrections():
+    rows = run("SELECT * FROM corrections ORDER BY created_at")
+    for row in rows:
+        row["raw_scores"] = json.loads(row["raw_scores"])
+    return rows
+
+
+def clear_corrections():
+    run("DELETE FROM corrections")
+
+
 def delete_everything():
-    """Erase every saved journal entry, world, session, rating and setting."""
-    for table in ("entries", "collection", "wellbeing", "feedback", "settings"):
+    """Erase every saved journal entry, world, session, rating, correction and setting."""
+    for table in ("entries", "collection", "wellbeing", "feedback", "corrections", "settings"):
         run(f"DELETE FROM {table}")

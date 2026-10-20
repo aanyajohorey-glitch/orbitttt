@@ -33,6 +33,7 @@ from analysis import analyse, earn_token, games_allowed, may_store
 from components import esc, go_to, section_header, note, tags_html
 from emotion_model import FEELING_WORDS, GROUP_OF
 from safety import safety_card_html
+from teach_ui import clarify, confidence_html, teach_panel
 
 OLLAMA_URL = os.environ.get("ORBIT_OLLAMA_URL", "http://localhost:11434")
 PREFERRED_MODEL = os.environ.get("ORBIT_LLM", "llama3.2:3b")
@@ -107,18 +108,36 @@ def ordinal(n):
 
 
 def family(result):
-    return GROUP_OF[result["emotions"][0][0]]
+    """ORBIT's final emotion family (decided by the trained classifier)."""
+    return result["final"]["family"]
 
 
 def secondary_feeling(result):
     """A second feeling from a DIFFERENT family, if it is clearly present."""
     primary_group = family(result)
-    for label, score in result["emotions"][1:]:
+    for label, score in result["emotions"]:
         if score < 0.12:
             break
         if label != "neutral" and GROUP_OF[label] != primary_group:
             return label
     return None
+
+
+# How to describe a family when ORBIT asks a clarifying question
+FAMILY_PHRASES = {
+    "Joy": "something good", "Warmth": "a warm, caring feeling", "Sadness": "feeling low",
+    "Fear": "worry or nerves", "Anger": "frustration", "Wonder": "confusion or curiosity",
+    "Neutral": "a fairly ordinary moment",
+}
+
+
+def clarifying_reply(result, name=""):
+    """When ORBIT isn't sure, it asks instead of asserting a feeling."""
+    (first, _), (second, _) = result["final"]["alternatives"][:2]
+    hello = f"{name}, thank you for sharing that." if name else "Thank you for sharing that."
+    return (f"{hello} I want to make sure I understand you properly. It could be "
+            f"{FAMILY_PHRASES[first]}, or maybe {FAMILY_PHRASES[second]}. Which feels closer? "
+            "You can also tell me a bit more.")
 
 
 def recent_family_count(group, days=7):
@@ -133,6 +152,12 @@ def recent_family_count(group, days=7):
 def suggestion(result):
     """The Calm Room tool to offer. A worried feeling underneath a happy one
     (e.g. excited but nervous) gets the tool for the worry."""
+    alternatives = result["final"].get("alternatives", [])
+    if len(alternatives) > 1:
+        second, probability = alternatives[1]
+        if family(result) in ("Joy", "Warmth", "Wonder", "Neutral") and \
+                second in ("Sadness", "Fear", "Anger") and probability >= 0.25:
+            return SUGGESTIONS[second]
     other = secondary_feeling(result)
     if other and family(result) in ("Joy", "Warmth", "Wonder", "Neutral") and \
             GROUP_OF[other] in ("Sadness", "Fear", "Anger"):
@@ -141,8 +166,10 @@ def suggestion(result):
 
 
 def template_reply(result, name=""):
+    if result["final"].get("unsure"):
+        return clarifying_reply(result, name)
     group = family(result)
-    primary = result["emotions"][0][0]
+    primary = result["final"]["emotion"]
     rng = random.Random(zlib.crc32(result["text"].encode("utf-8")))  # same text -> same reply
 
     opener = rng.choice(OPENERS[group])
@@ -185,6 +212,10 @@ def local_ai_model():
 
 def llm_reply(model, result, history, name):
     top = ", ".join(f"{label} {score:.0%}" for label, score in result["emotions"][:4])
+    top += (f". ORBIT's classifier reads the main feeling as {result['final']['family']} "
+            f"({result['final']['confidence']:.0%} confident)")
+    if result["final"].get("unsure"):
+        top += "; it is NOT sure, so gently ask which feeling is closer instead of assuming"
     system = (
         "You are ORBIT, a warm, gentle emotional-support companion in a student wellbeing app. "
         "You are an AI, not a human, and you never pretend to be one. Reply in 2 to 4 short sentences. "
@@ -254,10 +285,20 @@ def new_conversation():
 
 
 def emotion_chips_html(result):
-    chips = [f"{label} {score:.0%}" for label, score in result["emotions"][:3] if score >= 0.05]
+    final = result["final"]
+    chips = [f"{final['family']} · {final['emotion']}"]
+    chips += [f"{label} {score:.0%}" for label, score in result["emotions"][:3] if score >= 0.05]
     extra = f'<span class="chat-understood">understood as: “{esc(result["model_text"])}”</span>' \
         if result["translated"] else ""
-    return f'<div class="chat-chips">{tags_html(chips)}{extra}</div>'
+    return f'<div class="chat-chips">{confidence_html(result)}{tags_html(chips)}{extra}</div>'
+
+
+def refresh_reply(result):
+    """After the user teaches ORBIT, rewrite the reply to that message."""
+    name = storage.get_setting("name", "")
+    for message in st.session_state.chat:
+        if message["role"] == "assistant" and message["result"] is result:
+            message["content"], message["style"] = reply(result, (), name)
 
 
 def handle_message(text):
@@ -270,7 +311,8 @@ def handle_message(text):
     answer, style = reply(result, [m for m in chat if m["role"] in ("user", "assistant")], name)
     chat.append({"role": "assistant", "content": answer, "style": style, "result": result})
     if may_store(result):
-        storage.add_entry("Companion", result["text"], result["emotions"], result["world"])
+        storage.add_entry("Companion", result["text"], result["emotions"], result["world"],
+                          primary=result["final"]["emotion"])
     if games_allowed(result) and not st.session_state.chat_token_given:
         st.session_state.chat_token_given = True
         earn_token("thanks for talking")
@@ -323,6 +365,8 @@ def companion_page():
         return
 
     last = chat[-1]["result"]
+    clarify(last, key=f"chat_{len(chat)}", on_update=refresh_reply)
+    teach_panel(last, key=f"chat_{len(chat)}", on_update=refresh_reply)
     if last["safety"] != "crisis":
         tool, line = suggestion(last)
         st.html(f'<p class="body" style="margin:.6rem 0 .4rem">{esc(line)}</p>')

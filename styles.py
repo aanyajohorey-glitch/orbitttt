@@ -516,6 +516,14 @@ EXTRA_CSS = """
   color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0.2rem 0.6rem;
 }
 .understood { font-size: 0.86rem; color: var(--muted); margin: 0.7rem 0 0; }
+.confidence {
+  display: inline-flex; align-items: center; gap: 0.4rem; vertical-align: middle;
+  font-size: 0.66rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.32rem 0.7rem; border-radius: 999px; border: 1px solid var(--line);
+}
+.confidence.sure { background: rgba(199, 211, 192, 0.45); color: var(--charcoal); }
+.confidence.unsure { background: rgba(235, 203, 215, 0.55); color: var(--charcoal); }
+.chat-chips .confidence { font-size: 0.6rem; padding: 0.18rem 0.5rem; }
 [data-testid="stChatMessage"] {
   background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 18px; padding: 0.9rem 1rem; margin-bottom: 0.6rem;

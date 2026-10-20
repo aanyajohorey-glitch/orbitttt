@@ -49,7 +49,7 @@ def prompt_for(world, intent):
     return world[column]
 
 
-def match_world(emotion_scores):
+def match_world(emotion_scores, family=None):
     """Recommend a world from the emotion model's scores.
 
     Each world in worlds.csv lists the emotions it belongs to. A world's
@@ -57,17 +57,28 @@ def match_world(emotion_scores):
     and the world with the highest total wins.
 
     emotion_scores: list of (emotion, score) pairs from detect_emotions().
+    family (optional): ORBIT's final emotion family. Only worlds that include
+        an emotion from that family are considered.
     Returns: (best world, its match score, the emotions that matched).
     """
+    from emotion_model import EMOTION_GROUPS  # local import avoids a circular import
+
     scores = dict(emotion_scores)
+    worlds = load_worlds()
+    if family:
+        allowed = set(EMOTION_GROUPS[family])
+        worlds = [w for w in worlds if allowed & set(w["emotions"])] or worlds
     best_world, best_total = None, -1.0
-    for world in load_worlds():
+    for world in worlds:
         total = sum(scores.get(emotion, 0.0) for emotion in world["emotions"])
         if total > best_total:
             best_world, best_total = world, total
 
     # The emotions that contributed most, for explaining the match.
     matched = sorted(best_world["emotions"], key=lambda emotion: scores.get(emotion, 0.0), reverse=True)
+    if family:
+        in_family = [e for e in matched if e in EMOTION_GROUPS[family]]
+        matched = in_family + [e for e in matched if e not in in_family]
     matched = [emotion for emotion in matched if scores.get(emotion, 0.0) >= 0.05] or matched[:1]
     return best_world, best_total, matched
 

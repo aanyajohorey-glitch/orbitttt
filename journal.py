@@ -19,8 +19,8 @@ import streamlit as st
 
 import storage
 from components import esc, note, planet_html, section_header
-from emotion_model import GROUP_COLOURS, GROUP_OF, detect_emotions, mood_score
-from world_data import match_world
+from analysis import interpret
+from emotion_model import GROUP_COLOURS, GROUP_OF, mood_score
 
 WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 FONT = "Manrope"
@@ -68,8 +68,8 @@ def load_demo():
     start = datetime.now().replace(minute=0, second=0, microsecond=0) - timedelta(days=len(DEMO_STORY) - 1)
     for day, text in enumerate(DEMO_STORY):
         when = (start + timedelta(days=day)).replace(hour=rng.randint(17, 22))
-        emotions = detect_emotions(text)
-        storage.add_entry("Demo", text, emotions, match_world(emotions)[0]["name"],
+        result = interpret(text)   # the same pipeline as a real check-in
+        storage.add_entry("Demo", text, result["emotions"], result["world"], primary=result["final"]["emotion"],
                           created_at=when.isoformat(timespec="seconds"), demo=True)
     for i, (tool, before, after) in enumerate(DEMO_SESSIONS):
         when = start + timedelta(days=i * 2 + 1, hours=20)
@@ -179,10 +179,11 @@ def insights(table, sessions):
     return lines
 
 
-def entry_planet(emotions, size=None):
-    primary, score = emotions[0]
+def entry_planet(emotions, primary=None, size=None):
+    primary = primary or emotions[0][0]
+    score = dict(emotions).get(primary, emotions[0][1])
     light, dark = GROUP_COLOURS[GROUP_OF[primary]]
-    mixed = any(s >= 0.12 and GROUP_OF[l] != GROUP_OF[primary] and l != "neutral" for l, s in emotions[1:4])
+    mixed = any(s >= 0.12 and GROUP_OF[l] != GROUP_OF[primary] and l != "neutral" for l, s in emotions[:4] if l != primary)
     return planet_html(light, dark, size or int(34 + 46 * score), ring=mixed, delay=random.random() * 6)
 
 
@@ -191,7 +192,7 @@ def galaxy_html(table):
     for _, row in table.tail(42).iterrows():
         stars.append(
             f'<div class="galaxy-star" title="{esc(row["when"].strftime("%d %b"))} · {esc(row["primary"])}">'
-            f'{entry_planet(row["emotions"])}<small>{row["when"].strftime("%d %b")}</small></div>'
+            f'{entry_planet(row["emotions"], row["primary"])}<small>{row["when"].strftime("%d %b")}</small></div>'
         )
     return f'<div class="galaxy">{"".join(stars)}</div>'
 

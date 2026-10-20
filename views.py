@@ -27,6 +27,7 @@ from emotion_model import describe_intensity
 from explain import highlight_html, top_words, word_importance
 from safety import safety_card_html
 from soundscapes import soundscape
+from teach_ui import clarify, confidence_html, teach_panel
 from world_data import INTENTS, SOUND_MOODS, SOUNDSPACES, load_worlds, prompt_for
 
 
@@ -137,9 +138,9 @@ def home():
                 )
 
 
-def other_emotions_html(emotions, limit=3, minimum=0.05):
+def other_emotions_html(emotions, primary=None, limit=3, minimum=0.05):
     """Tags for the next strongest emotions, e.g. 'Nervousness · 16%'."""
-    others = [(emotion, score) for emotion, score in emotions[1:] if score >= minimum][:limit]
+    others = [(e, s) for e, s in emotions if e != primary and s >= minimum][:limit]
     if not others:
         return '<span class="body">Nothing else stands out.</span>'
     return tags_html([f"{emotion.capitalize()} · {round(score * 100)}%" for emotion, score in others])
@@ -149,8 +150,28 @@ def open_in_lab(result):
     """Show the same analysis in the Mood Lab, with all the details."""
     st.session_state.lab_text = result["text"]
     st.session_state.lab_result = {key: result[key] for key in
-                                   ("text", "model_text", "translated", "emotions", "world", "matched", "safety")}
+                                   ("text", "model_text", "translated", "emotions", "raw_scores", "final",
+                                    "world", "matched", "safety")}
+    st.session_state.lab_explain = None
     go_to("Mood Lab")
+
+
+def refresh_home(result):
+    """After the user teaches ORBIT, rewrite the companion's reply."""
+    result["reply"], result["style"] = reply(result, name=storage.get_setting("name", ""))
+
+
+def final_stats_html(result):
+    """ORBIT's final reading: emotion, family, confidence and intensity."""
+    final = result["final"]
+    score = dict(result["emotions"]).get(final["emotion"], 0.0)
+    return (
+        '<div class="stats" style="margin-top:1.1rem">'
+        f'<div class="stat"><b>{esc(final["emotion"].capitalize())}</b>main feeling · {esc(final["family"])}</div>'
+        f'<div class="stat"><b>{final["confidence"]:.0%}</b>confidence</div>'
+        f'<div class="stat"><b>{describe_intensity(score, final["emotion"])}</b>intensity</div>'
+        "</div>"
+    )
 
 
 def understood_html(result):
@@ -164,7 +185,7 @@ def show_home_result(result):
     """The personalised result shown after pressing 'Find my orbit'."""
     world = next(w for w in load_worlds() if w["name"] == result["world"])
     prompt = prompt_for(world, result["intent"])
-    primary, primary_score = result["emotions"][0]
+    primary = result["final"]["emotion"]
 
     if result["safety"]:
         st.html(safety_card_html(result["safety"]))
@@ -173,7 +194,8 @@ def show_home_result(result):
     tool, line = suggestion(result)
     with st.container(key="glass-companion"):
         st.html(companion_card_html(result["reply"], result["style"]))
-        if result["safety"] != "crisis":
+        asked = clarify(result, key="home_clarify", on_update=refresh_home)
+        if result["safety"] != "crisis" and not asked:
             st.html(f'<p class="body" style="margin:.4rem 0 .2rem">{esc(line)}</p>')
         first, second, third = st.columns(3)
         first.button("Keep talking", key="home_talk", type="primary", on_click=keep_talking, args=(result,),
@@ -192,13 +214,11 @@ def show_home_result(result):
         with right:
             st.html(
                 '<div class="reveal">'
-                '<span class="badge">Read by ORBIT\'s emotion model</span>'
+                f'<span class="badge">Read by {esc(result["final"]["source"])}</span> '
+                + confidence_html(result)
                 + understood_html(result)
-                + '<div class="stats" style="margin-top:1.1rem">'
-                f'<div class="stat"><b>{esc(primary.capitalize())}</b>primary emotion · {round(primary_score * 100)}%</div>'
-                f'<div class="stat"><b>{describe_intensity(primary_score, primary)}</b>intensity</div>'
-                "</div>"
-                + field_html("Also feeling", other_emotions_html(result["emotions"]))
+                + final_stats_html(result)
+                + field_html("Also feeling", other_emotions_html(result["emotions"], primary))
                 + f'<div class="eyebrow" style="margin-top:1.6rem">Your world · {esc(world["mood"])}</div>'
                 f'<div class="display" style="font-size:2.4rem;margin-top:.3rem">{esc(world["name"])}</div>'
                 f'<p class="body">{esc(world["description"])}</p>'
@@ -223,10 +243,11 @@ def show_home_result(result):
                 args=("Vending Machine",),
                 width="stretch",
             )
+        teach_panel(result, key="home_teach", on_update=refresh_home)
         note(
-            "Detected by a pre-trained emotion model running on this device. Each emotion has its "
-            "own score, so they don't add up to 100%. It works best in English and can misread "
-            "sarcasm or very short texts."
+            "A pre-trained emotion model scores 28 feelings, then ORBIT's own trained classifier picks the "
+            "main feeling and says how sure it is. Everything runs on this device. It can still misread "
+            "sarcasm or very short texts: if it's wrong, you can teach it."
         )
 
 
@@ -314,7 +335,7 @@ def emotion_bars_html(emotions):
 
 def run_explanation():
     result = st.session_state.lab_result
-    emotion = result["emotions"][0][0]
+    emotion = result["final"]["emotion"]
     st.session_state.lab_explain = (emotion, word_importance(result["model_text"], emotion))
 
 
@@ -322,8 +343,8 @@ def show_lab_result(result):
     """The model's real result: emotions, intensity and the suggested world."""
     text = result["text"]
     emotions = result["emotions"]
-    primary, primary_score = emotions[0]
-    secondary = [emotion for emotion, score in emotions[1:] if score >= 0.1]
+    primary = result["final"]["emotion"]
+    secondary = [e for e, score in emotions if e != primary and score >= 0.1]
     short_text = text if len(text) <= 280 else text[:280] + "…"
 
     if result.get("safety"):
@@ -332,22 +353,24 @@ def show_lab_result(result):
     with st.container(key="glass-lab-result"):
         st.html(
             '<div class="reveal">'
-            '<span class="badge">Analysed on this device · GoEmotions RoBERTa</span>'
-            '<div class="field-label" style="margin-top:1.2rem">What the lab received</div>'
+            f'<span class="badge">Analysed on this device · {esc(result["final"]["source"])}</span> '
+            + confidence_html(result)
+            + '<div class="field-label" style="margin-top:1.2rem">What the lab received</div>'
             f'<div class="quote">{esc(short_text)}</div>'
             + understood_html(result)
-            + '<div class="stats">'
-            f'<div class="stat"><b>{esc(primary.capitalize())}</b>primary emotion</div>'
-            f'<div class="stat"><b>{describe_intensity(primary_score, primary)}</b>intensity</div>'
-            f'<div class="stat"><b>{esc(", ".join(secondary) if secondary else "None")}</b>also present</div>'
-            "</div>"
-            '<div class="field-label" style="margin-top:1.6rem">Top five emotions</div>'
+            + final_stats_html(result)
+            + field_html("Also present", esc(", ".join(secondary) if secondary else "Nothing else stands out"))
+            + '<div class="field-label" style="margin-top:1.6rem">The base model\'s five strongest scores</div>'
             + emotion_bars_html(emotions[:5])
             + "</div>"
         )
+        if result.get("safety") != "crisis":
+            clarify(result, key="lab_clarify")
+            teach_panel(result, key="lab_teach")
         note(
-            "Each emotion gets its own score from 0 to 100%, so the scores don't add up to 100. "
-            "The model works best in English and can misread sarcasm or very short texts."
+            "The bars are the pre-trained RoBERTa model's own scores (each from 0 to 100%, so they don't add "
+            "up to 100). ORBIT's trained classifier then decides the main feeling, which can differ: for "
+            "example, a racing heart before a presentation scores high on excitement, but usually means nerves."
         )
 
     if result.get("safety") == "crisis":
@@ -370,7 +393,7 @@ def show_lab_result(result):
             st.html('<p class="body">See which of your words made the AI decide. It takes a few seconds.</p>')
             st.button("Explain this result", key="lab_why", on_click=run_explanation)
 
-    world =next(w for w in load_worlds() if w["name"] == result["world"])
+    world = next(w for w in load_worlds() if w["name"] == result["world"])
     with st.container(key="glass-lab-world"):
         left, right = st.columns([1, 2.2], vertical_alignment="center")
         with left:

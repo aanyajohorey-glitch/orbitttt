@@ -48,3 +48,5 @@ Desktop.ini
 # ---- ORBIT private data (journal, saved worlds, sessions) ----
 data/orbit.db
 data/*.db-journal
+# Personal model retrained on the user's own corrections (derived from private data)
+data/model/orbit_head_personal.npz
