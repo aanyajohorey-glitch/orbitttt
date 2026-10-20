@@ -165,11 +165,18 @@ def final_stats_html(result):
     """ORBIT's final reading: emotion, family, confidence and intensity."""
     final = result["final"]
     score = dict(result["emotions"]).get(final["emotion"], 0.0)
+    label = "best guess" if final["unsure"] else "main feeling"
+    if final["source"] == "your correction":
+        confidence = '<div class="stat"><b>You</b>told ORBIT this feeling</div>'
+    elif final.get("vague"):
+        confidence = '<div class="stat"><b>Asking</b>message too short or vague to be sure</div>'
+    else:
+        confidence = f'<div class="stat"><b>{final["confidence"]:.0%}</b>confidence</div>'
     return (
         '<div class="stats" style="margin-top:1.1rem">'
-        f'<div class="stat"><b>{esc(final["emotion"].capitalize())}</b>main feeling · {esc(final["family"])}</div>'
-        f'<div class="stat"><b>{final["confidence"]:.0%}</b>confidence</div>'
-        f'<div class="stat"><b>{describe_intensity(score, final["emotion"])}</b>intensity</div>'
+        f'<div class="stat"><b>{esc(final["emotion"].capitalize())}</b>{label} · {esc(final["family"])}</div>'
+        + confidence
+        + f'<div class="stat"><b>{describe_intensity(score, final["emotion"])}</b>intensity (base model)</div>'
         "</div>"
     )
 
@@ -219,7 +226,9 @@ def show_home_result(result):
                 + understood_html(result)
                 + final_stats_html(result)
                 + field_html("Also feeling", other_emotions_html(result["emotions"], primary))
-                + f'<div class="eyebrow" style="margin-top:1.6rem">Your world · {esc(world["mood"])}</div>'
+                + f'<div class="eyebrow" style="margin-top:1.6rem">'
+                f'{"A first guess at your world · answer above to refine it" if result["final"]["unsure"] else "Your world"}'
+                f' · {esc(world["mood"])}</div>'
                 f'<div class="display" style="font-size:2.4rem;margin-top:.3rem">{esc(world["name"])}</div>'
                 f'<p class="body">{esc(world["description"])}</p>'
                 + field_html("Matched on", tags_html(result["matched"]))

@@ -28,6 +28,8 @@ def confidence_html(result):
     final = result["final"]
     if final["source"] == "your correction":
         return '<span class="confidence sure">You told ORBIT this</span>'
+    if final.get("vague"):
+        return '<span class="confidence unsure">Short or vague message · ORBIT is asking</span>'
     if final["unsure"]:
         return f'<span class="confidence unsure">ORBIT isn\'t sure ({final["confidence"]:.0%})</span>'
     return f'<span class="confidence sure">ORBIT is {final["confidence"]:.0%} sure</span>'
