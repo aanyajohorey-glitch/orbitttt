@@ -19,4 +19,14 @@ FEATURE_CSS = """
   opacity: 0.9; pointer-events: none; }
 .cst-planet .cst-overlay img { width: 100%; height: 100%; display: block; }
 .galaxy-star .planet { animation-duration: calc(9s * var(--orbit-speed, 1)); }
+
+/* ---------- World theme: chip and sound ---------- */
+.stApp { transition: background-color 1.2s ease; }
+.world-chip { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--muted);
+  padding: 0.3rem 0.8rem; border-radius: 999px; background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.85); }
+.world-chip span { width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--c);
+  box-shadow: 0 0 10px var(--c); }
+.world-chip b { color: var(--charcoal); font-weight: 600; }
+.st-key-world-sound [data-testid="stAudio"] { max-width: 360px; margin-left: auto; }
 """

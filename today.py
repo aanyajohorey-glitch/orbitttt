@@ -17,6 +17,7 @@ import calm_room
 import demo_mode
 import storage
 from onboarding import reduced_motion
+from theme import set_world
 from analysis import analyse, earn_token, flash, games_allowed, record_checkin
 from companion import companion_card_html, reply, suggestion
 from constellation import constellation_html, constellation_planet, describe
@@ -126,6 +127,8 @@ def today_page():
                 record_checkin(result, "Today")
             st.session_state.home_result = result
             st.session_state.today_done = False
+            if result:
+                set_world(result)          # the whole app changes to this feeling's world
             if result:
                 st.rerun()   # redraw from step 1 with the new result (no rerun on a warning, so it stays visible)
 

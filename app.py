@@ -30,6 +30,7 @@ import journal
 import onboarding
 import settings_ui
 import storage
+import theme
 import today
 import vending
 import views
@@ -108,6 +109,7 @@ current_tab = PAGES[st.session_state.page][0]
 st.session_state[f"last_{current_tab}"] = st.session_state.page
 
 top_bar()
+theme.world_bar()
 with st.container(key="quick-exit"):
     with st.popover("Panic wipe"):
         st.html('<p class="body">Deletes your journal, saved worlds, ratings, corrections and settings from this '
@@ -134,6 +136,10 @@ if len(sections) > 1:
 # ---------------------------------------------------------------
 PAGES[st.session_state.page][2]()
 footer()
+
+# The world theme (feature B). Added last, so a feeling detected during this
+# run changes the colours straight away.
+st.html(f"<style>{theme.theme_css(onboarding.accessibility_settings())}</style>")
 
 # Pop-up messages (e.g. "Saved Lavender Haze"). Shown last so messages
 # created while drawing the page appear straight away.

@@ -29,6 +29,7 @@ from explain import highlight_html, top_words, word_importance
 from safety import safety_card_html
 from soundscapes import soundscape
 from teach_ui import clarify, confidence_html, teach_panel
+from theme import set_world
 from world_data import INTENTS, SOUND_MOODS, SOUNDSPACES, load_worlds, prompt_for
 
 
@@ -99,6 +100,7 @@ def open_in_lab(result):
 def refresh_home(result):
     """After the user teaches ORBIT, rewrite the companion's reply."""
     result["reply"], result["style"] = reply(result, name=storage.get_setting("name", ""))
+    set_world(result)          # a correction can change the world too
 
 
 def final_stats_html(result):
@@ -154,6 +156,8 @@ def mood_lab():
                 demo_mode.sample_buttons("lab_text")
             if st.button("Analyse my mood", type="primary", key="analyse"):
                 result = analyse(st.session_state.lab_text.strip(), empty_message="Describe your mood first.")
+                if result:
+                    set_world(result)
                 st.session_state.lab_result = result
                 st.session_state.lab_explain = None
                 if result:

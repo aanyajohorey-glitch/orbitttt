@@ -26,6 +26,7 @@ from datetime import datetime, timedelta
 import streamlit as st
 
 import llm
+from theme import set_world
 import storage
 from feedback_ui import thumbs
 from nudges import nudge_card
@@ -264,6 +265,8 @@ def refresh_reply(result):
 def handle_message(text):
     name = storage.get_setting("name", "")
     result = analyse(text.strip(), empty_message="Write a few words first.")
+    if result:
+        set_world(result)
     if not result:
         return
     chat = st.session_state.chat
