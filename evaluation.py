@@ -22,7 +22,7 @@ import pandas as pd
 
 import base_scores
 import orbit_head
-from emotion_model import GROUP_OF, load_model
+from emotion_model import GO_EMOTIONS_LABELS, GROUP_OF, load_model
 
 FAMILIES = orbit_head.FAMILIES
 VARIANTS = {
@@ -34,7 +34,10 @@ VARIANTS = {
 
 
 def labels():
-    return load_model()["labels"]
+    try:
+        return load_model()["labels"]
+    except Exception:          # no model (offline): the names are fixed, so use the saved list
+        return GO_EMOTIONS_LABELS
 
 
 def top_family(scores):

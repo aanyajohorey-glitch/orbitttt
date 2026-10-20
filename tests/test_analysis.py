@@ -112,3 +112,9 @@ def test_live_model_beats_v03_on_body_feelings():
 @needs_model
 def test_crisis_text_is_flagged_by_the_pipeline():
     assert analysis.interpret("I don't want to be alive anymore")["safety"] == "crisis"
+
+
+@needs_model
+def test_saved_label_list_matches_the_model():
+    from emotion_model import GO_EMOTIONS_LABELS, load_model
+    assert load_model()["labels"] == GO_EMOTIONS_LABELS

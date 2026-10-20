@@ -824,7 +824,7 @@ EXTRA_CSS = """
 .onb-point { padding: 0.9rem 1rem; border-radius: 16px; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(255, 255, 255, 0.85); }
 .onb-point b { color: var(--charcoal); }
 .feedback-label { font-size: 0.8rem; color: var(--muted); }
-.st-key-quick-exit { display: flex; justify-content: flex-end; margin-top: -0.4rem; }
+.st-key-quick-exit { align-items: flex-end !important; margin-top: -0.6rem; }
 .st-key-quick-exit button p { font-size: 0.78rem !important; }
 .st-key-subnav { width: fit-content; max-width: 100%; margin: 0.5rem auto 0; }
 .st-key-subnav [data-testid="stHorizontalBlock"] { flex-wrap: wrap; justify-content: center; gap: 0.3rem; }

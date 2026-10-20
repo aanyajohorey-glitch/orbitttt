@@ -108,7 +108,8 @@ def today_page():
                 record_checkin(result, "Today")
             st.session_state.home_result = result
             st.session_state.today_done = False
-            st.rerun()
+            if result:
+                st.rerun()   # redraw from step 1 with the new result (no rerun on a warning, so it stays visible)
 
     if not result:
         note("ORBIT is an AI, not a therapist. If you are ever in danger, call Tele-MANAS on 14416 or 112.")

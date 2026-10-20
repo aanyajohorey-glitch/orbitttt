@@ -43,6 +43,16 @@ def get_file(filename):
         return hf_hub_download(MODEL_REPO, filename)
 
 
+# The model's 28 labels in its own order (from its config file). Kept here too,
+# so pages that only need the names still work if the model can't be downloaded.
+GO_EMOTIONS_LABELS = [
+    "admiration", "amusement", "anger", "annoyance", "approval", "caring", "confusion", "curiosity",
+    "desire", "disappointment", "disapproval", "disgust", "embarrassment", "excitement", "fear",
+    "gratitude", "grief", "joy", "love", "nervousness", "optimism", "pride", "realization", "relief",
+    "remorse", "sadness", "surprise", "neutral",
+]
+
+
 @st.cache_resource(show_spinner="Loading the emotion model…")
 def load_model():
     """Load the model, tokenizer and emotion names.
