@@ -29,7 +29,7 @@ from datetime import datetime, timedelta
 import streamlit as st
 
 import storage
-from analysis import analyse, earn_token
+from analysis import analyse, earn_token, games_allowed, may_store
 from components import esc, go_to, section_header, note, tags_html
 from emotion_model import FEELING_WORDS, GROUP_OF
 from safety import safety_card_html
@@ -269,9 +269,9 @@ def handle_message(text):
     chat.append({"role": "user", "content": text.strip(), "result": result})
     answer, style = reply(result, [m for m in chat if m["role"] in ("user", "assistant")], name)
     chat.append({"role": "assistant", "content": answer, "style": style, "result": result})
-    if storage.journal_enabled():
+    if may_store(result):
         storage.add_entry("Companion", result["text"], result["emotions"], result["world"])
-    if not st.session_state.chat_token_given:
+    if games_allowed(result) and not st.session_state.chat_token_given:
         st.session_state.chat_token_given = True
         earn_token("thanks for talking")
 

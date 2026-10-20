@@ -350,6 +350,9 @@ def show_lab_result(result):
             "The model works best in English and can misread sarcasm or very short texts."
         )
 
+    if result.get("safety") == "crisis":
+        return  # only help is shown when someone may be in danger
+
     with st.container(key="glass-lab-why"):
         st.html('<div class="eyebrow">Explainable AI</div>'
                 f'<div class="title-sm">Why does ORBIT think this is {esc(primary)}?</div>')
@@ -367,10 +370,7 @@ def show_lab_result(result):
             st.html('<p class="body">See which of your words made the AI decide. It takes a few seconds.</p>')
             st.button("Explain this result", key="lab_why", on_click=run_explanation)
 
-    if result.get("safety") == "crisis":
-        return
-
-    world = next(w for w in load_worlds() if w["name"] == result["world"])
+    world =next(w for w in load_worlds() if w["name"] == result["world"])
     with st.container(key="glass-lab-world"):
         left, right = st.columns([1, 2.2], vertical_alignment="center")
         with left:

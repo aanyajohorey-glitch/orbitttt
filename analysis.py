@@ -72,8 +72,21 @@ def earn_token(reason):
     flash(f"+1 arcade token · {reason}")
 
 
+def games_allowed(result):
+    """Rule: when someone may be in crisis, ORBIT shows help and nothing else.
+    No tokens, no worlds, no vending machine, no saving."""
+    return result is not None and result.get("safety") != "crisis"
+
+
+def may_store(result):
+    """Rule: crisis text is NEVER written to the journal or anywhere else."""
+    return games_allowed(result) and storage.journal_enabled()
+
+
 def record_checkin(result, source):
     """Save a check-in to the private journal (if allowed) and give a token."""
-    if storage.journal_enabled():
+    if not games_allowed(result):
+        return
+    if may_store(result):
         storage.add_entry(source, result["text"], result["emotions"], result["world"])
     earn_token("thanks for checking in")
