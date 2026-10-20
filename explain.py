@@ -12,6 +12,8 @@ It needs no extra libraries: it just asks the same model many times.
 """
 import re
 
+import streamlit as st
+
 from components import esc
 from emotion_model import score_texts
 
@@ -28,6 +30,26 @@ def word_importance(text, emotion):
     scores = score_texts(variants)
     base = scores[0][emotion]
     return [(word, base - scores[i + 1][emotion]) for i, word in enumerate(words)]
+
+
+@st.cache_data(max_entries=100, show_spinner=False)
+def cached_importance(text, emotion):
+    """word_importance, remembered for repeated texts (kept in memory only)."""
+    return word_importance(text, emotion)
+
+
+def importance_of(result):
+    """Word importances for an analysed result, or None when the emotion model
+    isn't available (offline demo mode keeps saved ones for sample sentences)."""
+    if result.get("importance"):
+        return [tuple(pair) for pair in result["importance"]]
+    import demo_mode   # local import avoids a circular import
+    if demo_mode.enabled():
+        return None
+    try:
+        return cached_importance(result["model_text"], result["final"]["emotion"])
+    except Exception:
+        return None
 
 
 def highlight_html(importances):

@@ -28,6 +28,11 @@ def accessibility_settings():
     return {key: storage.get_setting(f"a11y_{key}", "0") == "1" for key in A11Y_OPTIONS}
 
 
+def reduced_motion():
+    """True when the user switched on "Reduce motion" (the device setting is handled in CSS)."""
+    return accessibility_settings()["reduced_motion"]
+
+
 def save_toggle(setting, key):
     storage.set_setting(setting, "1" if st.session_state[key] else "0")
 

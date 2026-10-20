@@ -173,7 +173,37 @@
   "matched": [
    "fear"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "My",
+    0.05031624995172024
+   ],
+   [
+    "heart",
+    0.05031682213302702
+   ],
+   [
+    "is",
+    -0.07412225008010864
+   ],
+   [
+    "racing",
+    0.05022365041077137
+   ],
+   [
+    "before",
+    0.015839114785194397
+   ],
+   [
+    "the",
+    -0.05273057520389557
+   ],
+   [
+    "presentation.",
+    -0.007578317075967789
+   ]
+  ]
  },
  "I'm excited about the trip! But I'm nervous about meeting new people.": {
   "text": "I'm excited about the trip! But I'm nervous about meeting new people.",
@@ -350,7 +380,57 @@
    "excitement",
    "joy"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "I'm",
+    0.14598220586776733
+   ],
+   [
+    "excited",
+    0.6173023916780949
+   ],
+   [
+    "about",
+    0.026186585426330566
+   ],
+   [
+    "the",
+    0.02807605266571045
+   ],
+   [
+    "trip!",
+    0.06904435157775879
+   ],
+   [
+    "But",
+    -0.01752650737762451
+   ],
+   [
+    "I'm",
+    -0.04016011953353882
+   ],
+   [
+    "nervous",
+    -0.15571868419647217
+   ],
+   [
+    "about",
+    -0.029470443725585938
+   ],
+   [
+    "meeting",
+    0.051696062088012695
+   ],
+   [
+    "new",
+    0.015935897827148438
+   ],
+   [
+    "people.",
+    0.0280073881149292
+   ]
+  ]
  },
  "yaar mujhe bahut gussa aa raha hai": {
   "text": "yaar mujhe bahut gussa aa raha hai",
@@ -527,7 +607,33 @@
    "anger",
    "annoyance"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "friend",
+    -0.021347522735595703
+   ],
+   [
+    "i",
+    -0.000854194164276123
+   ],
+   [
+    "very",
+    0.015300571918487549
+   ],
+   [
+    "i",
+    -0.007464587688446045
+   ],
+   [
+    "am",
+    0.09158384799957275
+   ],
+   [
+    "angry",
+    0.8175990739837289
+   ]
+  ]
  },
  "I miss my grandmother so much. Everything at home reminds me of her.": {
   "text": "I miss my grandmother so much. Everything at home reminds me of her.",
@@ -704,7 +810,61 @@
    "sadness",
    "disappointment"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "I",
+    0.006724655628204346
+   ],
+   [
+    "miss",
+    0.43590906262397766
+   ],
+   [
+    "my",
+    0.005377352237701416
+   ],
+   [
+    "grandmother",
+    0.0017058253288269043
+   ],
+   [
+    "so",
+    0.0055387020111083984
+   ],
+   [
+    "much.",
+    0.004258215427398682
+   ],
+   [
+    "Everything",
+    -0.0007803440093994141
+   ],
+   [
+    "at",
+    -0.0011385083198547363
+   ],
+   [
+    "home",
+    -0.0036169886589050293
+   ],
+   [
+    "reminds",
+    -0.0037761926651000977
+   ],
+   [
+    "me",
+    -0.0016767382621765137
+   ],
+   [
+    "of",
+    -0.0025626420974731445
+   ],
+   [
+    "her.",
+    0.009614884853363037
+   ]
+  ]
  },
  "Thank you so much to everyone who helped me move house. It's finally over and I can breathe.": {
   "text": "Thank you so much to everyone who helped me move house. It's finally over and I can breathe.",
@@ -880,7 +1040,81 @@
   "matched": [
    "gratitude"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Thank",
+    0.23460322618484497
+   ],
+   [
+    "you",
+    0.0006126165390014648
+   ],
+   [
+    "so",
+    0.0021573305130004883
+   ],
+   [
+    "much",
+    0.0009233355522155762
+   ],
+   [
+    "to",
+    0.0006340742111206055
+   ],
+   [
+    "everyone",
+    0.0001487135887145996
+   ],
+   [
+    "who",
+    0.0017142891883850098
+   ],
+   [
+    "helped",
+    0.0010892748832702637
+   ],
+   [
+    "me",
+    -0.0001944899559020996
+   ],
+   [
+    "move",
+    -0.0004239082336425781
+   ],
+   [
+    "house.",
+    0.00047081708908081055
+   ],
+   [
+    "It's",
+    -0.0003235340118408203
+   ],
+   [
+    "finally",
+    -0.00024574995040893555
+   ],
+   [
+    "over",
+    -0.0003978610038757324
+   ],
+   [
+    "and",
+    -0.000528872013092041
+   ],
+   [
+    "I",
+    0.0004621744155883789
+   ],
+   [
+    "can",
+    -0.0003076791763305664
+   ],
+   [
+    "breathe.",
+    0.0002573728561401367
+   ]
+  ]
  },
  "I wonder how black holes actually work. Why does time slow down near them?": {
   "text": "I wonder how black holes actually work. Why does time slow down near them?",
@@ -1057,7 +1291,65 @@
    "curiosity",
    "confusion"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "I",
+    -0.16782259941101074
+   ],
+   [
+    "wonder",
+    0.04710286855697632
+   ],
+   [
+    "how",
+    0.02206522226333618
+   ],
+   [
+    "black",
+    0.014391660690307617
+   ],
+   [
+    "holes",
+    -0.010841429233551025
+   ],
+   [
+    "actually",
+    -0.027764499187469482
+   ],
+   [
+    "work.",
+    0.0290067195892334
+   ],
+   [
+    "Why",
+    0.007567286491394043
+   ],
+   [
+    "does",
+    0.05353224277496338
+   ],
+   [
+    "time",
+    0.04073786735534668
+   ],
+   [
+    "slow",
+    0.019827544689178467
+   ],
+   [
+    "down",
+    0.024088144302368164
+   ],
+   [
+    "near",
+    0.007158875465393066
+   ],
+   [
+    "them?",
+    0.3383908271789551
+   ]
+  ]
  },
  "today was weird": {
   "text": "today was weird",
@@ -1234,7 +1526,21 @@
    "disgust",
    "annoyance"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "today",
+    -0.2121042013168335
+   ],
+   [
+    "was",
+    0.2577632665634155
+   ],
+   [
+    "weird",
+    0.4951812169747427
+   ]
+  ]
  },
  "Exams are next week and I can't stop worrying.": {
   "text": "Exams are next week and I can't stop worrying.",
@@ -1411,7 +1717,45 @@
    "nervousness",
    "fear"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Exams",
+    0.019048631191253662
+   ],
+   [
+    "are",
+    0.025113224983215332
+   ],
+   [
+    "next",
+    0.0042685866355896
+   ],
+   [
+    "week",
+    0.0018141865730285645
+   ],
+   [
+    "and",
+    0.026043444871902466
+   ],
+   [
+    "I",
+    0.03500092029571533
+   ],
+   [
+    "can't",
+    0.21355080604553223
+   ],
+   [
+    "stop",
+    0.5211757207289338
+   ],
+   [
+    "worrying.",
+    0.5247318516485393
+   ]
+  ]
  },
  "Today was actually really good!": {
   "text": "Today was actually really good!",
@@ -1587,7 +1931,29 @@
   "matched": [
    "joy"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Today",
+    0.3107306989841163
+   ],
+   [
+    "was",
+    0.05054795742034912
+   ],
+   [
+    "actually",
+    -0.011284798383712769
+   ],
+   [
+    "really",
+    -0.08473610877990723
+   ],
+   [
+    "good!",
+    0.3143373881466687
+   ]
+  ]
  },
  "I had a fight with my best friend.": {
   "text": "I had a fight with my best friend.",
@@ -1763,7 +2129,41 @@
   "matched": [
    "fear"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "I",
+    0.015843499451875687
+   ],
+   [
+    "had",
+    0.051115311216562986
+   ],
+   [
+    "a",
+    -0.005728844553232193
+   ],
+   [
+    "fight",
+    0.05163249932229519
+   ],
+   [
+    "with",
+    0.019050057977437973
+   ],
+   [
+    "my",
+    0.00468716025352478
+   ],
+   [
+    "best",
+    0.04013676755130291
+   ],
+   [
+    "friend.",
+    0.04951445432379842
+   ]
+  ]
  },
  "aaj mood thoda off hai yaar": {
   "text": "aaj mood thoda off hai yaar",
@@ -1939,7 +2339,33 @@
   "matched": [
    "neutral"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "today",
+    -0.17970383167266846
+   ],
+   [
+    "mood",
+    -0.18037426471710205
+   ],
+   [
+    "a",
+    -0.1804056167602539
+   ],
+   [
+    "little",
+    -0.18035316467285156
+   ],
+   [
+    "off",
+    -0.1815427541732788
+   ],
+   [
+    "friend",
+    0.1020660400390625
+   ]
+  ]
  },
  "Pre-boards start next week and I can't stop worrying about maths.": {
   "text": "Pre-boards start next week and I can't stop worrying about maths.",
@@ -2116,7 +2542,53 @@
    "nervousness",
    "fear"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Pre-boards",
+    -0.07061767578125
+   ],
+   [
+    "start",
+    -0.041837334632873535
+   ],
+   [
+    "next",
+    -0.059866130352020264
+   ],
+   [
+    "week",
+    -0.020345032215118408
+   ],
+   [
+    "and",
+    0.020137250423431396
+   ],
+   [
+    "I",
+    0.061733394861221313
+   ],
+   [
+    "can't",
+    0.2504096031188965
+   ],
+   [
+    "stop",
+    0.3271753489971161
+   ],
+   [
+    "worrying",
+    0.3468126876396127
+   ],
+   [
+    "about",
+    -0.06583085656166077
+   ],
+   [
+    "maths.",
+    -0.1268787682056427
+   ]
+  ]
  },
  "Couldn't sleep properly, my mind keeps racing about the exams.": {
   "text": "Couldn't sleep properly, my mind keeps racing about the exams.",
@@ -2293,7 +2765,49 @@
    "nervousness",
    "annoyance"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Couldn't",
+    0.030900554731488228
+   ],
+   [
+    "sleep",
+    0.04192301072180271
+   ],
+   [
+    "properly,",
+    -0.010691042989492416
+   ],
+   [
+    "my",
+    0.03224013186991215
+   ],
+   [
+    "mind",
+    0.004005514085292816
+   ],
+   [
+    "keeps",
+    -0.013409946113824844
+   ],
+   [
+    "racing",
+    0.028770390897989273
+   ],
+   [
+    "about",
+    -0.004380151629447937
+   ],
+   [
+    "the",
+    0.011713005602359772
+   ],
+   [
+    "exams.",
+    0.010131925344467163
+   ]
+  ]
  },
  "Had a fight with my brother and I'm so annoyed with everyone today.": {
   "text": "Had a fight with my brother and I'm so annoyed with everyone today.",
@@ -2470,7 +2984,61 @@
    "annoyance",
    "anger"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Had",
+    0.03818464279174805
+   ],
+   [
+    "a",
+    0.005102872848510742
+   ],
+   [
+    "fight",
+    -0.0943000316619873
+   ],
+   [
+    "with",
+    3.5643577575683594e-05
+   ],
+   [
+    "my",
+    0.01727086305618286
+   ],
+   [
+    "brother",
+    -0.002556741237640381
+   ],
+   [
+    "and",
+    0.022693514823913574
+   ],
+   [
+    "I'm",
+    0.02200096845626831
+   ],
+   [
+    "so",
+    -0.015121757984161377
+   ],
+   [
+    "annoyed",
+    0.6038946565240622
+   ],
+   [
+    "with",
+    -0.03653174638748169
+   ],
+   [
+    "everyone",
+    -0.0439143180847168
+   ],
+   [
+    "today.",
+    0.05247020721435547
+   ]
+  ]
  },
  "Studied for six hours, I'm exhausted but a bit proud of myself.": {
   "text": "Studied for six hours, I'm exhausted but a bit proud of myself.",
@@ -2647,7 +3215,57 @@
    "pride",
    "joy"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Studied",
+    0.013365820050239563
+   ],
+   [
+    "for",
+    -0.0018728673458099365
+   ],
+   [
+    "six",
+    -0.023407191038131714
+   ],
+   [
+    "hours,",
+    -0.012998312711715698
+   ],
+   [
+    "I'm",
+    -0.16000092029571533
+   ],
+   [
+    "exhausted",
+    -0.20132651925086975
+   ],
+   [
+    "but",
+    0.08818529546260834
+   ],
+   [
+    "a",
+    -0.0668010413646698
+   ],
+   [
+    "bit",
+    -0.05697622895240784
+   ],
+   [
+    "proud",
+    0.24765701475553215
+   ],
+   [
+    "of",
+    0.016532674431800842
+   ],
+   [
+    "myself.",
+    0.10321103036403656
+   ]
+  ]
  },
  "I miss my old friends from my previous school so much.": {
   "text": "I miss my old friends from my previous school so much.",
@@ -2824,7 +3442,53 @@
    "sadness",
    "disappointment"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "I",
+    0.013519704341888428
+   ],
+   [
+    "miss",
+    0.8973118355497718
+   ],
+   [
+    "my",
+    0.011049151420593262
+   ],
+   [
+    "old",
+    0.011076569557189941
+   ],
+   [
+    "friends",
+    0.008464932441711426
+   ],
+   [
+    "from",
+    -0.0034239888191223145
+   ],
+   [
+    "my",
+    -0.0021475553512573242
+   ],
+   [
+    "previous",
+    -0.00415647029876709
+   ],
+   [
+    "school",
+    -0.0059278011322021484
+   ],
+   [
+    "so",
+    0.007387995719909668
+   ],
+   [
+    "much.",
+    0.02156078815460205
+   ]
+  ]
  },
  "Got my chemistry practical done! Such a relief.": {
   "text": "Got my chemistry practical done! Such a relief.",
@@ -3002,7 +3666,41 @@
    "approval",
    "gratitude"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Got",
+    0.05251535773277283
+   ],
+   [
+    "my",
+    -0.05067020654678345
+   ],
+   [
+    "chemistry",
+    0.052674829959869385
+   ],
+   [
+    "practical",
+    -0.0599554181098938
+   ],
+   [
+    "done!",
+    0.12920600175857544
+   ],
+   [
+    "Such",
+    0.08778390288352966
+   ],
+   [
+    "a",
+    0.0022243857383728027
+   ],
+   [
+    "relief.",
+    0.425420381128788
+   ]
+  ]
  },
  "Feeling nervous again, the physics paper is tomorrow.": {
   "text": "Feeling nervous again, the physics paper is tomorrow.",
@@ -3179,7 +3877,41 @@
    "nervousness",
    "fear"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Feeling",
+    0.5524963960051537
+   ],
+   [
+    "nervous",
+    0.5990730042103678
+   ],
+   [
+    "again,",
+    -0.02006518840789795
+   ],
+   [
+    "the",
+    -0.013226151466369629
+   ],
+   [
+    "physics",
+    -0.044521868228912354
+   ],
+   [
+    "paper",
+    -0.01406937837600708
+   ],
+   [
+    "is",
+    -0.03664243221282959
+   ],
+   [
+    "tomorrow.",
+    -0.0066748857498168945
+   ]
+  ]
  },
  "The physics paper went better than I expected, I'm so happy!": {
   "text": "The physics paper went better than I expected, I'm so happy!",
@@ -3356,7 +4088,53 @@
    "joy",
    "excitement"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "The",
+    0.0016230940818786621
+   ],
+   [
+    "physics",
+    0.011770963668823242
+   ],
+   [
+    "paper",
+    -0.023777246475219727
+   ],
+   [
+    "went",
+    0.03121894598007202
+   ],
+   [
+    "better",
+    0.006648659706115723
+   ],
+   [
+    "than",
+    -0.04705321788787842
+   ],
+   [
+    "I",
+    -0.0007699131965637207
+   ],
+   [
+    "expected,",
+    -0.03372269868850708
+   ],
+   [
+    "I'm",
+    -0.0003801584243774414
+   ],
+   [
+    "so",
+    0.017392754554748535
+   ],
+   [
+    "happy!",
+    0.8246499504894018
+   ]
+  ]
  },
  "My best friend surprised me with my favourite snacks, I love her.": {
   "text": "My best friend surprised me with my favourite snacks, I love her.",
@@ -3532,7 +4310,57 @@
   "matched": [
    "love"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "My",
+    0.007986307144165039
+   ],
+   [
+    "best",
+    0.010414421558380127
+   ],
+   [
+    "friend",
+    0.005859673023223877
+   ],
+   [
+    "surprised",
+    -0.08719933032989502
+   ],
+   [
+    "me",
+    0.012051522731781006
+   ],
+   [
+    "with",
+    0.00834745168685913
+   ],
+   [
+    "my",
+    0.0328601598739624
+   ],
+   [
+    "favourite",
+    0.0752631425857544
+   ],
+   [
+    "snacks,",
+    0.06863325834274292
+   ],
+   [
+    "I",
+    0.02358388900756836
+   ],
+   [
+    "love",
+    0.803641676902771
+   ],
+   [
+    "her.",
+    0.05447632074356079
+   ]
+  ]
  },
  "Kind of a normal day, nothing special happened.": {
   "text": "Kind of a normal day, nothing special happened.",
@@ -3708,7 +4536,41 @@
   "matched": [
    "approval"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Kind",
+    0.11629357933998108
+   ],
+   [
+    "of",
+    0.07813155651092529
+   ],
+   [
+    "a",
+    -0.0016868412494659424
+   ],
+   [
+    "normal",
+    0.20860786736011505
+   ],
+   [
+    "day,",
+    -0.2115323543548584
+   ],
+   [
+    "nothing",
+    0.20637329295277596
+   ],
+   [
+    "special",
+    0.16477037966251373
+   ],
+   [
+    "happened.",
+    0.001615270972251892
+   ]
+  ]
  },
  "I wonder what I actually want to study in college.": {
   "text": "I wonder what I actually want to study in college.",
@@ -3884,7 +4746,49 @@
   "matched": [
    "surprise"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "I",
+    0.22801965475082397
+   ],
+   [
+    "wonder",
+    0.4129659973550588
+   ],
+   [
+    "what",
+    0.12582552433013916
+   ],
+   [
+    "I",
+    0.11588507890701294
+   ],
+   [
+    "actually",
+    0.12251603603363037
+   ],
+   [
+    "want",
+    -0.274659126996994
+   ],
+   [
+    "to",
+    -0.14525112509727478
+   ],
+   [
+    "study",
+    -0.04223227500915527
+   ],
+   [
+    "in",
+    -0.18599221110343933
+   ],
+   [
+    "college.",
+    -0.14005109667778015
+   ]
+  ]
  },
  "Thank you to my mom for staying up with me while I revised.": {
   "text": "Thank you to my mom for staying up with me while I revised.",
@@ -4060,7 +4964,61 @@
   "matched": [
    "gratitude"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Thank",
+    0.8326883465051651
+   ],
+   [
+    "you",
+    0.0015490055084228516
+   ],
+   [
+    "to",
+    -0.0004279613494873047
+   ],
+   [
+    "my",
+    0.0012924671173095703
+   ],
+   [
+    "mom",
+    0.00019216537475585938
+   ],
+   [
+    "for",
+    0.0008155703544616699
+   ],
+   [
+    "staying",
+    0.0016506314277648926
+   ],
+   [
+    "up",
+    0.001342475414276123
+   ],
+   [
+    "with",
+    0.0007953047752380371
+   ],
+   [
+    "me",
+    0.0007392764091491699
+   ],
+   [
+    "while",
+    0.0005404949188232422
+   ],
+   [
+    "I",
+    0.0005918145179748535
+   ],
+   [
+    "revised.",
+    0.0024310946464538574
+   ]
+  ]
  },
  "Went for a walk in the evening and felt calm for the first time in weeks.": {
   "text": "Went for a walk in the evening and felt calm for the first time in weeks.",
@@ -4237,7 +5195,73 @@
    "approval",
    "relief"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Went",
+    0.1268061101436615
+   ],
+   [
+    "for",
+    -0.06423428654670715
+   ],
+   [
+    "a",
+    -0.05482056736946106
+   ],
+   [
+    "walk",
+    -0.12729421257972717
+   ],
+   [
+    "in",
+    -0.055071502923965454
+   ],
+   [
+    "the",
+    -0.042073458433151245
+   ],
+   [
+    "evening",
+    -0.03223919868469238
+   ],
+   [
+    "and",
+    0.06834131479263306
+   ],
+   [
+    "felt",
+    0.19651582837104797
+   ],
+   [
+    "calm",
+    0.2953755035996437
+   ],
+   [
+    "for",
+    -0.017683953046798706
+   ],
+   [
+    "the",
+    0.015395253896713257
+   ],
+   [
+    "first",
+    0.05292302370071411
+   ],
+   [
+    "time",
+    0.07123163342475891
+   ],
+   [
+    "in",
+    -0.01856645941734314
+   ],
+   [
+    "weeks.",
+    0.05525332689285278
+   ]
+  ]
  },
  "Feeling hopeful about the results, whatever happens I tried my best.": {
   "text": "Feeling hopeful about the results, whatever happens I tried my best.",
@@ -4413,6 +5437,52 @@
   "matched": [
    "optimism"
   ],
-  "safety": null
+  "safety": null,
+  "importance": [
+   [
+    "Feeling",
+    -0.004450201988220215
+   ],
+   [
+    "hopeful",
+    0.5957312881946564
+   ],
+   [
+    "about",
+    -0.006228208541870117
+   ],
+   [
+    "the",
+    -0.0008489489555358887
+   ],
+   [
+    "results,",
+    0.0035896897315979004
+   ],
+   [
+    "whatever",
+    0.012118637561798096
+   ],
+   [
+    "happens",
+    0.0022286176681518555
+   ],
+   [
+    "I",
+    0.002557039260864258
+   ],
+   [
+    "tried",
+    -5.2094459533691406e-05
+   ],
+   [
+    "my",
+    -0.0002630949020385742
+   ],
+   [
+    "best.",
+    0.005737185478210449
+   ]
+  ]
  }
 }

@@ -48,11 +48,14 @@ def showcase_texts():
 def build_demo_results():
     """Run the REAL pipeline on the showcase sentences and save the results."""
     from analysis import interpret
+    from explain import word_importance
     results = {}
     for text in showcase_texts():
         r = interpret(text)
         results[text] = {k: r[k] for k in ("text", "model_text", "translated", "emotions", "raw_scores", "final",
                                            "world", "matched", "safety")}
+        if not r["safety"]:   # saved "why" heatmap, so it also works offline
+            results[text]["importance"] = word_importance(r["model_text"], r["final"]["emotion"])
     DEMO_RESULTS.write_text(json.dumps(results, ensure_ascii=False, indent=1), encoding="utf-8")
     return len(results)
 

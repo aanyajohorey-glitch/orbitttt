@@ -16,11 +16,13 @@ import streamlit as st
 import calm_room
 import demo_mode
 import storage
+from onboarding import reduced_motion
 from analysis import analyse, earn_token, flash, games_allowed, record_checkin
 from companion import companion_card_html, reply, suggestion
+from constellation import constellation_html, constellation_planet, describe
 from components import esc, field_html, go_to, note, save_world, swatches_html, tags_html
+from explain import highlight_html, importance_of, top_words
 from feedback_ui import thumbs
-from journal import entry_planet
 from nudges import nudge_card
 from safety import safety_card_html
 from teach_ui import clarify, confidence_html, teach_panel
@@ -67,6 +69,22 @@ def finish_today(tool):
     flash(f"Mood {MOOD_SCALE[before]} → {MOOD_SCALE[after]}." if change else "Thank you for checking in.")
     earn_token("for finishing today's check-in")
     st.session_state.today_done = True
+
+
+def why_heatmap(result):
+    """Explainable AI: the words that pushed ORBIT's decision glow brighter."""
+    importances = importance_of(result)
+    if not importances:
+        return
+    emotion = result["final"]["emotion"]
+    words = top_words(importances)
+    st.html('<div class="field-label" style="margin-top:1rem">Why ORBIT decided this</div>'
+            + highlight_html(importances)
+            + '<p class="body">' + (f"Brighter words pushed the model more towards <b>{esc(emotion)}</b>"
+                                    + (" (after translating to English)" if result.get("translated") else "")
+                                    + ". Strongest: " + ", ".join(f"<b>{esc(w)}</b>" for w in words) + "."
+                                    if words else "No single word stood out: the sentence as a whole carries "
+                                                  "the feeling.") + "</p>")
 
 
 def today_page():
@@ -127,8 +145,16 @@ def today_page():
     # ---------------------------------------------------------------- 2. What I noticed
     with st.container(key="glass-noticed"):
         step_title(2, "What ORBIT noticed")
-        st.html(confidence_html(result) + understood_html(result) + final_stats_html(result)
-                + field_html("Also feeling", other_emotions_html(result["emotions"], result["final"]["emotion"])))
+        sky, facts = st.columns([1, 1.25], vertical_alignment="center")
+        with sky:
+            sky_html = constellation_html(result["emotions"], result["text"], animate=not reduced_motion())
+            st.html('<div class="cst-wrap">' + sky_html
+                    + f'<p class="cst-caption">Your emotion constellation · {esc(describe(result["emotions"]))}</p>'
+                    "</div>")
+        with facts:
+            st.html(confidence_html(result) + understood_html(result) + final_stats_html(result)
+                    + field_html("Also feeling", other_emotions_html(result["emotions"], result["final"]["emotion"])))
+        why_heatmap(result)
         clarify(result, key="home_clarify", on_update=refresh_home)
         left, right = st.columns([1, 1])
         with left:
@@ -178,7 +204,8 @@ def show_planet(result):
         left, right = st.columns([1, 1.8], vertical_alignment="center")
         with left:
             st.html('<div class="result-planet planet-arrive">'
-                    + entry_planet(result["emotions"], result["final"]["emotion"], size=130) + "</div>")
+                    + constellation_planet(result["emotions"], result["final"]["emotion"], result["text"], size=150,
+                                           uid="today-planet") + "</div>")
         with right:
             st.html(
                 f'<div class="eyebrow">Your world · {esc(world["mood"])}</div>'

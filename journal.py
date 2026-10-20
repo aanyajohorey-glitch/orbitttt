@@ -19,6 +19,7 @@ import streamlit as st
 
 import storage
 from components import esc, note, planet_html, section_header
+from constellation import constellation_planet
 from analysis import interpret
 from emotion_model import GROUP_COLOURS, GROUP_OF, mood_score
 
@@ -190,9 +191,12 @@ def entry_planet(emotions, primary=None, size=None):
 def galaxy_html(table):
     stars = []
     for _, row in table.tail(42).iterrows():
+        size = int(48 + 40 * row["score"])
+        planet = constellation_planet(row["emotions"], row["primary"], row["text"], size=size, uid=f"g{row['id']}")
         stars.append(
             f'<div class="galaxy-star" title="{esc(row["when"].strftime("%d %b"))} · {esc(row["primary"])}">'
-            f'{entry_planet(row["emotions"], row["primary"])}<small>{row["when"].strftime("%d %b")}</small></div>'
+            f'{planet}'
+            f'<small>{row["when"].strftime("%d %b")}</small></div>'
         )
     return f'<div class="galaxy">{"".join(stars)}</div>'
 
@@ -238,7 +242,7 @@ def journal_page():
 
     with st.container(key="glass-galaxy"):
         st.html('<div class="eyebrow">Your galaxy</div><p class="body" style="margin:.2rem 0 .6rem">'
-                "Colour = main feeling · size = how strong · ring = mixed feelings</p>" + galaxy_html(table))
+                "Colour = main feeling · size = how strong · the stars on each planet are that day's emotion constellation</p>" + galaxy_html(table))
         legend = "".join(f'<span class="legend-dot" style="--c:{GROUP_COLOURS[f][1]}"></span>{f}'
                          for f in GROUP_COLOURS)
         st.html(f'<div class="legend">{legend}</div>')

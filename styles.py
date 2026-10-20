@@ -908,4 +908,5 @@ def accessibility_css(settings):
 
 def load_css(extra=""):
     """Add ORBIT's design rules to the page (plus any extra generated CSS)."""
-    st.html(f"<style>{CSS}\n{EXTRA_CSS}\n{extra}</style>")
+    from styles_features import FEATURE_CSS
+    st.html(f"<style>{CSS}\n{EXTRA_CSS}\n{FEATURE_CSS}\n{extra}</style>")
