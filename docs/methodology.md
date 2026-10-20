@@ -54,10 +54,50 @@ If the held-out set exists, its results are reported but **not** used to tune
 anything. A large gap between the dev and held-out results is itself a
 finding to report.
 
+### 5a. Result of rule 1, and two problems found afterwards
+Rule 1 was met (body Fear F1 0.33 → 0.82; dev macro-F1 0.914 → 0.929), so
+classifier **C** was adopted. The fuller evaluation in the AI Lab then showed
+two problems:
+1. **Over-predicting fear on body sentences that are not anxiety.** Controls
+   read correctly fell from 77% to 54% (for example "my hands are cold, I forgot
+   my gloves" became Fear). Rule 1 did not include the controls. That was an
+   oversight in the rule, and it is reported here rather than changed afterwards.
+   Fixing it properly needs new training controls **and** a new test set,
+   because the current body set has now been looked at.
+2. **Hinglish got worse on a fair test.** On the 119 Hinglish/Hindi
+   *training* sentences, which the dictionary never saw, scored out-of-fold,
+   classifier C reached macro-F1 0.35 against 0.51 for the dictionary (B).
+   About 95 Hinglish training sentences per fold are not enough for C to learn
+   Hinglish alone.
+
+### 5b. Pre-registered rule 2 (written before training variant D)
+Variant **D** ("translation-assist") is C plus the base model's scores on the
+dictionary-translated text as extra features. D replaces C **only if all** of
+these hold:
+1. out-of-fold macro-F1 on the Hinglish/Hindi training sentences improves by
+   at least 0.05 over C;
+2. body-set Fear F1 drops by no more than 0.03 compared with C;
+3. dev macro-F1 drops by no more than 0.03 compared with C.
+
+### 5c. Result of rule 2
+| Measure | C | D |
+|---|---|---|
+| Out-of-fold Hinglish/Hindi macro-F1 (119 training sentences; dictionary baseline B = 0.514) | 0.354 | **0.548** |
+| Body-set Fear F1 (B = 0.33) | 0.82 | **0.85** |
+| Dev macro-F1 (B = 0.914) | 0.929 | **0.970** (optimistic: the dictionary was built on dev) |
+| Body non-anxiety controls read correctly (B = 77%) | 54% | 54% |
+
+All three conditions were met, so **D is the live model**. The control
+problem from 5a remains open.
+
 ## 6. Confidence
-The classifier's top probability is its confidence. When it is low, ORBIT asks
-a gentle clarifying question instead of asserting a feeling. Thresholds are set
-on cross-validation results from the training data.
+The classifier's top probability is its confidence. When it is below **50%**,
+ORBIT asks a gentle clarifying question instead of asserting a feeling. The
+threshold was chosen from out-of-fold predictions on the training data. For
+the live model D:
+- below 50% confidence, only 30% of answers are right;
+- at 80% or more, 92% are right;
+- at the threshold, ORBIT is confident on 87% of messages, with 84% accuracy.
 
 ## 7. Human in the loop ("Teach Orbit")
 Users can correct ORBIT. Corrections are stored locally (never uploaded) and

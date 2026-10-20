@@ -74,7 +74,8 @@ def interpret(text):
     head = current_head()
     if head:
         W, b, meta = head
-        features = orbit_head.features(text, raw_scores, load_model()["labels"])
+        dict_scores = dict(emotions) if meta.get("uses_dictionary") else None
+        features = orbit_head.features(text, raw_scores, load_model()["labels"], dict_scores)
         probs = orbit_head.predict_proba(features[None, :], W, b)[0]
         order = np.argsort(probs)[::-1]
         family_probs = [(orbit_head.FAMILIES[i], float(probs[i])) for i in order]
@@ -164,7 +165,7 @@ def teach(result, corrected_family, source):
     if not games_allowed(result):
         return result   # crisis text is never stored, not even as a correction
     storage.add_correction(result["text"], result["final"]["family"], corrected_family,
-                           result["raw_scores"], source)
+                           {"raw": result["raw_scores"], "dict": dict(result["emotions"])}, source)
     result["final"]["unsure"] = False
     result["final"]["confidence"] = 1.0
     return apply_family(result, corrected_family, "your correction")

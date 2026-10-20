@@ -35,7 +35,11 @@ from emotion_model import EMOTION_GROUPS, GROUP_OF
 
 FAMILIES = list(EMOTION_GROUPS)
 MODEL_DIR = Path(__file__).parent / "data" / "model"
-SHARED_MODEL = MODEL_DIR / "orbit_head.npz"            # trained on train_augment.csv (in the repo)
+SHARED_MODEL = MODEL_DIR / "orbit_head.npz"            # the ADOPTED model (in the repo)
+CANDIDATES = {                                           # every trained variant, kept for comparison
+    "C": MODEL_DIR / "orbit_head_C.npz",                 # classifier, no dictionary
+    "D": MODEL_DIR / "orbit_head_D.npz",                 # classifier + dictionary features
+}
 PERSONAL_MODEL = MODEL_DIR / "orbit_head_personal.npz"  # + the user's corrections (never uploaded)
 WORD_BUCKETS = 1024
 CHAR_BUCKETS = 1024
@@ -68,11 +72,24 @@ def text_features(text):
     return np.concatenate([word_vec, char_vec])
 
 
-def features(text, base_scores, labels):
-    """Full feature vector for one text. base_scores: {emotion: score} for the ORIGINAL text."""
-    base = np.array([base_scores[label] for label in labels], dtype=np.float32)
-    families = np.array([sum(base_scores[l] for l in EMOTION_GROUPS[f]) for f in FAMILIES], dtype=np.float32)
-    return np.concatenate([base, families, text_features(text)])
+def _score_block(scores, labels):
+    base = np.array([scores[label] for label in labels], dtype=np.float32)
+    families = np.array([sum(scores[l] for l in EMOTION_GROUPS[f]) for f in FAMILIES], dtype=np.float32)
+    return np.concatenate([base, families])
+
+
+def features(text, base_scores, labels, dict_scores=None):
+    """Full feature vector for one text.
+
+    base_scores: {emotion: score} for the ORIGINAL text.
+    dict_scores: {emotion: score} after the Hinglish dictionary translation.
+                 Only given for variant D ("translation-assist").
+    """
+    parts = [_score_block(base_scores, labels)]
+    if dict_scores is not None:
+        parts.append(_score_block(dict_scores, labels))
+    parts.append(text_features(text))
+    return np.concatenate(parts)
 
 
 # ---------------------------------------------------------------
