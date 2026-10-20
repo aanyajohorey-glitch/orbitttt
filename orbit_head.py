@@ -39,8 +39,18 @@ SHARED_MODEL = MODEL_DIR / "orbit_head.npz"            # the ADOPTED model (in t
 CANDIDATES = {                                           # every trained variant, kept for comparison
     "C": MODEL_DIR / "orbit_head_C.npz",                 # classifier, no dictionary
     "D": MODEL_DIR / "orbit_head_D.npz",                 # classifier + dictionary features
+    "T": MODEL_DIR / "orbit_head_T.npz",                 # text only: offline demo mode, no emotion model
 }
-PERSONAL_MODEL = MODEL_DIR / "orbit_head_personal.npz"  # + the user's corrections (never uploaded)
+LOCAL_PERSONAL_MODEL = MODEL_DIR / "orbit_head_personal.npz"   # + the user's corrections (never uploaded)
+
+
+def personal_model():
+    """Where the user's personal model lives. On Streamlit Cloud each browser
+    session gets its own file, so one person's corrections never affect another."""
+    import storage
+    if storage.storage_mode() == "session":
+        return storage.SESSION_DIR / f"{storage._session_id()}_personal.npz"
+    return LOCAL_PERSONAL_MODEL
 WORD_BUCKETS = 1024
 CHAR_BUCKETS = 1024
 TOKEN = re.compile(r"[^\s.,!?।\"'()]+")
@@ -193,7 +203,7 @@ def save(path, W, b, meta):
 
 def load(path=None):
     """Load the personal model if the user retrained one, otherwise the shared one."""
-    for candidate in ([path] if path else [PERSONAL_MODEL, SHARED_MODEL]):
+    for candidate in ([path] if path else [personal_model(), SHARED_MODEL]):
         if candidate and Path(candidate).exists():
             data = np.load(candidate)
             return data["W"], data["b"], json.loads(str(data["meta"]))

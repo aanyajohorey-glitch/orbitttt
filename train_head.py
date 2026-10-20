@@ -44,7 +44,10 @@ def training_arrays(extra=None, use_dictionary=False):
         raw.append(raw_scores)
         translated.append(dict_scores)
         weights.append(2.0)   # a person took the time to correct ORBIT
-    X = evaluation.feature_matrix(texts, raw, translated if use_dictionary else None)
+    if use_dictionary == "text_only":   # variant T: word patterns only (offline demo mode)
+        X = np.stack([orbit_head.text_features(t) for t in texts])
+    else:
+        X = evaluation.feature_matrix(texts, raw, translated if use_dictionary else None)
     y = np.array([FAMILIES.index(f) for f in fams])
     w = orbit_head.class_weights(y) * np.array(weights, dtype=np.float32)
     return X, y, w
@@ -80,7 +83,7 @@ def fit(use_dictionary, path, extra=None, verbose=True):
     cv = orbit_head.cross_validate(X, y, w)
     best_l2 = max(cv, key=lambda l2: cv[l2][0])
     if verbose:
-        name = "D (+ dictionary)" if use_dictionary else "C (no dictionary)"
+        name = {True: "D (+ dictionary)", False: "C (no dictionary)", "text_only": "T (text only, offline)"}[use_dictionary]
         print(f"Variant {name}: cross-validation on training data (macro-F1)")
         print("   " + "  ".join(f"l2={l2:g}: {f1:.3f}" for l2, (f1, _) in cv.items()) + f"   -> chose {best_l2:g}")
     W, b = orbit_head.train(X, y, w, l2=best_l2)
@@ -139,6 +142,16 @@ def main():
         print(f"ADOPTED variant {adopted} -> {orbit_head.SHARED_MODEL.name}")
     else:
         print("No classifier adopted: ORBIT keeps RoBERTa + dictionary")
+
+    # Variant T: the offline demo-mode classifier (word patterns only, no emotion model)
+    _, _, t_meta = fit("text_only", orbit_head.CANDIDATES["T"])
+    oof_t = orbit_head.softmax(out_of_fold_logits("text_only", t_meta["l2"])).argmax(axis=1)
+    print(f"Variant T out-of-fold accuracy {np.mean(oof_t == y):.2f}, macro-F1 {orbit_head.macro_f1(y, oof_t):.3f} "
+          "(used only in offline demo mode)")
+
+    import demo_mode
+    count = demo_mode.build_demo_results()
+    print(f"Saved {count} precomputed demo results -> {demo_mode.DEMO_RESULTS.name}")
 
 
 if __name__ == "__main__":
