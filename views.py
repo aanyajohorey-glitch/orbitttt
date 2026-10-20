@@ -15,6 +15,7 @@ from datetime import datetime
 
 import streamlit as st
 
+import demo_mode
 import storage
 import voice
 from analysis import analyse, record_checkin
@@ -77,67 +78,6 @@ def keep_talking(result):
     go_to("Companion")
 
 
-def home():
-    worlds = load_worlds()
-    name = storage.get_setting("name", "")
-    st.html(hero_html())
-
-    # --- The check-in ---
-    with st.container(key="glass-composer"):
-        st.html(
-            f'<div class="eyebrow">{greeting(name)} · Begin here</div>'
-            '<div class="display" style="font-size:clamp(1.8rem,3.4vw,2.5rem)">What does your world feel like today?</div>'
-            '<p class="lede">Describe a feeling, a moment or a whole day, in English or Hinglish. '
-            "A few honest sentences are enough.</p>"
-        )
-        if not name:
-            st.text_input("What should ORBIT call you? (optional)", key="home_name", on_change=save_home_name,
-                          max_chars=30, placeholder="Your first name or a nickname")
-        st.text_area(
-            "Your feelings",
-            key="home_text",
-            height=140,
-            placeholder="e.g. Exams finished today. I feel relieved but strangely empty, "
-                        "and I keep thinking about the long summer ahead…",
-        )
-        st.pills("Creative intent · optional", INTENTS, key="home_intent")
-
-        if st.button("Find my orbit", type="primary", key="find_orbit"):
-            result = analyse(
-                st.session_state.home_text.strip(),
-                empty_message="Write a few words about how you feel first.",
-            )
-            if result:
-                result["intent"] = st.session_state.home_intent or "Explore"
-                result["reply"], result["style"] = reply(result, name=name)
-                record_checkin(result, "Home")
-            st.session_state.home_result = result
-
-    # --- The result, if the user pressed the button ---
-    result = st.session_state.home_result
-    if result:
-        show_home_result(result)
-
-    # --- Example worlds ---
-    section_header(
-        "Example worlds",
-        "A few universes to wander through",
-        "Every world in ORBIT has its own mood, palette, textures and creative prompts.",
-    )
-    columns = st.columns(4)
-    for index, world in enumerate(worlds[:4]):
-        with columns[index]:
-            with st.container(key=f"glass-card-example-{index}"):
-                st.html(world_card_html(world, delay=index * 1.7))
-                st.button(
-                    "Save world",
-                    key=f"save_example_{index}",
-                    on_click=save_world,
-                    args=(world["name"], "Example worlds", "Explore", world["prompt_explore"]),
-                    width="stretch",
-                )
-
-
 def other_emotions_html(emotions, primary=None, limit=3, minimum=0.05):
     """Tags for the next strongest emotions, e.g. 'Nervousness · 16%'."""
     others = [(e, s) for e, s in emotions if e != primary and s >= minimum][:limit]
@@ -188,78 +128,6 @@ def understood_html(result):
             f'<i>“{esc(result["model_text"])}”</i></p>')
 
 
-def show_home_result(result):
-    """The personalised result shown after pressing 'Find my orbit'."""
-    world = next(w for w in load_worlds() if w["name"] == result["world"])
-    prompt = prompt_for(world, result["intent"])
-    primary = result["final"]["emotion"]
-
-    if result["safety"]:
-        st.html(safety_card_html(result["safety"]))
-
-    # The companion's reply comes first: being heard matters most.
-    tool, line = suggestion(result)
-    with st.container(key="glass-companion"):
-        st.html(companion_card_html(result["reply"], result["style"]))
-        asked = clarify(result, key="home_clarify", on_update=refresh_home)
-        if result["safety"] != "crisis" and not asked:
-            st.html(f'<p class="body" style="margin:.4rem 0 .2rem">{esc(line)}</p>')
-        first, second, third = st.columns(3)
-        first.button("Keep talking", key="home_talk", type="primary", on_click=keep_talking, args=(result,),
-                     width="stretch")
-        if result["safety"] != "crisis":
-            second.button(f"Try {tool}", key="home_tool", on_click=open_calm_room, args=(tool,), width="stretch")
-        third.button("Full analysis", key="home_to_lab", on_click=open_in_lab, args=(result,), width="stretch")
-
-    if result["safety"] == "crisis":
-        return  # no creative suggestions when someone may be in danger
-
-    with st.container(key="glass-result"):
-        left, right = st.columns([1, 1.8], vertical_alignment="center")
-        with left:
-            st.html(f'<div class="result-planet reveal">{world_planet(world, 170)}</div>')
-        with right:
-            st.html(
-                '<div class="reveal">'
-                f'<span class="badge">Read by {esc(result["final"]["source"])}</span> '
-                + confidence_html(result)
-                + understood_html(result)
-                + final_stats_html(result)
-                + field_html("Also feeling", other_emotions_html(result["emotions"], primary))
-                + f'<div class="eyebrow" style="margin-top:1.6rem">'
-                f'{"A first guess at your world · answer above to refine it" if result["final"]["unsure"] else "Your world"}'
-                f' · {esc(world["mood"])}</div>'
-                f'<div class="display" style="font-size:2.4rem;margin-top:.3rem">{esc(world["name"])}</div>'
-                f'<p class="body">{esc(world["description"])}</p>'
-                + field_html("Matched on", tags_html(result["matched"]))
-                + field_html(f'Your prompt · {esc(result["intent"])}', f'<div class="prompt">{esc(prompt)}</div>')
-                + field_html("Palette", swatches_html(world["palette"]))
-                + "</div>"
-            )
-            first, second = st.columns(2)
-            first.button(
-                "Save to collection",
-                key="save_home_result",
-                type="primary",
-                on_click=save_world,
-                args=(world["name"], "Home", result["intent"], prompt, result["text"][:160]),
-                width="stretch",
-            )
-            second.button(
-                "Vending machine",
-                key="home_to_vending",
-                on_click=go_to,
-                args=("Vending Machine",),
-                width="stretch",
-            )
-        teach_panel(result, key="home_teach", on_update=refresh_home)
-        note(
-            "A pre-trained emotion model scores 28 feelings, then ORBIT's own trained classifier picks the "
-            "main feeling and says how sure it is. Everything runs on this device. It can still misread "
-            "sarcasm or very short texts: if it's wrong, you can teach it."
-        )
-
-
 # ===============================================================
 # 2. MOOD LAB
 # ===============================================================
@@ -282,6 +150,8 @@ def mood_lab():
                 height=180,
                 placeholder="e.g. I'm excited about the trip but nervous about meeting new people…",
             )
+            if demo_mode.enabled():
+                demo_mode.sample_buttons("lab_text")
             if st.button("Analyse my mood", type="primary", key="analyse"):
                 result = analyse(st.session_state.lab_text.strip(), empty_message="Describe your mood first.")
                 st.session_state.lab_result = result
@@ -308,13 +178,14 @@ def mood_lab():
         show_lab_result(result)
 
 
-def voice_input():
-    audio = st.audio_input("Or record a voice note", key="lab_voice")
+def voice_input(target="lab_text", key="lab_voice"):
+    """A voice-note recorder that fills the text box `target` with what was said."""
+    audio = st.audio_input("Or record a voice note", key=key)
     if audio is None:
         return
     data = audio.getvalue()
     digest = hashlib.md5(data).hexdigest()
-    if st.session_state.get("lab_voice_done") == digest:
+    if st.session_state.get(f"{key}_done") == digest:
         return
     if not voice.available():
         note("Voice notes need a free speech-recognition model (faster-whisper). Ask to have it installed; "
@@ -322,9 +193,9 @@ def voice_input():
         return
     with st.spinner("Listening to your voice note…"):
         text = voice.transcribe(data)
-    st.session_state.lab_voice_done = digest
+    st.session_state[f"{key}_done"] = digest
     if text:
-        st.session_state.lab_text = text  # fills the text box below
+        st.session_state[target] = text  # fills the text box below
     else:
         st.warning("I couldn't hear any words in that recording. Please try again.")
 
@@ -398,6 +269,9 @@ def show_lab_result(result):
                        else "No single word stood out: the feeling comes from the sentence as a whole.")
                     + " ORBIT found this by removing one word at a time and measuring how much the score "
                     "dropped.</p>")
+        elif demo_mode.enabled():
+            st.html('<p class="body">Word-by-word explanations need the emotion model, which is not available in '
+                    "offline demo mode.</p>")
         else:
             st.html('<p class="body">See which of your words made the AI decide. It takes a few seconds.</p>')
             st.button("Explain this result", key="lab_why", on_click=run_explanation)
@@ -470,11 +344,28 @@ def universe():
     )
     items = st.session_state.collection
     if not items:
-        empty_state("Your universe is still quiet", "Save a world from Home or the Vending Machine and it will appear here.")
-        return
+        empty_state("Your universe is still quiet", "Save a world from Today or the Arcade and it will appear here.")
+    else:
+        st.html(orbit_map_html(items))
+        saved_cards(items)
+    discover_worlds()
 
-    st.html(orbit_map_html(items))
 
+def discover_worlds():
+    """Example worlds anyone can explore and save (moved here from the old Home page)."""
+    worlds = load_worlds()
+    section_header("Discover worlds", "A few universes to wander through",
+                   "Every world in ORBIT has its own mood, palette, textures and creative prompts.")
+    columns = st.columns(4)
+    for index, world in enumerate(worlds[:4]):
+        with columns[index]:
+            with st.container(key=f"glass-card-example-{index}"):
+                st.html(world_card_html(world, delay=index * 1.7))
+                st.button("Save world", key=f"save_example_{index}", on_click=save_world,
+                          args=(world["name"], "Example worlds", "Explore", world["prompt_explore"]), width="stretch")
+
+
+def saved_cards(items):
     columns = st.columns(3)
     for index, item in enumerate(items):
         world = next(w for w in load_worlds() if w["name"] == item["world"])

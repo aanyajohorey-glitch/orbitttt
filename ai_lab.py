@@ -24,6 +24,7 @@ import storage
 import train_head
 from analysis import UNSURE_BELOW, current_head
 from components import esc, note, section_header
+from feedback_ui import satisfaction
 from journal import style
 
 FAMILIES = orbit_head.FAMILIES
@@ -130,23 +131,23 @@ def retrain_with_corrections():
     X, y, w = train_head.training_arrays(extra, shared_meta.get("uses_dictionary", False))
     W, b = orbit_head.train(X, y, w, l2=shared_meta["l2"])
     meta = dict(shared_meta, corrections=len(extra), train_sentences=int(len(y)))
-    orbit_head.save(orbit_head.PERSONAL_MODEL, W, b, meta)
+    orbit_head.save(orbit_head.personal_model(), W, b, meta)
     st.session_state.flash.append(f"ORBIT retrained with your {len(extra)} correction(s). "
                                   "This personal model stays on this computer.")
 
 
 def reset_personal_model():
-    if orbit_head.PERSONAL_MODEL.exists():
-        orbit_head.PERSONAL_MODEL.unlink()
+    if orbit_head.personal_model().exists():
+        orbit_head.personal_model().unlink()
     st.session_state.flash.append("Back to ORBIT's shared model.")
 
 
 def before_after(name):
     table = datasets.load(name)
-    if table.empty or not orbit_head.PERSONAL_MODEL.exists():
+    if table.empty or not orbit_head.personal_model().exists():
         return None
     before = evaluation.predict(table, orbit_head.load(orbit_head.SHARED_MODEL), private=(name == "heldout"))
-    after = evaluation.predict(table, orbit_head.load(orbit_head.PERSONAL_MODEL), private=(name == "heldout"))
+    after = evaluation.predict(table, orbit_head.load(orbit_head.personal_model()), private=(name == "heldout"))
     b = evaluation.report(before["family"], before["pred_live"])
     a = evaluation.report(after["family"], after["pred_live"])
     return {"Test set": DATASET_INFO[name][0], "Macro-F1 before": round(b["macro_f1"], 3),
@@ -351,7 +352,7 @@ def ai_lab_page():
             "When ORBIT is wrong, users can say so. Corrections are stored only on this computer and can be "
             "used to retrain the classifier. This is the same idea as how many real AI systems improve.")
     corrections = storage.list_corrections()
-    personal = orbit_head.PERSONAL_MODEL.exists()
+    personal = orbit_head.personal_model().exists()
     st.html(stats_html([(str(len(corrections)), "corrections saved"),
                         ("personal" if personal else "shared", "model in use")]))
     if corrections:
@@ -422,6 +423,24 @@ def ai_lab_page():
             average = sum(f["rating"] for f in feedback) / len(feedback)
             st.html(f'<p class="body">{len(feedback)} response{"s" if len(feedback) != 1 else ""} · '
                     f"average {average:.1f} / 5</p>")
+
+    # Satisfaction from the thumbs buttons ---------------------------------------
+    heading("Satisfaction", "Thumbs up and down",
+            "Every reply and tool has thumbs buttons. Ratings stay on this device.")
+    scores = satisfaction(storage.list_ratings())
+    with st.container(key="glass-satisfaction"):
+        if not scores:
+            st.html('<p class="body">No ratings yet. Use the thumbs under a reply or an exercise.</p>')
+        else:
+            ratings = storage.list_ratings()
+            st.html(stats_html([(str(len(ratings)), "ratings"),
+                                (f'{sum(r["value"] for r in ratings) / len(ratings):.0%}', "thumbs up overall")]))
+            table = pd.DataFrame([{"Type": "Reply" if kind == "reply" else "Tool", "Rated": target,
+                                   "Thumbs up": f"{share:.0%}", "Ratings": count}
+                                  for (kind, target), (share, count) in sorted(scores.items())])
+            st.dataframe(table, hide_index=True, width="stretch")
+    note("Satisfaction is not accuracy: people may like a reply that misread them. Few ratings mean the "
+         "percentages can swing a lot.")
 
     # 11. Model card -------------------------------------------------------------
     _, _, meta = current_head()

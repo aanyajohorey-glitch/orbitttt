@@ -16,10 +16,12 @@ import re
 
 import streamlit as st
 
+import demo_mode
 import storage
 from analysis import earn_token, flash
 from components import esc, note, section_header
 from emotion_model import detect_emotions
+from feedback_ui import thumbs
 from hinglish import to_english
 
 TOOLS = ["Breathing", "Grounding", "Thought Reframe", "Gratitude Jar"]
@@ -163,20 +165,20 @@ def calm_room_page():
         mood_slider("How do you feel right now?", "calm_before")
 
     with st.container(key="glass-calm-tool"):
-        if tool == "Breathing":
-            breathing_tool()
-        elif tool == "Grounding":
-            grounding_tool()
-        elif tool == "Thought Reframe":
-            reframe_tool()
-        else:
-            gratitude_tool()
+        render_tool(tool)
+        thumbs("tool", tool, key=f"fb_calm_{tool}", label="Was this exercise helpful?")
 
     with st.container(key="glass-calm-after"):
         mood_slider("And how do you feel now?", "calm_after")
         st.button("Save this session", key="calm_finish", type="primary", on_click=finish_session, args=(tool,))
     if st.session_state.get("calm_done") == tool:
         note("Session saved to your private wellbeing log. It counts towards the impact study in the AI Lab.")
+
+
+def render_tool(tool):
+    """Draw one coping tool (used here and in step 4 of Today)."""
+    {"Breathing": breathing_tool, "Grounding": grounding_tool, "Thought Reframe": reframe_tool,
+     "Gratitude Jar": gratitude_tool}.get(tool, breathing_tool)()
 
 
 def breathing_tool():
@@ -220,6 +222,10 @@ def reframe_tool():
                  placeholder="e.g. I passed the last two tests. One test isn't the whole year.")
     balanced = st.text_area("A kinder, more balanced thought", key="reframe_balanced", height=80,
                             placeholder="e.g. This test went badly, but I can ask for help and improve.")
+    if thought.strip() and balanced.strip() and demo_mode.enabled():
+        st.html('<p class="body">In offline demo mode the emotion model is not available, so ORBIT cannot compare '
+                "the two thoughts. Your balanced thought still counts!</p>")
+        return
     if thought.strip() and balanced.strip() and st.button("See how the feeling changes", key="reframe_compare"):
         with st.spinner("Asking the emotion model…"):
             # Compare the SAME emotion before and after (the original thought's heaviest one)

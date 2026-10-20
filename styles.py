@@ -8,7 +8,7 @@ app.py calls load_css() once at the top of every page.
 import streamlit as st
 
 CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600&family=VT323&family=Lexend:wght@300;400;500;600&display=swap');
 
 /* ---------- Design tokens (the brand colours) ---------- */
 :root {
@@ -791,6 +791,50 @@ EXTRA_CSS = """
 @keyframes led-blink { 0% { opacity: 1; } 50% { opacity: 0.45; } }
 @keyframes push-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(201,185,232,0.0); } 50% { box-shadow: 0 0 0 8px rgba(201,185,232,0.45); } }
 
+/* ---------- Tier 2: Today flow, onboarding, demo banner, quick exit ---------- */
+.flow-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin: 0.4rem 0 1.2rem; }
+.flow-steps .step {
+  display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem 0.3rem 0.35rem;
+  border-radius: 999px; background: rgba(255, 255, 255, 0.45); border: 1px solid rgba(255, 255, 255, 0.8);
+  color: var(--muted); font-size: 0.78rem;
+}
+.flow-steps .step span {
+  width: 1.4rem; height: 1.4rem; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(52, 49, 59, 0.06); font-size: 0.72rem; font-weight: 600;
+}
+.flow-steps .step.done span { background: #CDE8D6; color: var(--charcoal); }
+.flow-steps .step.active { background: rgba(201, 185, 232, 0.55); color: var(--charcoal); font-weight: 600; }
+.flow-steps .step.active span { background: #A895D2; color: #fff; }
+.step-head { display: flex; gap: 0.8rem; align-items: flex-start; margin-bottom: 0.6rem; }
+.step-num {
+  flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(201, 185, 232, 0.6); color: var(--charcoal); font-weight: 600;
+}
+.planet-arrive { animation: planet-arrive 1.1s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes planet-arrive {
+  from { transform: translateY(-40px) scale(0.4); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.demo-banner {
+  margin: 0.6rem auto; max-width: 900px; padding: 0.6rem 1rem; border-radius: 14px; font-size: 0.86rem;
+  background: rgba(255, 236, 200, 0.75); border: 1px solid rgba(230, 190, 120, 0.6); color: var(--charcoal);
+}
+.onboarding-hero { text-align: center; padding: 2.2rem 0 1rem; display: grid; justify-items: center; gap: 0.4rem; }
+.onb-points { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.8rem; margin-top: 0.8rem; }
+.onb-point { padding: 0.9rem 1rem; border-radius: 16px; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(255, 255, 255, 0.85); }
+.onb-point b { color: var(--charcoal); }
+.feedback-label { font-size: 0.8rem; color: var(--muted); }
+.st-key-quick-exit { display: flex; justify-content: flex-end; margin-top: -0.4rem; }
+.st-key-quick-exit button p { font-size: 0.78rem !important; }
+.st-key-subnav { width: fit-content; max-width: 100%; margin: 0.5rem auto 0; }
+.st-key-subnav [data-testid="stHorizontalBlock"] { flex-wrap: wrap; justify-content: center; gap: 0.3rem; }
+.st-key-subnav [data-testid="stColumn"] { width: auto !important; flex: 0 0 auto !important; min-width: 0 !important; }
+.st-key-subnav button { min-height: 0 !important; padding: 0.3rem 0.8rem !important; border-radius: 999px !important; }
+.st-key-subnav button p { font-size: 0.8rem !important; }
+@media (prefers-reduced-motion: reduce) {
+  .planet-arrive, .planet, .orbit-ring { animation: none !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .companion-avatar, .breath-orb, .breath-label, .jar-star, .vm-bulbs span, .vm-led span, .st-key-vm-push button,
   .vm-slot.picking .capsule, .vm-tray .capsule.arrive { animation: none !important; }
@@ -805,6 +849,61 @@ EXTRA_CSS = """
   .model-card div { grid-template-columns: 1fr; gap: 0.2rem; }
 }
 """
+
+
+# ---------------------------------------------------------------
+# Accessibility options (chosen in About -> Settings, or in onboarding)
+# ---------------------------------------------------------------
+REDUCED_MOTION_CSS = """
+*, *::before, *::after {
+  animation: none !important; transition: none !important; scroll-behavior: auto !important;
+}
+.vm-slot.picking .capsule { visibility: hidden; }
+.vm-tray .capsule.arrive { opacity: 1 !important; transform: none !important; }
+.breath-orb { transform: scale(0.85) !important; }
+.breath-label { opacity: 0 !important; }
+.breath-label-0 { opacity: 1 !important; }
+"""
+LARGE_TEXT_CSS = """
+[data-testid="stMainBlockContainer"], div[role="dialog"] { zoom: 1.15; }
+[data-testid="stChatInput"] textarea { font-size: 1.1rem !important; }
+"""
+HIGH_CONTRAST_CSS = """
+:root { --muted: #26232C; --line: rgba(0, 0, 0, 0.45); --glass: #FFFFFF; --charcoal: #000000; }
+.stApp { background: #FFFFFF !important; color: #000000; }
+[class*="st-key-glass"], .principle, .pipe-step, .stat, .tag, .helpline, .safety-card, .note, .step {
+  background: #FFFFFF !important; border: 2px solid #000000 !important; box-shadow: none !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+}
+.stApp p, .body, .lede, .eyebrow, .field-label, .world-desc, label, small { color: #000000 !important; }
+[data-testid="stBaseButton-primary"] { background: #2A1F55 !important; border: 2px solid #000 !important; }
+[data-testid="stBaseButton-primary"] p { color: #FFFFFF !important; }
+[data-testid="stBaseButton-secondary"], button[data-variant="pills"] { border: 2px solid #000000 !important; }
+button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px solid #0047FF !important; outline-offset: 2px; }
+"""
+READABLE_FONT_CSS = """
+.stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp textarea, .stApp button,
+.display, .title-sm, .world-name, .prompt, .quote, .companion-text, .tagline, .wordmark,
+h1, h2, h3, h4, .why-text, .breath-label {
+  font-family: 'Lexend', system-ui, sans-serif !important; letter-spacing: 0.01em;
+}
+.stApp p, .body, .lede { line-height: 1.75 !important; }
+.wordmark { letter-spacing: 0.2em !important; }
+"""
+
+
+def accessibility_css(settings):
+    """Extra CSS for the accessibility options that are switched on."""
+    parts = []
+    if settings.get("reduced_motion"):
+        parts.append(REDUCED_MOTION_CSS)
+    if settings.get("large_text"):
+        parts.append(LARGE_TEXT_CSS)
+    if settings.get("high_contrast"):
+        parts.append(HIGH_CONTRAST_CSS)
+    if settings.get("readable_font"):
+        parts.append(READABLE_FONT_CSS)
+    return "\n".join(parts)
 
 
 def load_css(extra=""):
