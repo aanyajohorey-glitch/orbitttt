@@ -64,7 +64,7 @@ def main():
     print(f"\nSaved {orbit_head.SHARED_MODEL.name} (trained on {meta['train_sentences']} sentences)\n")
     results = {}
     for name in ["dev", "body", "heldout"]:
-        table = evaluation.predict(datasets.load(name), (W, b, meta))
+        table = evaluation.predict(datasets.load(name), (W, b, meta), private=(name == "heldout"))
         if table.empty:
             print(f"{name}: no sentences yet")
             continue

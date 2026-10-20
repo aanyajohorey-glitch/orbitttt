@@ -50,3 +50,6 @@ data/orbit.db
 data/*.db-journal
 # Personal model retrained on the user's own corrections (derived from private data)
 data/model/orbit_head_personal.npz
+# Classmates' held-out sentences and their cached scores stay on this computer
+data/eval_heldout.csv
+data/model/base_scores_local.json

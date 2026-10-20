@@ -15,7 +15,7 @@ therapist and does not diagnose.
 | `data/train_augment.csv` (338 sentences) | Training data for ORBIT's classifier, including body-described anxiety and non-anxiety body controls | Author-written | **Yes** |
 | `data/eval_set.csv` (70) | Original development set | Author-written | No, but the Hinglish dictionary was built while looking at it, so its Hinglish scores are **optimistic** |
 | `data/eval_body.csv` (33) | Focused test: feelings described through the body (20 anxiety, 13 controls) | Author-written | No |
-| `data/eval_heldout.csv` (target 150 to 200) | **Fair test**: classmates' anonymous sentences | Classmates (with teacher permission) | **Never**; not used for tuning either |
+| `data/eval_heldout.csv` (target 150 to 200; local only, git-ignored; template in `eval_heldout_template.csv`) | **Fair test**: classmates' anonymous sentences | Classmates (with teacher permission) | **Never**; not used for tuning either |
 | Teach Orbit corrections | Labels users give when ORBIT was wrong | Users, stored only on their own computer | Optional, when the user retrains |
 | `data/safety_tests.csv` (93) | Safety-rule test suite | Author-written | Used to write rules (dev rounds); see `docs/safety_report.md` |
 

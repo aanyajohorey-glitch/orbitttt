@@ -11,7 +11,9 @@ Datasets (all in data/):
                        results are optimistic: the dictionary was written while
                        looking at it.
   eval_body.csv      - a focused test of feelings described through the body
-  eval_heldout.csv   - classmates' sentences, NEVER used for training or tuning
+  eval_heldout.csv   - classmates' sentences, NEVER used for training or tuning.
+                       Stays on this computer (git-ignored); start from
+                       eval_heldout_template.csv
   corrections        - "Teach Orbit" fixes from users (stored in orbit.db)
 """
 import re

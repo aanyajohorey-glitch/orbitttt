@@ -45,6 +45,15 @@ disagreements and agree a final label, or remove sentences that are too unclear.
 
 `language` must be `English`, `Hinglish` or `Hindi`.
 
+## Where the file lives (privacy)
+- The repository only contains the empty **template**,
+  `data/eval_heldout_template.csv`.
+- The real file, `data/eval_heldout.csv`, is **git-ignored**, so classmates'
+  sentences are never uploaded to GitHub, even to a public repository.
+  Its cached model scores (`data/model/base_scores_local.json`) are git-ignored too.
+- Only share the collected sentences (for example with an examiner) with your
+  teacher's permission.
+
 ## File format
 ```
 text,language,emotion_family

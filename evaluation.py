@@ -43,7 +43,7 @@ def feature_matrix(texts, raw_scores):
     return np.stack([orbit_head.features(t, s, names) for t, s in zip(texts, raw_scores)])
 
 
-def predict(table, model=None):
+def predict(table, model=None, private=False):
     """Add predicted families (pred_A, pred_B, pred_C) and C's confidence to a dataset table."""
     table = table.copy()
     if table.empty:
@@ -52,8 +52,8 @@ def predict(table, model=None):
         table["confidence"] = []
         return table
     texts = list(table["text"])
-    raw = base_scores.get(texts, "raw")
-    translated = base_scores.get(texts, "dict")
+    raw = base_scores.get(texts, "raw", private)
+    translated = base_scores.get(texts, "dict", private)
     table["pred_A"] = [top_family(s) for s in raw]
     table["pred_B"] = [top_family(s) for s in translated]
     model = model or orbit_head.load(orbit_head.SHARED_MODEL)
