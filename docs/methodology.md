@@ -99,6 +99,19 @@ the live model D:
 - at 80% or more, 92% are right;
 - at the threshold, ORBIT is confident on 87% of messages, with 84% accuracy.
 
+**Two later findings, and the fixes:**
+1. **Temperature scaling.** The weakly regularised model gave over-confident
+   probabilities. One temperature T is fitted to the out-of-fold logits by
+   minimising log-loss (D: T = 1.64; log-loss 0.807 → 0.715). It does not change
+   which family wins, so accuracy and F1 are unchanged. It only makes
+   confidence more honest: at the 50% threshold, ORBIT is confident on 78% of
+   messages with 89% accuracy.
+2. **Vague-message guard.** On short or vague messages unlike the training data,
+   the model stayed confident even after scaling ("today was weird" → anger
+   98%). Messages of 3 words or fewer, or with vague phrases ("idk",
+   "weird", "okay", "kuch nahi"…), always get a clarifying question. This is
+   a documented rule, not a learned one.
+
 ## 7. Human in the loop ("Teach Orbit")
 Users can correct ORBIT. Corrections are stored locally (never uploaded) and
 can be added to training. The AI Lab reports metrics before and after.
