@@ -1,0 +1,3 @@
+# Packages for development and testing (the app itself only needs requirements.txt)
+-r requirements.txt
+pytest
