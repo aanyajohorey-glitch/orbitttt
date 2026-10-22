@@ -1,0 +1,2 @@
+title,artist,language,genre,energy,valence,mainstream_level,tags,labelled_by,notes
+Example Song Title,Example Artist,Hindi,Indian indie pop,2,4,3,acoustic|calm|love,initials only,energy 1=very calm 5=very intense; valence 1=very sad 5=very happy; mainstream 1=hardly anyone knows it 5=everyone knows it; tags separated by | (see README); no lyrics please
