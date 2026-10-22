@@ -225,13 +225,19 @@ def ai_lab_page():
     live = adopted_variant()
     variant = st.pills("Inspect method", list(evaluation.VARIANTS), default=live, key="lab_variant",
                        format_func=lambda v: f"{v} · {evaluation.VARIANTS[v]}") or live
-    rep = evaluation.report(table["family"], table[f"pred_{variant}"])
+    languages = ["All languages"] + sorted(table["language"].unique())
+    language = st.pills("Language", languages, default="All languages", key="lab_language") or "All languages"
+    part = table if language == "All languages" else table[table["language"] == language]
+    if language != "All languages":
+        st.html(f'<p class="body">{len(part)} {esc(language)} sentences. Small groups make every number '
+                "less certain.</p>")
+    rep = evaluation.report(part["family"], part[f"pred_{variant}"])
     left, right = st.columns([1.25, 1], gap="medium")
     with left:
         with st.container(key="glass-confusion"):
             st.html('<div class="eyebrow">Confusion matrix</div><p class="body" style="margin:.2rem 0 .4rem">'
                     "The diagonal shows correct answers; other squares show which feelings get mixed up.</p>")
-            st.altair_chart(confusion_chart(table["family"], table[f"pred_{variant}"]), width="stretch")
+            st.altair_chart(confusion_chart(part["family"], part[f"pred_{variant}"]), width="stretch")
     with right:
         with st.container(key="glass-report"):
             st.html('<div class="eyebrow">Per-family precision, recall and F1</div>'

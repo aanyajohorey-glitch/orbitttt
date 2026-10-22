@@ -1,0 +1,2 @@
+kind,text,valence,arousal,warmth,era,brightness,texture,tags,tile,labelled_by,notes
+setting,a school canteen at lunch break,0.6,0.7,0.6,0.1,0.6,0.4,school|friends|food,#F2C14E|#E35D6A,initials only,kind = setting / contrast / texture / structure; numbers from -1 to +1 (valence: sad to happy; arousal: calm to energetic; warmth: cool to warm; era: past to future; brightness: dark to bright; texture: smooth to rough); tags separated by |; tile = two hex colours for settings only; no names of real people
