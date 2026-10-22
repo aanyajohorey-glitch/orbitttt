@@ -190,10 +190,11 @@ def colour_name(colour):
     return f"{adjective} {base}"
 
 
-def make_palette(valence, arousal, warm=0.0, energy=0.0, bold=0.0, vintage=0.0, tweaks=None, harmony=None):
+def make_palette(valence, arousal, warm=0.0, energy=0.0, bold=0.0, vintage=0.0, tweaks=None, harmony=None,
+                 brightness=0.0):
     """Build the 5-colour palette. All inputs roughly -1..+1.
 
-    energy: the calm-energetic slider; tweaks: the refine buttons
+    energy: the calm-energetic slider; brightness: -1 dark ... +1 bright (Creator Mode); tweaks: the refine buttons
     (muted, warmth, contrast, playful). Returns a dict with colours, rule and contrast checks.
     """
     tweaks = tweaks or {}
@@ -203,7 +204,8 @@ def make_palette(valence, arousal, warm=0.0, energy=0.0, bold=0.0, vintage=0.0, 
     saturation = 0.24 + 0.18 * strength + 0.16 * (arousal_used + 1) / 2 + 0.18 * bold - 0.14 * max(0.0, vintage)
     saturation *= tweaks.get("muted", 1.0)
     saturation = clamp(saturation + (0.1 if tweaks.get("playful") else 0.0), 0.08, 0.85)
-    lightness = clamp(0.66 + 0.06 * valence - 0.08 * bold - 0.05 * tweaks.get("contrast", 0.0), 0.35, 0.82)
+    lightness = clamp(0.66 + 0.06 * valence + 0.08 * brightness - 0.08 * bold - 0.05 * tweaks.get("contrast", 0.0),
+                      0.35, 0.82)
     rule = harmony or choose_harmony(arousal_used, tweaks.get("playful", False))
     first, second = HARMONY[rule]
 
@@ -248,25 +250,10 @@ def contrast_checks(colours):
 # ---------------------------------------------------------------
 # Font pairing and textures (rules on the same numbers)
 # ---------------------------------------------------------------
-# (heading font, body font, description, vintage, bold, energy)
-FONT_PAIRS = [
-    ("Cormorant Garamond", "Manrope", "elegant and calm", 0.4, -0.5, -0.6),
-    ("Playfair Display", "Inter", "classic editorial", 0.5, 0.2, 0.0),
-    ("DM Serif Display", "DM Sans", "soft retro", 0.6, 0.1, -0.2),
-    ("Fraunces", "Work Sans", "warm and bookish", 0.7, 0.0, -0.3),
-    ("Lora", "Nunito", "cosy and friendly", 0.3, -0.6, -0.4),
-    ("Space Grotesk", "Inter", "clean and modern", -0.8, 0.2, 0.2),
-    ("Syne", "Manrope", "modern and playful", -0.7, 0.7, 0.6),
-    ("Bebas Neue", "Montserrat", "loud and energetic", -0.3, 1.0, 0.9),
-    ("Abril Fatface", "Poppins", "bold retro", 0.7, 0.9, 0.5),
-    ("Caveat", "Quicksand", "handwritten and gentle", 0.2, -0.7, 0.0),
-]
-
-
-def font_pair(vintage, bold, arousal):
-    """The pair whose (vintage, bold, energy) is closest to the palette's."""
-    best = min(FONT_PAIRS, key=lambda p: (p[3] - vintage) ** 2 + (p[4] - bold) ** 2 + (p[5] - arousal) ** 2)
-    return {"heading": best[0], "body": best[1], "feel": best[2]}
+def font_pair(vintage, bold, arousal, warmth=0.0):
+    """Typography from data/fonts.csv (see fonts.py for the rule)."""
+    import fonts   # local import: fonts.py reads a CSV with pandas
+    return fonts.pair(vintage, bold, arousal, warmth)
 
 
 TEXTURES = {

@@ -20,7 +20,6 @@ The method
    already picked" (same artist, same genre, same language). The more you
    explore, the more diversity counts. One track per artist at most.
 """
-import math
 from pathlib import Path
 from urllib.parse import quote, quote_plus
 
@@ -29,6 +28,7 @@ import streamlit as st
 
 from emotion_model import GROUP_OF
 from palette import EMOTION_VA
+from ranking import cosine, discovery_trade_off, mmr
 
 CATALOG = Path(__file__).parent / "data" / "music_catalog.csv"
 PLAYLIST_SIZE = 10
@@ -88,9 +88,6 @@ def vector(mood, energy, tags, vocabulary):
     return [1.0, (mood - 3) / 2, (energy - 3) / 2] + [TAG_WEIGHT if t in tags else 0.0 for t in vocabulary]
 
 
-def cosine(a, b):
-    dot = sum(x * y for x, y in zip(a, b))
-    return dot / (math.sqrt(sum(x * x for x in a)) * math.sqrt(sum(y * y for y in b)) or 1.0)
 
 
 # ---------------------------------------------------------------
@@ -103,10 +100,18 @@ def track_similarity(a, b):
 
 
 def recommend(emotions, intent="match", discovery=0.5, size=PLAYLIST_SIZE, table=None):
-    """The playlist: a list of dicts (track details, relevance, reason)."""
+    """The playlist for a feeling: a list of dicts (track details, relevance, reason)."""
+    mood, energy, family, tags = target_for(emotions, intent)
+    playlist = recommend_target(mood, energy, tags, intent, discovery, size, table)
+    for track in playlist:
+        track["family"] = family
+    return playlist
+
+
+def recommend_target(mood, energy, tags, intent="match", discovery=0.5, size=PLAYLIST_SIZE, table=None):
+    """The same method from a ready-made target (Creator Mode uses its Vibe Vector)."""
     table = load_catalog() if table is None else table
     vocabulary = all_tags(table)
-    mood, energy, family, tags = target_for(emotions, intent)
     goal = vector(mood, energy, tags, vocabulary)
     candidates = []
     for track in table.to_dict("records"):
@@ -116,21 +121,9 @@ def recommend(emotions, intent="match", discovery=0.5, size=PLAYLIST_SIZE, table
         candidates.append({**track, "similarity": similarity, "relevance": relevance})
     candidates.sort(key=lambda t: -t["relevance"])
     pool = candidates[:60]                                                   # the most relevant 60
-
-    trade_off = 0.8 - 0.45 * discovery          # MMR lambda: 0.8 (comfort) ... 0.35 (explore)
-    chosen = []
-    while pool and len(chosen) < size:
-        def mmr(track):
-            redundancy = max((track_similarity(track, other) for other in chosen), default=0.0)
-            return trade_off * track["relevance"] - (1 - trade_off) * redundancy
-        best = max(pool, key=mmr)
-        pool.remove(best)
-        if any(best["artist"] == other["artist"] for other in chosen):
-            continue                            # one song per artist
-        chosen.append(best)
+    chosen = mmr(pool, track_similarity, size, discovery_trade_off(discovery), unique="artist")  # one per artist
     for track in chosen:
         track["reason"] = reason(track, intent, tags, chosen)
-        track["family"] = family
     return chosen
 
 
@@ -138,7 +131,7 @@ def reason(track, intent, tags, playlist):
     """A one-line, honest 'why this'."""
     shared = [t for t in track["tag_list"] if t in tags]
     feel = f"{ENERGY_WORDS[int(track['energy'])]} and {MOOD_WORDS[int(track['valence'])]}"
-    start = "Matches how you feel" if intent == "match" else "A gentle step up"
+    start = {"match": "Matches how you feel", "lift": "A gentle step up"}.get(intent, "Fits your project's vibe")
     text = f"{start}: {feel}"
     if shared:
         text += f" ({', '.join(shared[:2])})"

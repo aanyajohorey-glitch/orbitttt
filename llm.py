@@ -210,6 +210,37 @@ def ai_reply(result, history, name):
     return (text, style) if acceptable_output(text) else None
 
 
+def generate(system, text):
+    """A short piece of writing from the active AI mode (Creator Mode concept polish).
+    Same guards as replies: injection check on the input, output check, and None
+    on any problem, so the caller keeps its template version."""
+    mode = active_mode()
+    if mode == "templates" or looks_like_injection(text) or safety_check(text) is not None:
+        return None
+    try:
+        if mode == "cloud":
+            import anthropic
+            client = anthropic.Anthropic(api_key=cloud_key(), timeout=30.0, max_retries=1)
+            response = client.beta.messages.create(
+                model=cloud_model(), max_tokens=2048, output_config={"effort": "low"},
+                betas=["server-side-fallback-2026-07-01"], fallbacks="default",
+                system=system, messages=[{"role": "user", "content": wrap(text)}])
+            if response.stop_reason == "refusal":
+                return None
+            written = "".join(block.text for block in response.content if block.type == "text").strip()
+        else:
+            body = json.dumps({"model": local_model(), "stream": False, "options": {"temperature": 0.7},
+                               "messages": [{"role": "system", "content": system},
+                                            {"role": "user", "content": wrap(text)}]}).encode("utf-8")
+            request = urllib.request.Request(f"{OLLAMA_URL}/api/chat", data=body,
+                                             headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(request, timeout=90) as response:
+                written = json.load(response)["message"]["content"].strip()
+    except Exception:
+        return None
+    return written if acceptable_output(written) else None
+
+
 def mode_label():
     mode = active_mode()
     if mode == "cloud":

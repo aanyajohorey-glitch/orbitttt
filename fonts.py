@@ -1,0 +1,62 @@
+"""
+fonts.py
+Typography pairing from data/fonts.csv (32 open-licence Google Fonts, each
+tagged with mood numbers: vintage, bold, energy and warmth, from -1 to +1).
+
+Rule (explainable):
+1. The heading font is the heading-capable font closest to the vibe
+   (smallest distance on vintage, bold, energy and warmth).
+2. The body font must be easy to read, so it is chosen from body fonts, closest
+   to a CALMER version of the vibe, and from a different category (a serif
+   heading gets a sans body and the other way round) for contrast.
+3. Devanagari-friendly fonts are preferred when the idea was written in Hindi.
+"""
+from pathlib import Path
+
+import pandas as pd
+import streamlit as st
+
+FONTS = Path(__file__).parent / "data" / "fonts.csv"
+
+
+@st.cache_data
+def load_fonts():
+    table = pd.read_csv(FONTS)
+    table["tag_list"] = table["tags"].str.split("|")
+    return table
+
+
+def _distance(row, vintage, bold, energy, warmth):
+    return ((row["vintage"] - vintage) ** 2 + (row["bold"] - bold) ** 2 + (row["energy"] - energy) ** 2
+            + 0.5 * (row["warmth"] - warmth) ** 2)
+
+
+def pair(vintage, bold, energy, warmth=0.0, hindi=False):
+    """Returns {"heading", "body", "feel", "why"}."""
+    table = load_fonts()
+    headings = table[table["use"].isin(["heading", "both"])].copy()
+    headings["d"] = headings.apply(_distance, axis=1, args=(vintage, bold, energy, warmth))
+    devanagari = headings["tag_list"].apply(lambda t: "devanagari" in t)
+    headings.loc[devanagari, "d"] += -0.6 if hindi else 0.6       # Hindi script fonts only for Hindi text
+    heading = headings.sort_values("d").iloc[0]
+
+    bodies = table[table["use"].isin(["body", "both"]) & (table["family"] != heading["family"])].copy()
+    bodies["d"] = bodies.apply(_distance, axis=1, args=(vintage * 0.5, min(bold, 0.0), energy * 0.3, warmth))
+    bodies.loc[bodies["category"] == heading["category"], "d"] += 0.5        # contrast: different category
+    bodies.loc[bodies["tag_list"].apply(lambda t: "readable" in t), "d"] -= 0.1
+    bodies.loc[bodies["category"].isin(["mono", "script"]), "d"] += 0.6       # long text in these is tiring
+    if hindi:
+        bodies.loc[bodies["tag_list"].apply(lambda t: "devanagari" in t), "d"] -= 0.6
+    body = bodies.sort_values("d").iloc[0]
+
+    feel = " and ".join(heading["tag_list"][:2])
+    why = (f"{heading['family']} ({heading['category']}) is the heading font closest to your vibe "
+           f"(vintage {vintage:+.1f}, bold {bold:+.1f}, energy {energy:+.1f}); {body['family']} "
+           f"({body['category']}) is a calm, readable partner from a different family of letters.")
+    return {"heading": heading["family"], "body": body["family"], "feel": feel, "why": why}
+
+
+def google_fonts_css(*families):
+    """An @import rule that loads the fonts from Google Fonts (open licences)."""
+    query = "&".join("family=" + f.replace(" ", "+") for f in dict.fromkeys(families))
+    return f"@import url('https://fonts.googleapis.com/css2?{query}&display=swap');"
