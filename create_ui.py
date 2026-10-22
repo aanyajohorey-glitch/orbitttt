@@ -153,7 +153,7 @@ def build_from_input():
     result = read_emotions(full or "a new creative idea")
     emotions = result["emotions"]
     if start == "A feeling" and s.get("create_feeling"):
-        chosen = [spark.EMOTIONS[f] for f in s["create_feeling"]]
+        chosen = [spark.EMOTIONS[f] for f in s["create_feeling"][:2]]
         emotions = [(e[2], 1.0 / len(chosen)) for e in chosen] + [(l, sc * 0.3) for l, sc in emotions[:3]]
     vector = vibe.build(full or "a new creative idea", emotions, medium=s.get("create_medium"),
                         audience=s.get("create_audience"), start_from=start,
@@ -225,7 +225,7 @@ def finish_questions(skip=False):
         if s.get("cq_medium"):
             vector["medium"] = s.cq_medium
         if s.get("cq_feeling"):
-            chosen = [spark.EMOTIONS[f] for f in s.cq_feeling]
+            chosen = [spark.EMOTIONS[f] for f in s.cq_feeling[:2]]      # "up to 2"
             vector["valence"] = round(sum(e[0] for e in chosen) / len(chosen), 3)
             vector["arousal"] = round(sum(e[1] for e in chosen) / len(chosen), 3)
             vector["emotions"] = [(e[2], 1.0 / len(chosen)) for e in chosen] + vector["emotions"][:3]

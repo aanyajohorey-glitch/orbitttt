@@ -208,8 +208,9 @@ button[data-variant="pills"] {
   color: var(--charcoal) !important;
 }
 button[data-variant="pills"]:hover { border-color: #B7A4DD !important; }
-button[data-variant="pills"][aria-checked="true"] {
-  background: rgba(201, 185, 232, 0.5) !important;
+/* Selected: aria-checked = one-choice pills, aria-pressed = pick-several pills (e.g. feelings) */
+button[data-variant="pills"][aria-checked="true"], button[data-variant="pills"][aria-pressed="true"] {
+  background: rgba(201, 185, 232, 0.65) !important;
   border-color: #B7A4DD !important;
   color: var(--charcoal) !important;
   font-weight: 600;
