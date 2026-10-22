@@ -328,9 +328,11 @@ def universe_screen():
 
     with st.container(key="glass-cu-refine"):
         st.html('<div class="eyebrow">Refine the vibe</div>')
-        cols = st.columns(len(vibe.CHIPS))
-        for col, (chip, help_text) in zip(cols, vibe.CHIPS.items()):
-            col.button(chip, key=f"chip_{chip}", on_click=apply_chip, args=(chip,), help=help_text, width="stretch")
+        chips = list(vibe.CHIPS.items())
+        for row in (chips[:3], chips[3:]):                         # two rows of three, so labels fit
+            for col, (chip, help_text) in zip(st.columns(3), row):
+                col.button(chip, key=f"chip_{chip}", on_click=apply_chip, args=(chip,), help=help_text,
+                           width="stretch")
         with st.expander("Sliders and discovery dial"):
             left, right = st.columns(2)
             left.slider("Warm ↔ Cool", -1.0, 1.0, 0.0, 0.1, key="cs_warm")

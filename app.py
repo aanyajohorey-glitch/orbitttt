@@ -125,7 +125,8 @@ def mode_choice():
     """On opening: Feel or Create. The last choice is remembered and highlighted."""
     last = storage.get_setting("last_mode", "")
     top_bar()
-    st.html('<div class="section-head first" style="text-align:center"><div class="eyebrow">Welcome back</div>'
+    greeting = "Welcome back" if last else "Welcome"
+    st.html(f'<div class="section-head first" style="text-align:center"><div class="eyebrow">{greeting}</div>'
             '<div class="display">What would you like to do?</div><p class="lede" style="margin:0 auto">ORBIT is '
             "a companion for creative people: it helps you feel okay and helps you make things.</p></div>")
     left, right = st.columns(2, gap="medium")

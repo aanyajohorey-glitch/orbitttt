@@ -77,11 +77,13 @@ def heavy(answers):
 
 
 def _pick(kind, answers, direction, rng, exclude=None):
-    """Choose a seed of this kind for a direction: Safe = best fit, Bold = more energy, Weird = unexpected."""
+    """Choose a seed of this kind for a direction: Safe = best fit, Bold = more energy, Weird = unexpected.
+    exclude: one value or a set of values not to choose (e.g. already used by another idea)."""
     valence, arousal = target(answers)
     if direction == "Bold":
         arousal = min(1.0, arousal + 0.5)
-    options = [s for s in seeds(kind) if s["text"] != exclude]
+    excluded = exclude if isinstance(exclude, (set, list, tuple)) else {exclude}
+    options = [s for s in seeds(kind) if s["text"] not in excluded]
     scored = sorted(options, key=lambda s: -cosine([1, valence, arousal], [1, s["valence"], s["arousal"]]))
     if direction == "Weird":
         pool = scored[len(scored) // 2:]            # the less obvious half
@@ -143,8 +145,10 @@ def describe(idea, answers, taken=()):
     return {**idea, "title": title, "logline": logline, "why": why}
 
 
-def make_idea(answers, direction, seed=0, taken=()):
-    """One idea. Answered elements are kept, except the few a direction is allowed to change (FREE)."""
+def make_idea(answers, direction, seed=0, taken=(), used=None):
+    """One idea. Answered elements are kept, except the few a direction is allowed to change (FREE).
+    used: {kind: values other ideas already chose}, so the three ideas don't repeat each other."""
+    used = used or {}
     rng = _rng(direction, seed, sorted(answers.items(), key=str))
     idea = {"direction": direction}
     idea["medium"] = answers.get("medium") or rng.choice(
@@ -155,7 +159,7 @@ def make_idea(answers, direction, seed=0, taken=()):
         if answered and kind not in FREE[direction]:
             idea[kind] = answered
         else:
-            idea[kind] = _pick(kind, answers, direction, rng, exclude=answered)
+            idea[kind] = _pick(kind, answers, direction, rng, exclude={answered} | set(used.get(kind, ())))
     if answers.get("word"):
         idea["word"] = answers["word"]
     return describe(idea, answers, taken)
@@ -164,7 +168,8 @@ def make_idea(answers, direction, seed=0, taken=()):
 def three_ideas(answers, seed=0):
     ideas = []
     for direction in ("Safe", "Bold", "Weird"):
-        ideas.append(make_idea(answers, direction, seed, taken=[i["title"] for i in ideas]))
+        used = {kind: [i[kind] for i in ideas] for kind in ("setting", "contrast", "texture", "structure")}
+        ideas.append(make_idea(answers, direction, seed, taken=[i["title"] for i in ideas], used=used))
     return ideas
 
 
