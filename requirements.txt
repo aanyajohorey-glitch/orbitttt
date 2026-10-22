@@ -1,7 +1,10 @@
-streamlit
-pandas
-onnxruntime
-tokenizers
-huggingface_hub
-altair
-anthropic
+# Exact versions, so Streamlit Community Cloud runs the same software ORBIT is tested with.
+streamlit==1.65.0
+pandas==3.0.6
+numpy==2.5.4
+onnxruntime==1.31.0
+tokenizers==0.23.3
+huggingface_hub==2.2.0
+altair==6.3.0
+pillow==12.3.0
+anthropic==1.15.0
