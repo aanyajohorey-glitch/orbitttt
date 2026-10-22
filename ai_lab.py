@@ -442,6 +442,35 @@ def ai_lab_page():
     note("Satisfaction is not accuracy: people may like a reply that misread them. Few ratings mean the "
          "percentages can swing a lot.")
 
+    # Mood Studio ratings (1-5 "fits the vibe", "new to you?") ----------------------
+    heading("Mood Studio", "Do the palettes and playlists fit?",
+            "After each palette or playlist, people rate the fit from 1 to 5 and say whether the music was new "
+            "to them. Rated on this device only.")
+    studio = [r for r in storage.list_ratings() if r["kind"] in ("palette_fit", "music_fit", "music_new")]
+    with st.container(key="glass-studio-metrics"):
+        if not studio:
+            st.html('<p class="body">No Mood Studio ratings yet. Rate a palette or a playlist in Tools → Mood '
+                    "Studio.</p>")
+        else:
+            frame = pd.DataFrame(studio)
+            fits = frame[frame["kind"].isin(["palette_fit", "music_fit"])]
+            new = frame[frame["kind"] == "music_new"]
+            music_fit = fits[fits["kind"] == "music_fit"]["value"]
+            st.html(stats_html([
+                (f'{fits[fits["kind"] == "palette_fit"]["value"].mean():.1f}' if (fits["kind"] == "palette_fit").any()
+                 else "–", "average palette fit (1-5)"),
+                (f"{music_fit.mean():.1f}" if len(music_fit) else "–", "average playlist fit (1-5)"),
+                (f'{new["value"].mean():.0%}' if len(new) else "–", "playlists with new music"),
+            ]))
+            if len(fits):
+                table = (fits.groupby(["kind", "target"])["value"].agg(["mean", "count"]).reset_index()
+                         .rename(columns={"kind": "What", "target": "Emotion", "mean": "Average fit", "count": "Ratings"}))
+                table["What"] = table["What"].map({"palette_fit": "Palette", "music_fit": "Playlist"})
+                table["Average fit"] = table["Average fit"].round(1)
+                st.dataframe(table, hide_index=True, width="stretch")
+    note("These are self-ratings from a few people, so they show how the rules feel in use, not that they are "
+         "'correct'. A palette or song can fit one person's vibe and not another's.")
+
     # 11. Model card -------------------------------------------------------------
     _, _, meta = current_head()
     st.html(
