@@ -50,8 +50,11 @@ FEATURE_CSS = """
   border: 1px solid rgba(52, 49, 59, 0.1); }
 .mb-swatch b { font-size: 0.8rem; font-weight: 600; }
 .mb-swatch small { font-size: 0.72rem; opacity: 0.8; font-variant-numeric: tabular-nums; }
-.mb-words { display: flex; flex-wrap: wrap; align-content: center; gap: 6px; padding: 10px; }
-.mb-words span { border: 1px solid; border-radius: 999px; padding: 3px 10px; font-size: 0.78rem; }
+.mb-words { display: flex; flex-wrap: wrap; align-content: center; gap: 5px; padding: 8px; overflow: hidden; }
+.mb-words span { border: 1px solid; border-radius: 999px; padding: 2px 8px; font-size: 0.72rem; }
+.check-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 9rem; gap: 1rem; align-items: center;
+  padding: 0.5rem 0; border-bottom: 1px solid var(--line); font-size: 0.86rem; }
+.check-row b { text-align: right; font-weight: 600; }
 @media (max-width: 640px) {
   .moodboard { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mb-type, .mb-swatches { grid-column: span 2; }
@@ -69,4 +72,8 @@ FEATURE_CSS = """
   border-radius: 999px; padding: 0.25rem 0.7rem; background: rgba(255, 255, 255, 0.6); }
 .track-links a:hover { background: rgba(255, 255, 255, 0.95); }
 @media (max-width: 640px) { .track { grid-template-columns: 1.8rem minmax(0, 1fr); } .track-links { grid-column: 2; } }
+
+/* ---------- Reach Out drafts: the copy box uses the normal font ---------- */
+[class*="st-key-glass-ro-draft"] pre, [class*="st-key-glass-ro-draft"] code {
+  font-family: var(--sans) !important; font-size: 0.92rem !important; white-space: pre-wrap !important; }
 """

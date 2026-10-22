@@ -75,10 +75,13 @@ def moodboard_html(result, fonts, tiles, keywords):
     pattern_tiles = "".join(
         f'<div class="mb-tile mb-pattern" style="background:{PATTERN_CSS[name].format(**fill)}">'
         f'<span>{esc(name)}</span></div>' for name in tiles)
+    def label_colour(background):        # ink or white, whichever is easier to read on this swatch
+        ink = c["Ink (text)"]
+        return ink if palette.contrast(ink, background) >= palette.contrast("#FFFFFF", background) else "#FFFFFF"
     swatches = "".join(
-        f'<div class="mb-swatch" style="background:{x["hex"]};color:{c["Ink (text)"]}">'
+        f'<div class="mb-swatch" style="background:{x["hex"]};color:{label_colour(x["hex"])}">'
         f'<b>{esc(x["name"])}</b><small>{x["hex"]}</small></div>' for x in result["colours"])
-    chips = "".join(f'<span style="border-color:{c["Ink (text)"]}33">{esc(k)}</span>' for k in keywords)
+    chips = "".join(f'<span style="border-color:{c["Ink (text)"]}33">{esc(k)}</span>' for k in keywords[:6])
     return (
         f'<div class="moodboard" style="background:{c["Background"]};color:{c["Ink (text)"]}">'
         f'<div class="mb-tile mb-hero" style="background:linear-gradient(135deg,{c["Primary"]},{c["Harmony A"]} 55%,'
@@ -87,8 +90,8 @@ def moodboard_html(result, fonts, tiles, keywords):
         f'<div style="font-family:\'{fonts["heading"]}\',serif;font-size:2.1rem;line-height:1.05">Every feeling has a '
         f'universe</div><p style="font-family:\'{fonts["body"]}\',sans-serif;margin:.5rem 0 0;font-size:.9rem">'
         f'{esc(fonts["heading"])} for headings, {esc(fonts["body"])} for text: {esc(fonts["feel"])}.</p></div>'
-        f'{pattern_tiles}<div class="mb-swatches">{swatches}</div>'
-        f'<div class="mb-tile mb-words">{chips}</div></div>'
+        f'{pattern_tiles}<div class="mb-tile mb-words">{chips}</div>'
+        f'<div class="mb-swatches">{swatches}</div></div>'
     )
 
 
@@ -151,7 +154,7 @@ def palette_section():
 
     with st.container(key="glass-studio-checks"):
         st.html('<div class="eyebrow">Contrast check (WCAG)</div>' + "".join(
-            f'<div class="emo-row"><span>{esc(c["pair"])}</span><span>{c["ratio"]} : 1 '
+            f'<div class="check-row"><span>{esc(c["pair"])}</span><span>{c["ratio"]} : 1 '
             f'(needs {c["needed"]})</span><b>{"Pass" if c["passes"] else "Use for decoration only"}</b></div>'
             for c in result["checks"]))
 
