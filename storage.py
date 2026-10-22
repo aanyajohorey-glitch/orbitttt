@@ -18,6 +18,7 @@ What is stored:
 - feedback    : impact-study ratings and comments
 - ratings     : thumbs up / down on replies and tools
 - corrections : Teach Orbit labels
+- notes       : things the user CHOSE to keep (e.g. a Reach Out draft)
 - settings    : name, accessibility and privacy choices
 
 Nothing is sent to the internet by this file.
@@ -87,6 +88,10 @@ CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE IF NOT EXISTS ratings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     created_at TEXT, kind TEXT, target TEXT, value INTEGER
+);
+CREATE TABLE IF NOT EXISTS notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at TEXT, kind TEXT, title TEXT, text TEXT
 );
 CREATE TABLE IF NOT EXISTS corrections (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -244,6 +249,23 @@ def list_ratings():
 
 
 # ---------------------------------------------------------------
+# Notes the user chose to keep (Reach Out drafts)
+# ---------------------------------------------------------------
+def add_note(kind, title, text):
+    run("INSERT INTO notes (created_at, kind, title, text) VALUES (?, ?, ?, ?)", (now(), kind, title, text))
+
+
+def list_notes(kind=None):
+    if kind:
+        return run("SELECT * FROM notes WHERE kind = ? ORDER BY created_at DESC", (kind,))
+    return run("SELECT * FROM notes ORDER BY created_at DESC")
+
+
+def delete_note(note_id):
+    run("DELETE FROM notes WHERE id = ?", (note_id,))
+
+
+# ---------------------------------------------------------------
 # Teach Orbit corrections (human-in-the-loop labels)
 # ---------------------------------------------------------------
 def add_correction(text, predicted, corrected, raw_scores, source):
@@ -265,7 +287,7 @@ def clear_corrections():
 # ---------------------------------------------------------------
 # Export / import (so a journal can be kept when hosted on Streamlit Cloud)
 # ---------------------------------------------------------------
-EXPORT_TABLES = ("entries", "collection", "wellbeing", "feedback", "ratings", "corrections", "settings")
+EXPORT_TABLES = ("entries", "collection", "wellbeing", "feedback", "ratings", "corrections", "notes", "settings")
 
 
 def _columns(table):
@@ -324,5 +346,5 @@ def panic_wipe():
 
 def delete_everything():
     """Erase every saved journal entry, world, session, rating, correction and setting."""
-    for table in ("entries", "collection", "wellbeing", "feedback", "ratings", "corrections", "settings"):
+    for table in EXPORT_TABLES:
         run(f"DELETE FROM {table}")

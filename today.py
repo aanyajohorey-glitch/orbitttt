@@ -25,6 +25,7 @@ from components import esc, field_html, go_to, note, save_world, swatches_html, 
 from explain import highlight_html, importance_of, top_words
 from feedback_ui import thumbs
 from games import game_card, maybe_offer
+from reach_out import offer_card
 from nudges import nudge_card
 from safety import safety_card_html
 from teach_ui import clarify, confidence_html, teach_panel
@@ -180,6 +181,7 @@ def today_page():
     nudge_card(result)
     maybe_offer(result)          # the stress-buster pop-up, only when it fits (games.py)
     game_card(result)
+    offer_card(result)           # Reach Out Helper, after a distress-type feeling
 
     # ---------------------------------------------------------------- 4. Try this
     tool, line = suggestion(result)

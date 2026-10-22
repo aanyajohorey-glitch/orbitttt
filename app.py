@@ -29,6 +29,7 @@ import demo_mode
 import games
 import journal
 import onboarding
+import reach_out
 import settings_ui
 import storage
 import theme
@@ -89,6 +90,7 @@ PAGES = {   # page name -> (tab, label in that tab, function that draws it)
     "Mood Lab": ("Tools", "Mood Lab", views.mood_lab),
     "Soundspace": ("Tools", "Soundspace", views.soundspace),
     "Stress busters": ("Tools", "Stress busters", games.games_page),
+    "Reach Out": ("Tools", "Reach Out", reach_out.reach_out_page),
     "Vending Machine": ("Tools", "Arcade", vending.vending_machine),
     "About": ("About", "About ORBIT", about.about_page),
     "AI Lab": ("About", "AI Lab", ai_lab.ai_lab_page),

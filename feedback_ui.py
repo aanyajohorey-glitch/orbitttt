@@ -31,10 +31,16 @@ def thumbs(kind, target, key, label="Was this helpful?"):
         st.feedback("thumbs", key=key, on_change=_save, args=(kind, target, key))
 
 
+THUMB_KINDS = {"reply": "Reply", "tool": "Tool", "reach_out": "Reach Out draft"}   # thumbs: value 0 or 1
+
+
 def satisfaction(ratings):
-    """Share of thumbs-up per kind and target, e.g. {('reply', 'ORBIT templates'): (0.8, 10)}."""
+    """Share of thumbs-up per kind and target, e.g. {('reply', 'ORBIT templates'): (0.8, 10)}.
+    Only thumbs count here; 1-5 ratings (Mood Studio) are reported separately."""
     totals = {}
     for r in ratings:
+        if r["kind"] not in THUMB_KINDS:
+            continue
         up, n = totals.get((r["kind"], r["target"]), (0, 0))
         totals[(r["kind"], r["target"])] = (up + r["value"], n + 1)
     return {k: (up / n, n) for k, (up, n) in totals.items()}

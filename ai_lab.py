@@ -24,7 +24,7 @@ import storage
 import train_head
 from analysis import UNSURE_BELOW, current_head
 from components import esc, note, section_header
-from feedback_ui import satisfaction
+from feedback_ui import THUMB_KINDS, satisfaction
 from journal import style
 
 FAMILIES = orbit_head.FAMILIES
@@ -426,16 +426,16 @@ def ai_lab_page():
 
     # Satisfaction from the thumbs buttons ---------------------------------------
     heading("Satisfaction", "Thumbs up and down",
-            "Every reply and tool has thumbs buttons. Ratings stay on this device.")
+            "Every reply, tool and Reach Out draft has thumbs buttons. Ratings stay on this device.")
     scores = satisfaction(storage.list_ratings())
     with st.container(key="glass-satisfaction"):
         if not scores:
             st.html('<p class="body">No ratings yet. Use the thumbs under a reply or an exercise.</p>')
         else:
-            ratings = storage.list_ratings()
+            ratings = [r for r in storage.list_ratings() if r["kind"] in THUMB_KINDS]
             st.html(stats_html([(str(len(ratings)), "ratings"),
                                 (f'{sum(r["value"] for r in ratings) / len(ratings):.0%}', "thumbs up overall")]))
-            table = pd.DataFrame([{"Type": "Reply" if kind == "reply" else "Tool", "Rated": target,
+            table = pd.DataFrame([{"Type": THUMB_KINDS[kind], "Rated": target,
                                    "Thumbs up": f"{share:.0%}", "Ratings": count}
                                   for (kind, target), (share, count) in sorted(scores.items())])
             st.dataframe(table, hide_index=True, width="stretch")
