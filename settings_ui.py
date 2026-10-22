@@ -24,6 +24,10 @@ def save_reply_mode():
     storage.set_setting("reply_mode", st.session_state.set_reply_mode)
 
 
+def save_games():
+    storage.set_setting("games_opt_out", "0" if st.session_state.set_games else "1")
+
+
 def do_import():
     upload = st.session_state.get("set_import_file")
     if upload is None:
@@ -72,6 +76,13 @@ def settings_page():
         st.html(f'<p class="body">Right now: <b>{llm.mode_label()}</b></p>')
         note("Whatever mode is chosen, crisis messages are never sent to any AI: they always get the fixed safety "
              "reply with helplines. AI replies are checked before they're shown, and fall back to templates.")
+
+    with st.container(key="glass-set-games"):
+        st.html('<div class="eyebrow">Stress-buster games</div>')
+        st.toggle("Suggest a game when I'm stressed, anxious, sad or angry", key="set_games",
+                  value=storage.get_setting("games_opt_out", "0") != "1", on_change=save_games)
+        note("At most once per visit, never for happy or neutral feelings, and never in a crisis. All games are "
+             "also in Tools → Stress busters.")
 
     with st.container(key="glass-set-demo"):
         st.html('<div class="eyebrow">Offline demo mode</div>')

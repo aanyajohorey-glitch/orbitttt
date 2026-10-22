@@ -24,6 +24,7 @@ from constellation import constellation_html, constellation_planet, describe
 from components import esc, field_html, go_to, note, save_world, swatches_html, tags_html
 from explain import highlight_html, importance_of, top_words
 from feedback_ui import thumbs
+from games import game_card, maybe_offer
 from nudges import nudge_card
 from safety import safety_card_html
 from teach_ui import clarify, confidence_html, teach_panel
@@ -51,6 +52,7 @@ def step_title(number, title, text=""):
 
 
 def new_checkin():
+    st.session_state.game_playing = None
     for key in ("home_result", "today_done", "today_planet"):
         st.session_state[key] = None if key == "home_result" else False
     st.session_state.home_text = ""
@@ -176,6 +178,8 @@ def today_page():
         with right:
             thumbs("reply", result["style"], key="fb_today_reply")
     nudge_card(result)
+    maybe_offer(result)          # the stress-buster pop-up, only when it fits (games.py)
+    game_card(result)
 
     # ---------------------------------------------------------------- 4. Try this
     tool, line = suggestion(result)

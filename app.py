@@ -26,6 +26,7 @@ import calm_room
 import care
 import companion
 import demo_mode
+import games
 import journal
 import onboarding
 import settings_ui
@@ -87,6 +88,7 @@ PAGES = {   # page name -> (tab, label in that tab, function that draws it)
     "Calm Room": ("Tools", "Calm Room", calm_room.calm_room_page),
     "Mood Lab": ("Tools", "Mood Lab", views.mood_lab),
     "Soundspace": ("Tools", "Soundspace", views.soundspace),
+    "Stress busters": ("Tools", "Stress busters", games.games_page),
     "Vending Machine": ("Tools", "Arcade", vending.vending_machine),
     "About": ("About", "About ORBIT", about.about_page),
     "AI Lab": ("About", "AI Lab", ai_lab.ai_lab_page),
