@@ -91,16 +91,16 @@ def from_words(words):
     return means, list(dict.fromkeys(understood))
 
 
-def build(text, emotions, medium=None, audience=None, start_from=None, importance=None):
+def build(text, emotions, medium=None, audience=None, start_from=None, importance=None, match_text=None):
     """The Vibe Vector for an idea.
 
-    text: the idea (English, or the English translation of Hinglish/Hindi for word matching).
+    text: the idea as the user wrote it. match_text: its English translation (for Hinglish/Hindi).
     emotions: [(label, score), ...] from ORBIT's emotion model (or the offline estimate).
     """
     total = sum(s for _, s in emotions) or 1.0
     ev = sum(EMOTION_VA[label][0] * s for label, s in emotions) / total
     ea = sum(EMOTION_VA[label][1] * s for label, s in emotions) / total
-    words, themes = from_words(words_in(text))
+    words, themes = from_words(words_in(match_text or text))      # Hinglish/Hindi: match on the translation
 
     def mix(emotion_value, word_value, word_weight=0.6):
         """Words describe the vibe more directly than a short sentence's emotion, so they count a bit more."""
