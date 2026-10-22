@@ -12,7 +12,7 @@ When is a game offered? (offer_reason returns None when it should be)
 Joy, warmth, wonder and neutral feelings never trigger a game.
 
 Each game is a small HTML/JavaScript file in the games/ folder, shown with
-st.components.v1.html (a sandboxed frame). Games take 2-5 minutes and have no
+st.iframe (a separate frame). Games take 2-5 minutes and have no
 scores, streaks or timers that pressure you.
 """
 import json
@@ -20,7 +20,6 @@ import random
 from pathlib import Path
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 import storage
 from emotion_model import GROUP_COLOURS, GROUP_OF
@@ -161,7 +160,7 @@ def game_html(key, palette, ink, reduced):
 def play(key, result=None, height=620):
     from onboarding import reduced_motion
     palette, ink = palette_for(result)
-    components.html(game_html(key, palette, ink, reduced_motion()), height=height, scrolling=False)
+    st.iframe(game_html(key, palette, ink, reduced_motion()), height=height)   # ORBIT's own game code only
 
 
 def game_card(result):
