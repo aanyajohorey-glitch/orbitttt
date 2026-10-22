@@ -206,7 +206,7 @@ def offer_card(result):
 
 
 # ---------------------------------------------------------------
-# The page (Tools -> Reach Out)
+# The page (Feel -> Reach Out)
 # ---------------------------------------------------------------
 def save_draft(who, key):
     text = st.session_state.get(key, "").strip()

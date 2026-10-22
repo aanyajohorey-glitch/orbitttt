@@ -82,7 +82,7 @@ def settings_page():
         st.toggle("Suggest a game when I'm stressed, anxious, sad or angry", key="set_games",
                   value=storage.get_setting("games_opt_out", "0") != "1", on_change=save_games)
         note("At most once per visit, never for happy or neutral feelings, and never in a crisis. All games are "
-             "also in Tools → Stress busters.")
+             "also in Feel → Stress busters.")
 
     with st.container(key="glass-set-demo"):
         st.html('<div class="eyebrow">Offline demo mode</div>')

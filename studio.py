@@ -1,6 +1,6 @@
 """
 studio.py
-Tools -> Mood Studio: palettes and moodboards (palette.py) and music discovery
+Create -> Quick palette & music (the Mood Studio): palettes and moodboards (palette.py) and music discovery
 (music.py). Both are rule-based, so the method can be explained step by step.
 
 Crisis rule: if the last check-in (or the typed vibe) contains crisis wording,

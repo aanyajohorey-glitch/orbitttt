@@ -1,6 +1,6 @@
 """
 today.py
-The "Today" tab: ORBIT's guided check-in, one calm step at a time.
+The Feel tab -> Check-in: ORBIT's guided check-in, one calm step at a time.
 
     1. Check in       - write (or speak) how you feel, and how you are right now (1-5)
     2. What I noticed - the feeling ORBIT detected, how sure it is, and a way to correct it
@@ -230,4 +230,4 @@ def show_planet(result):
             b.button("See my galaxy", key="today_galaxy", on_click=go_to, args=("Journal",), width="stretch")
             c.button("New check-in", key="today_new", on_click=new_checkin, width="stretch")
     if games_allowed(result):
-        note("You earned an arcade token for looking after yourself. Spend it in Tools → Arcade.")
+        note("You earned an arcade token for looking after yourself. Spend it in Feel → Arcade.")

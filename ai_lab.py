@@ -455,8 +455,8 @@ def ai_lab_page():
     studio = [r for r in storage.list_ratings() if r["kind"] in ("palette_fit", "music_fit", "music_new")]
     with st.container(key="glass-studio-metrics"):
         if not studio:
-            st.html('<p class="body">No Mood Studio ratings yet. Rate a palette or a playlist in Tools → Mood '
-                    "Studio.</p>")
+            st.html('<p class="body">No Mood Studio ratings yet. Rate a palette or a playlist in Create → Quick palette & '
+                    "music.</p>")
         else:
             frame = pd.DataFrame(studio)
             fits = frame[frame["kind"].isin(["palette_fit", "music_fit"])]
@@ -476,6 +476,25 @@ def ai_lab_page():
                 st.dataframe(table, hide_index=True, width="stretch")
     note("These are self-ratings from a few people, so they show how the rules feel in use, not that they are "
          "'correct'. A palette or song can fit one person's vibe and not another's.")
+
+    # Creator Mode: Spark ideas ------------------------------------------------------
+    heading("Creator Mode", "Would people actually make these ideas?",
+            "After the Spark path, each idea can be rated 1-5 for “Would you actually make this?” and “Does it "
+            "match your answers?”. Rated on this device only.")
+    ideas = [r for r in storage.list_ratings() if r["kind"] in ("idea_make", "idea_match")]
+    with st.container(key="glass-idea-metrics"):
+        if not ideas:
+            st.html("<p class='body'>No idea ratings yet. Try Create → “I don't have an idea yet”.</p>")
+        else:
+            frame = pd.DataFrame(ideas)
+            table = (frame.pivot_table(index="target", columns="kind", values="value", aggfunc=["mean", "count"])
+                     .round(1))
+            table.columns = [f"{'Average' if a == 'mean' else 'Ratings'} · "
+                             f"{'would make' if b == 'idea_make' else 'matches answers'}" for a, b in table.columns]
+            st.dataframe(table.reset_index().rename(columns={"target": "Direction"}), hide_index=True,
+                         width="stretch")
+    note("If Weird ideas score low on “matches my answers” but well on “would make”, the surprise is working. "
+         "With only a few ratings these averages can change a lot.")
 
     # 11. Model card -------------------------------------------------------------
     _, _, meta = current_head()

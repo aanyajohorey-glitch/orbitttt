@@ -177,7 +177,7 @@ def game_card(result):
 
 
 # ---------------------------------------------------------------
-# Tools -> Stress busters: every game, any time
+# Feel -> Stress busters: every game, any time
 # ---------------------------------------------------------------
 def games_page():
     from components import note, section_header
