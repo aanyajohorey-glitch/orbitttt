@@ -28,8 +28,10 @@ FLOW = [
 
 def about_page():
     section_header("About ORBIT", "Every feeling has a universe",
-                   "ORBIT is an AI emotional-wellbeing companion for students, built as a Class 12 CBSE "
-                   "Artificial Intelligence project.", first=True)
+                   "ORBIT is a companion for creative people: it helps you feel okay and helps you make things. "
+                   "Create turns an idea into a cohesive creative universe; Feel supports wellbeing with safe, "
+                   "explainable check-ins, coping tools and stress-buster games. A Class 12 CBSE Artificial "
+                   "Intelligence project.", first=True)
     st.html('<div class="principles">' + "".join(
         f'<div class="principle"><b>{title}</b><p class="body">{text}</p></div>' for title, text in SDGS) + "</div>")
     st.html('<div class="section-head"><div class="eyebrow">How a check-in works</div></div>'
