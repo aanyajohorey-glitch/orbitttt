@@ -184,7 +184,7 @@ def top_bar():
     st.html(
         '<div class="topbar"><div class="brand">'
         + planet_html("#E6DCF6", "#A895D2", 20)
-        + '<span>ORBIT</span></div><div class="topbar-meta">Prototype · v0.4</div></div>'
+        + '<span>ORBIT</span></div><div class="topbar-meta">Prototype · v0.5</div></div>'
     )
 
 
