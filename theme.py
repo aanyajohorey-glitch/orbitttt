@@ -126,17 +126,16 @@ def sound_kind(world):
 
 
 def world_bar():
+    """The world you're in, a way back, and the Sound switch.
+    Shown only after a feeling has been detected (before that there's no world to hear)."""
     world = active_world()
+    if world is None:
+        return
     left, middle, right = st.columns([3, 1.2, 1], vertical_alignment="center")
-    with left:
-        if world is not None:
-            st.html(f'<div class="world-chip"><span style="--c:{world["planet_dark"]}"></span>'
-                    f'You are in <b>{world["name"]}</b> · {world["mood"]}</div>')
-    if world is not None:
-        middle.button("Back to ORBIT's colours", key="world_reset", type="tertiary", on_click=reset_world)
-    with right:
-        st.toggle("Sound", key="sound_on", help="Plays the world's soundscape. Off until you switch it on.",
-                  disabled=world is None and not st.session_state.get("sound_on"))
-    if st.session_state.get("sound_on") and world is not None:
+    left.html(f'<div class="world-chip"><span style="--c:{world["planet_dark"]}"></span>'
+              f'You are in <b>{world["name"]}</b> · {world["mood"]}</div>')
+    middle.button("Back to ORBIT's colours", key="world_reset", type="tertiary", on_click=reset_world)
+    right.toggle("Sound", key="sound_on", help="Plays this world's soundscape. Off until you switch it on.")
+    if st.session_state.get("sound_on"):
         with st.container(key="world-sound"):
             st.audio(world_sound(sound_kind(world)), format="audio/wav", loop=True, autoplay=True)
