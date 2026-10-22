@@ -36,4 +36,37 @@ FEATURE_CSS = """
 .game-offer b { font-family: var(--serif); font-size: 1.4rem; font-weight: 500; }
 .game-offer span { font-size: 0.82rem; color: var(--muted); }
 .st-key-glass-game iframe, .st-key-glass-games iframe { border-radius: 18px; }
+
+/* ---------- Mood Studio moodboard ---------- */
+.moodboard { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 120px; gap: 10px;
+  padding: 12px; border-radius: 22px; box-shadow: 0 24px 50px -32px rgba(52, 49, 59, 0.5); }
+.mb-tile { border-radius: 16px; position: relative; overflow: hidden; }
+.mb-hero { grid-column: span 2; grid-row: span 2; }
+.mb-type { grid-column: span 2; grid-row: span 2; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
+.mb-pattern span { position: absolute; left: 10px; bottom: 8px; font-size: 0.7rem; letter-spacing: 0.08em;
+  text-transform: uppercase; background: rgba(255, 255, 255, 0.8); color: #34313B; padding: 2px 8px; border-radius: 999px; }
+.mb-swatches { grid-column: span 4; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.mb-swatch { border-radius: 14px; padding: 10px; display: flex; flex-direction: column; justify-content: flex-end;
+  border: 1px solid rgba(52, 49, 59, 0.1); }
+.mb-swatch b { font-size: 0.8rem; font-weight: 600; }
+.mb-swatch small { font-size: 0.72rem; opacity: 0.8; font-variant-numeric: tabular-nums; }
+.mb-words { display: flex; flex-wrap: wrap; align-content: center; gap: 6px; padding: 10px; }
+.mb-words span { border: 1px solid; border-radius: 999px; padding: 3px 10px; font-size: 0.78rem; }
+@media (max-width: 640px) {
+  .moodboard { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mb-type, .mb-swatches { grid-column: span 2; }
+  .mb-swatches { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 90px; }
+}
+
+/* ---------- Mood Studio music ---------- */
+.track { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr) auto; gap: 0.8rem; align-items: center;
+  padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
+.track-num { font-family: var(--serif); font-size: 1.3rem; color: var(--muted); }
+.track small { display: block; font-size: 0.74rem; color: var(--muted); letter-spacing: 0.04em; }
+.track .body { margin-top: 0.15rem; font-size: 0.84rem; }
+.track-links { display: flex; gap: 0.4rem; }
+.track-links a { font-size: 0.78rem; text-decoration: none; color: var(--charcoal); border: 1px solid var(--line);
+  border-radius: 999px; padding: 0.25rem 0.7rem; background: rgba(255, 255, 255, 0.6); }
+.track-links a:hover { background: rgba(255, 255, 255, 0.95); }
+@media (max-width: 640px) { .track { grid-template-columns: 1.8rem minmax(0, 1fr); } .track-links { grid-column: 2; } }
 """
