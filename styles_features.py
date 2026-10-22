@@ -76,4 +76,38 @@ FEATURE_CSS = """
 /* ---------- Reach Out drafts: the copy box uses the normal font ---------- */
 [class*="st-key-glass-ro-draft"] pre, [class*="st-key-glass-ro-draft"] code {
   font-family: var(--sans) !important; font-size: 0.92rem !important; white-space: pre-wrap !important; }
+
+/* ---------- Creator Mode ---------- */
+.cu-title { font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.05; margin: 0.4rem 0 0.6rem; color: var(--charcoal); }
+.cu-vision { font-size: 1.02rem; line-height: 1.7; color: var(--charcoal); max-width: 70ch; margin: 0 0 0.8rem; }
+.cu-swatches { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 0.6rem; }
+.cu-swatch { display: grid; gap: 2px; font-size: 0.8rem; }
+.cu-swatch span { height: 64px; border-radius: 14px; border: 1px solid rgba(52, 49, 59, 0.1); margin-bottom: 4px; }
+.cu-swatch small { color: var(--muted); font-size: 0.72rem; }
+.cu-type { padding: 0.4rem 0; }
+.cu-type p { color: var(--muted); margin: 0.4rem 0 0; }
+.cu-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.cu-card { padding: 0.9rem 1rem; border-radius: 16px; background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.85); display: grid; gap: 0.25rem; align-content: start; }
+.cu-card b { font-size: 1rem; }
+.cu-card small { font-size: 0.74rem; color: var(--muted); letter-spacing: 0.03em; }
+.cu-card a { font-size: 0.78rem; color: var(--charcoal); }
+.dir-card { display: grid; gap: 0.4rem; }
+.dir-card b { font-family: var(--serif); font-size: 1.4rem; font-weight: 500; }
+.dir-card small { color: var(--muted); font-size: 0.8rem; }
+.dir-strip { display: flex; height: 26px; border-radius: 10px; overflow: hidden; }
+.dir-strip i { flex: 1; }
+.hist-row { display: grid; gap: 0.2rem; }
+.hist-row .dir-strip { height: 12px; width: 140px; }
+.hist-row small { color: var(--muted); font-size: 0.74rem; }
+.spark-tile { height: 92px; border-radius: 16px; display: flex; align-items: flex-end; padding: 10px; }
+.spark-tile span { background: rgba(255, 255, 255, 0.85); color: #34313B; border-radius: 10px; padding: 3px 8px;
+  font-size: 0.78rem; line-height: 1.3; }
+.mode-card { padding: 1.6rem; border-radius: 22px; background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.9); min-height: 170px; }
+.mode-card b { font-family: var(--serif); font-size: 2rem; font-weight: 500; display: block; }
+.mode-card p { color: var(--muted); margin: 0.4rem 0 0; }
+.mode-card small { display: inline-block; margin-top: 0.7rem; font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); }
+@media (max-width: 640px) { .cu-swatches { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 """
