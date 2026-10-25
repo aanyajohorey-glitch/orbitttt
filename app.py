@@ -30,8 +30,11 @@ import create_ui
 import demo_mode
 import games
 import journal
+import letters
 import onboarding
+import patterns
 import reach_out
+import safety_plan
 import settings_ui
 import storage
 import studio
@@ -93,10 +96,13 @@ PAGES = {   # page name -> (tab, label in that tab, function that draws it)
     "Calm Room": ("Feel", "Calm Room", calm_room.calm_room_page),
     "Stress busters": ("Feel", "Stress busters", games.games_page),
     "Reach Out": ("Feel", "Reach Out", reach_out.reach_out_page),
+    "Letters": ("Feel", "Letters", letters.letters_page),
+    "Safety plan": ("Feel", "Safety plan", safety_plan.safety_plan_page),
     "Mood Lab": ("Feel", "Mood Lab", views.mood_lab),
     "Soundspace": ("Feel", "Soundspace", views.soundspace),
     "Vending Machine": ("Feel", "Arcade", vending.vending_machine),
     "Journal": ("My Galaxy", "Galaxy & journal", journal.journal_page),
+    "Patterns": ("My Galaxy", "Patterns", patterns.patterns_page),
     "ORBIT": ("My Galaxy", "Saved worlds", views.universe),
     "My Collection": ("My Galaxy", "Collection", views.collection),
     "About": ("About", "About ORBIT", about.about_page),
