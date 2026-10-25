@@ -882,6 +882,45 @@ HIGH_CONTRAST_CSS = """
 [data-testid="stBaseButton-secondary"], button[data-variant="pills"] { border: 2px solid #000000 !important; }
 button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px solid #0047FF !important; outline-offset: 2px; }
 """
+# Night mode: ORBIT's own dark theme (an accessibility option). Surfaces that are light in the
+# day theme become deep violet glass; text becomes light. Generated palettes keep their colours.
+NIGHT_CSS = """
+:root { --ivory: #15131D; --charcoal: #EEEAF6; --muted: rgba(238, 234, 246, 0.68); --line: rgba(255, 255, 255, 0.12);
+  --glass: rgba(34, 30, 48, 0.72); }
+.stApp { background:
+    radial-gradient(1100px 560px at 88% -8%, rgba(142, 123, 191, 0.30), transparent 60%),
+    radial-gradient(900px 520px at -12% 24%, rgba(127, 147, 191, 0.22), transparent 60%),
+    #15131D; color: var(--charcoal); background-attachment: fixed; }
+[class*="st-key-glass"], .principle, .pipe-step, .stat, .tag, .helpline, .note, .step, .onb-point, .cu-card,
+.mode-card, .world-chip, .sealed, .op-body, .game-offer, .st-key-nav, .empty, .safety-card.concern,
+.flow-steps .step, .track-links a {
+  background: rgba(34, 30, 48, 0.72) !important; border-color: rgba(255, 255, 255, 0.10) !important;
+  box-shadow: 0 20px 44px -30px rgba(0, 0, 0, 0.9) !important; }
+.stApp p, .stApp li, .stApp label, .body, .lede, .eyebrow, .field-label, small, .insight, .display, .title-sm,
+.wordmark, .tagline, .brand, h1, h2, h3, h4, .cu-title, .cu-vision, .op-body small, .op-type, .op-icon,
+.letter-text, .ritual-words, .why-text { color: var(--charcoal) !important; }
+.body, .lede, .eyebrow, small, .field-label { color: var(--muted) !important; }
+[data-baseweb="textarea"], [data-baseweb="input"], [data-baseweb="select"] > div, [data-testid="stChatInput"] > div {
+  background: #221E30 !important; border-color: rgba(255, 255, 255, 0.14) !important; }
+textarea, input, [data-baseweb="textarea"] textarea, [data-baseweb="input"] input {
+  background: #221E30 !important; color: #EEEAF6 !important; caret-color: #C9B9E8; }
+[data-testid="stAudioInput"] > div, [data-testid="stFileUploaderDropzone"], [data-testid="stNumberInputContainer"] {
+  background: #221E30 !important; border-color: rgba(255, 255, 255, 0.14) !important; }
+[data-testid="stBaseButton-primary"] p, [data-testid="stBaseButton-primary"] { color: #1C1828 !important; }
+[data-testid="stPopoverButton"] { background: rgba(255, 255, 255, 0.06) !important; color: #EEEAF6 !important;
+  border-color: rgba(255, 255, 255, 0.16) !important; }
+[data-testid="stPopoverButton"] p { color: #EEEAF6 !important; }
+textarea::placeholder, input::placeholder { color: rgba(238, 234, 246, 0.42) !important; }
+[data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-tertiary"], button[data-variant="pills"] {
+  background: rgba(255, 255, 255, 0.06) !important; border-color: rgba(255, 255, 255, 0.16) !important;
+  color: #EEEAF6 !important; }
+[data-testid="stBaseButton-secondary"] p, [data-testid="stBaseButton-tertiary"] p { color: #EEEAF6 !important; }
+button[data-variant="pills"][aria-checked="true"], button[data-variant="pills"][aria-pressed="true"] {
+  background: rgba(168, 149, 210, 0.45) !important; }
+[data-testid="stDialog"] > div, [data-testid="stPopoverBody"], [data-testid="stExpander"] details {
+  background: #1E1B2B !important; color: #EEEAF6; border-color: rgba(255, 255, 255, 0.12) !important; }
+.uorbit-ring { border-color: rgba(255, 255, 255, 0.2); }
+"""
 READABLE_FONT_CSS = """
 .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp textarea, .stApp button,
 .display, .title-sm, .world-name, .prompt, .quote, .companion-text, .tagline, .wordmark,
@@ -904,6 +943,8 @@ def accessibility_css(settings):
         parts.append(HIGH_CONTRAST_CSS)
     if settings.get("readable_font"):
         parts.append(READABLE_FONT_CSS)
+    if settings.get("night_mode"):
+        parts.append(NIGHT_CSS)
     return "\n".join(parts)
 
 

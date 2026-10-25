@@ -17,6 +17,7 @@ A11Y_OPTIONS = {
     "large_text": "Larger text",
     "high_contrast": "High contrast",
     "readable_font": "Readability font (Lexend)",
+    "night_mode": "Night mode (dark theme)",
 }
 
 
@@ -99,7 +100,8 @@ def onboarding_page():
         left, right = st.columns(2)
         options = list(A11Y_OPTIONS.items())
         current = accessibility_settings()
-        for column, (key, label) in zip([left, right, left, right], options):
+        for i, (key, label) in enumerate(options):
+            column = left if i % 2 == 0 else right
             column.toggle(label, value=current[key], key=f"onb_{key}", on_change=save_toggle,
                           args=(f"a11y_{key}", f"onb_{key}"))
         agreed = st.checkbox("I understand that ORBIT is an AI and not a replacement for real help", key="onb_agree")

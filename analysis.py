@@ -145,7 +145,7 @@ def analyse(text, empty_message):
             return None
 
     try:
-        with st.spinner("Reading your words…"):
+        with st.spinner("Reading the stars…"):
             return interpret(text)
     except Exception:
         st.error("Something went wrong while reading that text. Please try again or rephrase it.")

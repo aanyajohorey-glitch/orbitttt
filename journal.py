@@ -102,11 +102,14 @@ def delete_entry(entry_id):
 # Charts (Altair, styled to match ORBIT)
 # ---------------------------------------------------------------
 def style(chart):
+    from onboarding import accessibility_settings
+    night = accessibility_settings().get("night_mode")
+    text, grid = ("#CFC8DE", "#3A3550") if night else ("#6B6773", "#ECE7F2")
     return (chart.configure(background="transparent", font=FONT)
             .configure_view(strokeWidth=0)
-            .configure_axis(labelColor="#6B6773", titleColor="#6B6773", gridColor="#ECE7F2",
-                            domainColor="#DDD6E8", tickColor="#DDD6E8", labelFontSize=11, titleFontSize=11)
-            .configure_legend(labelColor="#4A4553", titleColor="#6B6773", orient="bottom"))
+            .configure_axis(labelColor=text, titleColor=text, gridColor=grid,
+                            domainColor=grid, tickColor=grid, labelFontSize=11, titleFontSize=11)
+            .configure_legend(labelColor=text, titleColor=text, orient="bottom"))
 
 
 def weather_chart(table):
