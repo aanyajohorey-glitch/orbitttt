@@ -13,6 +13,7 @@ Crisis messages stop after step 3: only help is shown (no tools, worlds or games
 """
 import streamlit as st
 
+import bridge
 import calm_room
 import demo_mode
 import storage
@@ -205,6 +206,17 @@ def today_page():
         show_planet(result)
 
 
+def feeling_to_create(result):
+    """The bridge to Create: this check-in's emotion blend becomes a creative universe."""
+    from create_ui import generate
+    import storage as _storage
+    st.session_state.create_break = None
+    st.session_state.create_offer = None
+    generate(bridge.feeling_to_vector(result), 0.5, label="From your check-in")
+    _storage.set_setting("last_mode", "Create")
+    go_to("Create")
+
+
 def show_planet(result):
     world = get_world(result["world"])
     prompt = prompt_for(world, result["intent"])
@@ -228,6 +240,9 @@ def show_planet(result):
             a.button("Save world", key="save_home_result", type="primary", on_click=save_world,
                      args=(world["name"], "Today", result["intent"], prompt, result["text"][:160]), width="stretch")
             b.button("See my galaxy", key="today_galaxy", on_click=go_to, args=("Journal",), width="stretch")
+            st.button("Turn this feeling into something", key="today_create", type="secondary",
+                      on_click=feeling_to_create, args=(result,), width="stretch",
+                      help="Opens Create with a palette, moodboard and playlist made from this feeling.")
             c.button("New check-in", key="today_new", on_click=new_checkin, width="stretch")
     if games_allowed(result):
         note("You earned an arcade token for looking after yourself. Spend it in Feel → Arcade.")

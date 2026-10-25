@@ -68,6 +68,8 @@ DEFAULTS = {
     "flash": [],               # short pop-up messages to show once
     "creative": None,          # Creator Mode: the current creative universe and its history
     "create_pending": None,    # Creator Mode: an idea waiting for the optional quick questions
+    "create_offer": None,      # Creator Mode: a short-break offer after stress or block words
+    "create_break": None,      # Creator Mode: the break the user is taking right now
     "session_started": time.time(),
 }
 for name, value in DEFAULTS.items():

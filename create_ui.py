@@ -18,11 +18,14 @@ from urllib.parse import quote_plus
 import streamlit as st
 
 import brief
+import bridge
 import creative
 import fonts as fontlib
+import games
 import music
 import palette
 import spark
+import theme
 import vibe
 from components import esc, go_to, note, section_header
 from explain import highlight_html, importance_of
@@ -55,6 +58,7 @@ def block():
     for key in ("create_text", "create_song", "create_word", "spark_word"):
         st.session_state.pop(key, None)
     st.session_state.creative = None
+    theme.reset_world()                     # calm, neutral colours while help is shown
 
 
 def read_emotions(text):
@@ -98,6 +102,7 @@ def generate(vector, discovery=None, label="New idea"):
                    + history)[:HISTORY_SIZE]
     st.session_state.creative = {"universe": universe, "label": label, "history": history,
                                  "time": datetime.now().strftime("%H:%M:%S")}
+    theme.set_vibe_world(universe)          # the whole app takes on this universe's colours
 
 
 def restore(index):
@@ -107,6 +112,7 @@ def restore(index):
         [h for i, h in enumerate(current["history"]) if i != index]
     st.session_state.creative = {"universe": old["universe"], "label": f"Restored: {old['label']}",
                                  "history": history[:HISTORY_SIZE], "time": datetime.now().strftime("%H:%M:%S")}
+    theme.set_vibe_world(old["universe"])
 
 
 def apply_chip(chip):
@@ -161,6 +167,7 @@ def build_from_input():
     if start == "A colour" and s.get("create_colour"):
         vector.update({k: round(v, 3) for k, v in colour_to_vibe(s["create_colour"]).items()})
     vector["result"] = {k: result[k] for k in ("text", "model_text", "final", "translated")}
+    st.session_state.create_offer = bridge.offer_for(full)       # stress or creative-block words?
     vector["concern"] = result.get("safety") == "concern"
     if not vector["medium"]:                     # "a short film about..." already says the medium
         words = vibe.words_in(result.get("model_text") or full)
@@ -252,6 +259,72 @@ def questions_screen():
 
 
 # ---------------------------------------------------------------
+# The bridge to Feel: a short break, then back to the project
+# ---------------------------------------------------------------
+def take_break(kind, game=None, block=None):
+    st.session_state.create_break = {"kind": kind, "game": game, "block": block}
+    st.session_state.create_offer = None
+
+
+def end_break():
+    st.session_state.create_break = None          # the project in session state is untouched
+
+
+def check_in_on_project():
+    """'How's the project going?' Crisis first, then stress / block words."""
+    text = st.session_state.get("cu_feel", "").strip()
+    if not text:
+        return
+    if crisis_in(text):
+        block()
+        return
+    st.session_state.cu_feel = ""
+    offer = bridge.offer_for(text)
+    if offer:
+        st.session_state.create_offer = offer
+    else:
+        st.session_state.flash.append("Sounds like it's going okay. Keep going!")
+
+
+def stuck():
+    st.session_state.create_offer = bridge.offer_for("I'm stuck")
+
+
+def offer_card(offer):
+    with st.container(key="glass-cu-offer"):
+        what = (f"a bit of <b>{esc(offer['block'].lower())}</b>" if offer["block"] else "some stress")
+        st.html(f'<div class="eyebrow">A short break?</div><p class="body">It sounds like there might be {what} in '
+                "the way. That's very normal in creative work. Want to step away for a few minutes? Your project "
+                "will be right here when you come back.</p>")
+        cols = st.columns(4 if offer["block"] else 3)
+        cols[0].button("2-minute breather", key="br_breathe", on_click=take_break, args=("game", "orb_flow"),
+                       width="stretch")
+        cols[1].button(f"Play {games.GAMES[offer['game']][0]}", key="br_game", on_click=take_break,
+                       args=("game", offer["game"]), width="stretch")
+        if offer["block"]:
+            cols[2].button(f"{offer['block']} exercise", key="br_exercise", on_click=take_break,
+                           args=("exercise", None, offer["block"]), width="stretch")
+        cols[-1].button("No thanks", key="br_no", type="tertiary", width="stretch",
+                        on_click=lambda: st.session_state.update(create_offer=None))
+
+
+def break_screen(pause):
+    title = games.GAMES[pause["game"]][0] if pause["kind"] == "game" else f"{pause['block']}: a 5-minute exercise"
+    section_header("A short break", title, "Your project is saved in this session. Come back whenever you're ready.",
+                   first=True)
+    if pause["kind"] == "game":
+        with st.container(key="glass-break-game"):
+            games.play(pause["game"], None, height=600)
+    else:
+        with st.container(key="glass-break-exercise"):
+            st.html(f'<p class="cu-vision">{esc(bridge.BLOCKS[pause["block"]]["exercise"])}</p>'
+                    '<p class="body">No need to show anyone. When the five minutes are up, come back.</p>')
+    from feedback_ui import thumbs
+    thumbs("tool", f"Create break · {title}", key=f"fb_break_{title}", label="Did the break help?")
+    st.button("Back to my project", key="br_back", type="primary", on_click=end_break)
+
+
+# ---------------------------------------------------------------
 # 3. The Creative Universe
 # ---------------------------------------------------------------
 def lock_toggle(element):
@@ -304,6 +377,28 @@ def how_it_was_made(universe):
                 + highlight_html(importance))
 
 
+def orbit_html(universe):
+    """The idea at the centre; palette, type, music, artists and aesthetics orbit around it as planets.
+    Refining regenerates the universe, so these planets update straight away."""
+    colours = [c["hex"] for c in universe["palette"]["colours"]]
+    fonts_used, concept = universe["fonts"], universe["concept"]
+    planets = [
+        ("Palette", f'<i class="op-swatch" style="background:conic-gradient({", ".join(colours[:3] + colours[:1])})">'
+                    "</i>", universe["palette"]["colours"][0]["name"]),
+        ("Type", f'<i class="op-type" style="font-family:\'{fonts_used["heading"]}\',serif">Aa</i>',
+         fonts_used["heading"]),
+        ("Music", '<i class="op-icon">♪</i>', universe["music"][0]["title"] if universe["music"] else ""),
+        ("Artists", '<i class="op-icon">✦</i>', universe["creators"][0]["name"] if universe["creators"] else ""),
+        ("Aesthetic", '<i class="op-icon">◐</i>', universe["aesthetics"][0]["name"] if universe["aesthetics"] else ""),
+    ]
+    items = "".join(
+        f'<div class="op-planet" style="--a:{i * 72}deg"><div class="op-body">{icon}<b>{esc(label)}</b>'
+        f"<small>{esc(detail)}</small></div></div>" for i, (label, icon, detail) in enumerate(planets))
+    return (f'<div class="uorbit" style="--c1:{colours[0]};--c2:{colours[1]}"><div class="uorbit-ring"></div>'
+            f'<div class="uorbit-spin">{items}</div><div class="uorbit-core">'
+            f'<span style="font-family:\'{fonts_used["heading"]}\',serif">{esc(concept["title"])}</span></div></div>')
+
+
 def universe_screen():
     data = state()
     universe = data["universe"]
@@ -311,6 +406,7 @@ def universe_screen():
     fonts_used = universe["fonts"]
     st.html("<style>" + fontlib.google_fonts_css(fonts_used["heading"], fonts_used["body"]) + "</style>")
 
+    st.html(orbit_html(universe))
     with st.container(key="glass-cu-concept"):
         section("concept", f"Your creative universe · {data['label']}"
                 + (f" · {vector['direction']}" if vector.get("direction") else ""))
@@ -322,6 +418,14 @@ def universe_screen():
         import llm
         if llm.active_mode() != "templates" and not concept.get("polished"):
             b.button("Polish the vision with AI", key="cu_polish", on_click=polish, width="stretch")
+    if st.session_state.get("create_offer"):
+        offer_card(st.session_state.create_offer)
+    with st.container(key="glass-cu-feel"):
+        left, middle, right = st.columns([3, 1, 1], vertical_alignment="bottom")
+        left.text_input("How's the project going?", key="cu_feel", max_chars=200,
+                        placeholder="e.g. it has to be perfect and I can't start")
+        middle.button("Tell ORBIT", key="cu_feel_go", on_click=check_in_on_project, width="stretch")
+        right.button("I'm stuck", key="cu_stuck", on_click=stuck, width="stretch")
     if vector.get("concern"):
         note("Some of what you wrote sounds heavy. Making things can help, and so can talking: the <b>Feel</b> tab "
              "is here whenever you want it, and Tele-MANAS (14416) is free, any time.")
@@ -448,7 +552,9 @@ def create_page():
             st.session_state.create_blocked = False
             st.rerun()
         return
-    if st.session_state.get("spark_step"):
+    if st.session_state.get("create_break"):
+        break_screen(st.session_state.create_break)
+    elif st.session_state.get("spark_step"):
         import spark_ui
         spark_ui.spark_screen()
     elif st.session_state.get("create_pending"):
