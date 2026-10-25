@@ -21,21 +21,44 @@ wellbeing with safe, explainable check-ins, coping tools and stress-buster games
 Built with **Python**, **Streamlit**, **pandas**, **Altair**, **SQLite**
 and a **pre-trained transformer model** running offline.
 
-> Status: prototype v0.5: Create (Creator Mode) and Feel (wellbeing) modes. ORBIT has its own trained
-> classifier, confidence handling, "Teach Orbit", a tested safety net that runs first in both modes,
-> 419 automated tests and CI. The methodology is in [`docs/methodology.md`](docs/methodology.md)
-> and the safety testing is in [`docs/safety_report.md`](docs/safety_report.md).
+> Status: prototype v0.5: Create (Creator Mode) and Feel (wellbeing) modes, joined by two bridges.
+> ORBIT has its own trained classifier, confidence handling, "Teach Orbit", a tested safety net that
+> runs first in both modes, 450 automated tests and CI.
+>
+> Documentation: [methodology](docs/methodology.md) · [safety report](docs/safety_report.md) ·
+> [model card](docs/model_card.md) · [data card](docs/data_card.md) · [viva Q&A](docs/viva_qa.md) ·
+> [3-minute demo script](docs/demo_script.md) · [deployment](docs/deploy.md)
 
-## The real-world problem and the SDGs
+## The 4Ws
 
-Exam pressure, loneliness and anxiety are common among teenagers, and many
-can't easily reach a counsellor. ORBIT is free, private and works offline.
-
-| SDG | How ORBIT helps |
+| | |
 |---|---|
-| **SDG 3: Good Health and Well-being** (target 3.4: mental health) | Emotional check-ins, a listening companion, coping tools, a crisis safety net with helplines |
-| **SDG 4: Quality Education** | Designed for students and exam stress; teaches emotional vocabulary and CBT skills |
-| **SDG 10: Reduced Inequalities** | Free, offline and private; Hinglish and Hindi support for users who don't think in English |
+| **Who** has the problem? | Teenagers and young creators in India (students who make posters, films, music, writing, brands), often writing in English, Hinglish or Hindi, many without easy access to a mentor or counsellor. |
+| **What** is the problem? | Turning a raw idea or feeling into a cohesive creative direction takes many tools and much trial and error, and unfamiliar artists and genres are hard to discover. Creative work is also emotionally demanding, with blocks, comparison, burnout and exam stress, and many have no one to talk to. |
+| **Where** does it happen? | At home and at school, on a phone or laptop, often offline or on weak internet, and inside the creative process itself (the moment of being stuck). |
+| **Why** does it matter? | Creative confidence and mental wellbeing affect learning, future work and health. A free, private, explainable tool that supports both can reach people other services don't. |
+
+## Objectives
+
+1. Turn an idea (or nothing at all, via Spark) into a **cohesive creative universe** from one explainable
+   Vibe Vector: concept, palette with WCAG checks, fonts, moodboard, aesthetics, music and creators.
+2. Help users **discover beyond the mainstream**, including Indian indie, regional, folk and classical
+   artists, with a measurable discovery dial.
+3. Read feelings in **English, Hinglish and Hindi** with calibrated confidence, and **ask** when unsure.
+4. Keep users **safe**: deterministic crisis handling first, in both modes, with helplines; no diagnosis.
+5. Offer **evidence-based coping tools**, stress-buster games, Reach Out drafts, letters and a safety plan,
+   and gently point to real people.
+6. Keep data **private** (on the device, exportable, Panic wipe) and **evaluate honestly** in the AI Lab.
+
+## SDGs
+
+| SDG | Target | The feature that serves it |
+|---|---|---|
+| **SDG 3: Good Health and Well-being** (primary) | 3.4: promote mental health and well-being | Feel mode: check-ins, coping tools, stress-buster games, Reach Out Helper, Safety Plan, dependence nudges, crisis safety net with Tele-MANAS |
+| **SDG 8: Decent Work and Economic Growth** | 8.3: support creativity, innovation and small enterprises | Create mode turns ideas into professional-style creative briefs (palette, type, references) for young creators and small brands, for free |
+| **SDG 9: Industry, Innovation and Infrastructure** | 9.5: enhance research and technological capability | Explainable, offline-first AI (Vibe Vector, cosine similarity + MMR, occlusion heatmap) with an open evaluation lab |
+| **SDG 10: Reduced Inequalities** | 10.2: social and economic inclusion of all | Free and offline; Hinglish and Hindi; Indian regional, folk and classical creators in discovery |
+| SDG 4: Quality Education (optional) | 4.7: knowledge and skills | Exam-stress support, emotional vocabulary, CBT thought reframe, and the AI Lab as a learning tool |
 
 ## How ORBIT is organised
 
@@ -52,12 +75,15 @@ Then ORBIT asks **Feel or Create?** (and remembers your last choice). There are 
 | **Feel** | Check-in | A guided flow: **1** check in (text or voice) → **2** what ORBIT noticed (emotion + confidence) → **3** ORBIT's reply → **4** one small exercise to try → **5** mood after → **6** a new planet joins your galaxy. |
 | | Talk to ORBIT | A chat. Every message is checked for safety first, then analysed; replies reflect, validate and ask one gentle question. |
 | **My Galaxy** | Galaxy & journal | Private mood history: emotional weather, patterns, insights and a **galaxy where every check-in is a planet**. |
+| | Patterns | **Pattern Insights** over 7 days, 14 days, 30 days or a year: feelings, mood line, calendar heatmap, when low moods cluster, and layered suggestions. |
 | | Saved worlds · Collection | Saved aesthetic worlds, as planets on an orbit, and as a collection. |
 | | Calm Room | Breathing (box, 4-6, 4-7-8), 5-4-3-2-1 grounding, a **CBT thought reframe** and a gratitude jar, with mood before and after. |
 | | Mood Lab | Detailed analysis with **"Why does ORBIT think this?"** (word importance), Hinglish translation and voice notes. |
 | | Soundspace | Soundscapes generated by Python maths. |
 | | Stress busters | Nine gentle 2-5 minute games (no scores). Also offered once per visit after a confident stress, anxiety, sadness or anger check-in, never for happy/neutral feelings, a crisis or repeated low moods. |
 | | Reach Out | **Reach Out Helper**: drafts a short message to a friend, parent or teacher that you edit, copy and send yourself. |
+| | Letters | **A letter you'll never send** (let it burn or float away; nothing kept unless you choose) and **a letter to future me** (sealed for 30 days, then shown next to what you felt). |
+| | Safety plan | Your own plan for hard moments: warning signs, what helps, people and helplines. Private; also opened from Care. |
 | | Arcade | A realistic vending machine; tokens are **earned by self-care**. |
 | **About & AI Lab** | About ORBIT | The problem, the SDGs, how a check-in works and what ORBIT is not. |
 | | AI Lab | The full evaluation (methods A to D, per-family metrics, confusion matrices, languages, calibration, safety suite, Teach Orbit retraining, fairness, impact study, **satisfaction from thumbs ratings**, model card). |
@@ -138,6 +164,30 @@ actually make this?"** and **"Does it match your answers?"**, reported per direc
 **Limits.** The word tables, font moods, aesthetics, creators and seeds were labelled by one student, so
 they encode one person's taste; colour meaning differs between cultures; the template grammar can sound
 formulaic; matching a creator by numbers is a starting point for research, not a judgement of their work.
+
+## The bridges between the two modes
+
+- **Create → Feel.** If an idea, or *"How's the project going?"*, shows stress or creative-block words,
+  ORBIT offers a 2-minute breather, a matched game, or a 5-minute exercise for the block (perfectionism,
+  fear of judgment, burnout, comparison or no direction). **Back to my project** returns to exactly where
+  you were. The words come from a small, readable list (`bridge.py`), checked after the crisis check.
+- **Feel → Create.** After a check-in, **Turn this feeling into something** sends the emotion blend into
+  Creator Mode, which builds a palette, moodboard and playlist from it (the check-in text is not used as
+  the project title).
+- **The app changes with you.** A detected feeling (Feel) or the current Vibe Vector (Create) sets the
+  whole app's gradient, accent and glow with a smooth fade; sound stays off until you switch it on.
+  Create opens with an **orbit view**: your idea at the centre, with palette, type, music, artists and
+  aesthetics orbiting as planets, updating as you refine.
+
+## Pattern Insights (My Galaxy → Patterns)
+
+Periods of 7 days, 14 days, 30 days or 1 year, showing how often each feeling family appeared, a mood
+line, a calendar heatmap, bright vs low days, and the weekdays and times of day when low moods cluster.
+The wording is always "a pattern we noticed", never a diagnosis. If low days are frequent, the
+suggestions come in layers: (1) a calming tool or game, (2) the Reach Out Helper, (3) if it lasts
+about two weeks, a gentle suggestion to talk to a trusted adult or counsellor, with Tele-MANAS. Every
+threshold is a named constant in `patterns.py`, marked as a rule of thumb pending a counsellor's review.
+Sparse periods show "Not enough data yet".
 
 ## Reach Out Helper (Feel → Reach Out)
 
@@ -294,6 +344,25 @@ Each method was adopted only if it met a rule **written before training** (`docs
 On **fresh** holdouts, crisis recall was 17%, then 33% after improvements. Fixed rules can't foresee
 every wording, so helplines are always visible. See `docs/safety_report.md`.
 
+### Creator Mode evaluation
+
+**List diversity (computed on 20 example ideas, `creator_eval.py`):**
+
+| Discovery dial | Languages per playlist (of 8) | Genres per playlist (of 8) | Fields per creator list (of 6) | Average mainstream level (1-5) | Creators from India |
+|---|---|---|---|---|---|
+| 0 (comfort zone) | 6.2 | 8.0 | 5.6 | 4.25 | 36% |
+| 0.5 | 7.8 | 8.0 | 5.8 | 3.74 | 52% |
+| 1 (unfamiliar) | 8.0 | 8.0 | 6.0 | 3.05 | 68% |
+
+**Set up but not collected yet** (the AI Lab shows them as soon as data exists):
+- **Vibe-prompt accuracy:** about 100 held-out ideas, each rated by 3 people (`docs/vibe_eval_guide.md`).
+  ORBIT is compared with a **human baseline** (how often one rater agrees with the other two).
+- **In-app ratings:** palette fit, cohesion and music relevance (1-5), music and creator **precision@k**,
+  and the **novelty rate**.
+- **Timed user study:** creative brief with ORBIT vs usual tools (`docs/user_study.md`).
+
+Claims stay modest: samples will be small and the raters untrained.
+
 **Honest limitations:**
 - **Over-reading fear in body sentences.** The classifier now catches body-described anxiety, but it
   reads some harmless body sentences as fear: non-anxiety controls read correctly fell from 77% to 54%.
@@ -303,6 +372,29 @@ every wording, so helplines are always visible. See `docs/safety_report.md`.
   needed for a fair final score.
 - **Training data of the base model.** RoBERTa was trained on English Reddit comments. It can
   misread sarcasm and very short messages; for vague messages ORBIT asks first.
+- **Small, hand-built datasets.** The training sentences, safety phrases and creative catalogues were
+  written for this project (many drafted with an AI assistant), and most labels are one person's view
+  (`docs/data_card.md`).
+- **Rule-based colour and style mapping.** Feelings become colours, fonts and aesthetics through rules
+  of thumb, not science; colour meaning differs between cultures.
+
+## Future scope and scale-up
+
+Each step happens only if the evidence from the step before supports it.
+
+1. **Now (prototype):** both modes, offline-first, with an honest evaluation lab.
+2. **Next (school pilot):** consented classmate data (held-out emotions, vibe ratings, user study),
+   a fine-tuned Hinglish model, counsellor review of the safety rules and Pattern thresholds, and
+   **more Indian languages**.
+3. **Later:** user-uploaded **image references** analysed for colour and mood, **team collaboration**
+   on shared universes, **licensed music and font APIs** in place of the hand-built catalogues,
+   institutional dashboards with only aggregate, anonymous numbers, and regulatory compliance.
+
+**An idea for the future, not built:** opt-in *wellbeing signals*. That could mean screen-time
+reflection, on-device detection of distress language shown first to the user, and a trusted contact
+notified only if the user authorised it in advance. This would need platform permissions, prominent
+disclosure, verifiable parental consent for minors under India's DPDP rules, clinical review and legal
+advice. **ORBIT will not monitor private browsing or private messages without the user's knowledge.**
 
 ## Safety and privacy
 - If someone writes about suicide or self-harm, ORBIT shows **Tele-MANAS 14416 / 1-800-891-4416**
@@ -335,6 +427,11 @@ Mood-to-World/
 ├── theme.py          # The app takes on the detected feeling's world; opt-in Sound
 ├── games.py + games/ # Stress-buster pop-up rules and 9 HTML/JS games
 ├── reach_out.py      # Reach Out Helper (template drafts the user sends themselves)
+├── patterns.py       # Pattern Insights (rule-of-thumb thresholds at the top)
+├── letters.py        # Letter you'll never send, letter to future me
+├── safety_plan.py    # Safety Plan Builder
+├── bridge.py         # Create <-> Feel bridges: block/stress words, exercises
+├── creator_eval.py   # Creator Mode evaluation (vibe accuracy, list diversity, user study)
 ├── studio.py         # Mood Studio screen (palettes and moodboards)
 ├── create_ui.py      # Create tab: entry, questions, Creative Universe, refine, locks, history, exports
 ├── spark_ui.py       # Spark path screens
@@ -372,17 +469,20 @@ Mood-to-World/
 ├── styles.py         # All the visual design (CSS)
 ├── world_data.py     # Loads worlds.csv, matches emotions to worlds, Soundspace data
 ├── requirements.txt / requirements-dev.txt
-├── tests/            # 419 pytest tests (safety, translation, analysis, games, Mood Studio, Creator Mode)
+├── tests/            # 450 pytest tests (safety, translation, analysis, games, Mood Studio, Creator Mode, bridges)
 ├── .github/workflows/tests.yml   # runs the tests on GitHub on every push
 ├── docs/
 │   ├── methodology.md            # data, modelling, pre-registered rules, results
 │   ├── safety_report.md          # safety test rounds and known misses
 │   ├── deploy.md                 # Streamlit Cloud: storage, cloud AI, memory
-│   └── data_collection_guide.md  # how to collect the held-out set ethically
+│   ├── data_collection_guide.md  # how to collect the held-out set ethically
+│   ├── model_card.md · data_card.md
+│   ├── vibe_eval_guide.md · user_study.md   # Creator Mode evaluation protocols
+│   └── viva_qa.md · demo_script.md          # viva preparation
 ├── .streamlit/config.toml + secrets.toml.example
 └── data/
     ├── worlds.csv                # aesthetic worlds and their emotion mappings
-    ├── train_augment.csv         # 338 training sentences (author-written)
+    ├── train_augment.csv         # 338 training sentences (written for the project)
     ├── eval_set.csv              # 70-sentence development set
     ├── eval_body.csv             # 33-sentence body-feelings test
     ├── eval_heldout_template.csv # template; the real eval_heldout.csv stays local
@@ -394,6 +494,9 @@ Mood-to-World/
     ├── creators.csv              # 98 creators and artists (53 from India)
     ├── idea_seeds.csv            # Spark: settings, contrast pairs, textures, story structures
     ├── idea_seeds_labelling_template.csv
+    ├── example_ideas.csv         # 20 ideas for computing list diversity
+    ├── vibe_eval_template.csv    # template; the real vibe_eval.csv stays local
+    ├── user_study_template.csv   # template; the real user_study.csv stays local
     ├── model/                    # trained classifiers + cached base-model scores
     └── README.md
 ```
