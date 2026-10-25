@@ -47,9 +47,32 @@ def reset_world():
     st.session_state.world_theme = None
 
 
+def lookup(name):
+    """A world from worlds.csv, or a Creator Mode "vibe world" made from a universe's palette."""
+    if not name:
+        return None
+    if name.startswith("vibe:"):
+        return st.session_state.get("vibe_worlds", {}).get(name)
+    return get_world(name)
+
+
 def active_world():
-    name = st.session_state.get("world_theme")
-    return get_world(name) if name else None
+    return lookup(st.session_state.get("world_theme"))
+
+
+def set_vibe_world(universe):
+    """Creator Mode: the app takes on the current universe's palette and energy."""
+    colours = {c["role"]: c["hex"] for c in universe["palette"]["colours"]}
+    arousal = universe["vector"]["arousal"]
+    name = "vibe:" + universe["concept"]["title"]
+    world = {"name": universe["concept"]["title"], "mood": "your creative universe",
+             "palette": [colours["Primary"], colours["Harmony A"], colours["Harmony B"]],
+             "planet_light": colours["Harmony A"], "planet_dark": colours["Primary"], "ring": False,
+             "motion": "lively" if arousal > 0.35 else "slow" if arousal < -0.2 else "medium"}
+    st.session_state.setdefault("vibe_worlds", {})[name] = world
+    if name != st.session_state.get("world_theme"):
+        st.session_state.world_from = st.session_state.get("world_theme")
+        st.session_state.world_theme = name
 
 
 # ---------------------------------------------------------------
@@ -61,13 +84,13 @@ def _rgba(hex_colour, alpha):
     return f"rgba({r}, {g}, {b}, {alpha})"
 
 
-def gradient(world):
-    """The page background for a world (soft, so text stays easy to read)."""
+def gradient(world, night=False):
+    """The page background for a world (soft, so text stays easy to read). Night mode: a dark base."""
     if world is None:
-        a, b, c, base = "#C9B9E8", "#B9C8EA", "#EBCBD7", "#F8F6F2"
+        a, b, c = "#C9B9E8", "#B9C8EA", "#EBCBD7"
     else:
         a, b, c = world["palette"][:3]
-        base = "#F8F6F2"
+    base = "#15131D" if night else "#F8F6F2"
     return (f"radial-gradient(1100px 560px at 88% -8%, {_rgba(a, 0.42)}, transparent 60%), "
             f"radial-gradient(900px 520px at -12% 24%, {_rgba(b, 0.34)}, transparent 60%), "
             f"radial-gradient(900px 600px at 50% 112%, {_rgba(c, 0.32)}, transparent 60%), {base}")
@@ -79,7 +102,7 @@ def theme_css(settings):
         return ""
     world = active_world()
     old_name = st.session_state.get("world_from")
-    old = get_world(old_name) if old_name else None
+    old = lookup(old_name)
     css = []
     if world is not None:
         accent = world["planet_dark"]
@@ -87,7 +110,7 @@ def theme_css(settings):
         speed = SPEED.get(world.get("motion", "medium"), 1.0)
         css.append(f"""
 :root {{ --lavender: {world["palette"][0]}; --accent: {accent}; --orbit-speed: {speed}; }}
-.stApp {{ background: {gradient(world)}; background-attachment: fixed; }}
+.stApp {{ background: {gradient(world, settings.get('night_mode'))}; background-attachment: fixed; }}
 [class*="st-key-glass"] {{ box-shadow: 0 24px 50px -30px {_rgba(accent, 0.55)}, 0 0 0 1px {_rgba(accent, 0.12)},
   0 0 42px -18px {_rgba(accent, 0.45)} !important; }}
 [data-testid="stBaseButton-primary"] {{ background: linear-gradient(180deg, {light} 0%, {_rgba(accent, 0.75)} 100%) !important;
@@ -102,7 +125,7 @@ def theme_css(settings):
         name = "worldfade" + hashlib.md5(f"{old_name}>{st.session_state.get('world_theme')}".encode()).hexdigest()[:6]
         css.append(f"""
 .stApp::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background: {gradient(old)}; animation: {name} 1.8s ease forwards; }}
+  background: {gradient(old, settings.get('night_mode'))}; animation: {name} 1.8s ease forwards; }}
 @keyframes {name} {{ from {{ opacity: 1; }} to {{ opacity: 0; }} }}
 [data-testid="stAppViewContainer"] {{ position: relative; z-index: 1; }}
 """)

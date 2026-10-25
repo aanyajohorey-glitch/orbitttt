@@ -143,4 +143,34 @@ FEATURE_CSS = """
   background: rgba(201, 185, 232, 0.6); font-weight: 600; }
 .plan-step b { font-size: 1rem; }
 .plan-step .body { white-space: pre-wrap; margin-top: 0.15rem; }
+
+/* ---------- Create: the orbit view (idea at the centre, elements orbiting) ---------- */
+.uorbit { position: relative; height: 480px; margin: 0.4rem auto 1rem; max-width: 760px; --r: 195px; }
+.uorbit-ring { position: absolute; left: 50%; top: 50%; width: calc(var(--r) * 2); height: calc(var(--r) * 2);
+  transform: translate(-50%, -50%); border-radius: 50%; border: 1px dashed rgba(52, 49, 59, 0.18); }
+.uorbit-core { position: absolute; left: 50%; top: 50%; width: 150px; height: 150px; transform: translate(-50%, -50%);
+  border-radius: 50%; display: grid; place-items: center; text-align: center; padding: 14px;
+  background: radial-gradient(circle at 32% 28%, #ffffff, var(--c1) 55%, var(--c2));
+  box-shadow: 0 0 60px -10px var(--c1), inset -8px -12px 24px rgba(52, 49, 59, 0.18); }
+.uorbit-core span { font-size: 1.05rem; line-height: 1.15; color: #34313B; }
+.uorbit-spin { position: absolute; inset: 0; animation: orbit-spin calc(90s * var(--orbit-speed, 1)) linear infinite; }
+.op-planet { position: absolute; left: 50%; top: 50%; width: 0; height: 0;
+  transform: rotate(var(--a)) translateY(calc(var(--r) * -1)) rotate(calc(var(--a) * -1)); }
+.op-body { position: absolute; transform: translate(-50%, -50%); width: 118px; padding: 8px 6px; border-radius: 18px;
+  display: grid; justify-items: center; gap: 2px; text-align: center; background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 12px 26px -16px rgba(52, 49, 59, 0.45);
+  animation: orbit-spin calc(90s * var(--orbit-speed, 1)) linear infinite reverse; }
+.op-body b { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.op-body small { font-size: 0.74rem; color: var(--charcoal); line-height: 1.2; max-height: 2.4em; overflow: hidden; }
+.op-swatch { width: 34px; height: 34px; border-radius: 50%; display: block; }
+.op-type { font-style: normal; font-size: 1.6rem; line-height: 1; color: var(--charcoal); }
+.op-icon { font-style: normal; font-size: 1.4rem; line-height: 1; color: var(--charcoal); }
+@keyframes orbit-spin { to { transform: rotate(360deg); } }
+.uorbit:hover .uorbit-spin, .uorbit:hover .op-body { animation-play-state: paused; }
+@media (max-width: 640px) { .uorbit { height: 380px; --r: 140px; } .op-body { width: 96px; } .uorbit-core { width: 120px; height: 120px; } }
+@media (prefers-reduced-motion: reduce) { .uorbit-spin, .op-body { animation: none !important; } }
+
+/* ---------- Hide the default Streamlit chrome (ORBIT has its own top bar) ---------- */
+[data-testid="stToolbarActions"], [data-testid="stMainMenu"], [data-testid="stAppDeployButton"],
+[data-testid="stDecoration"], #MainMenu, footer { display: none !important; }
 """
