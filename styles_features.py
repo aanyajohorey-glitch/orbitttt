@@ -110,4 +110,37 @@ FEATURE_CSS = """
 .mode-card small { display: inline-block; margin-top: 0.7rem; font-size: 0.72rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--muted); }
 @media (max-width: 640px) { .cu-swatches { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* ---------- Letters ---------- */
+.ritual { display: grid; justify-items: center; gap: 1rem; padding: 2rem 0 1rem; }
+.ritual-paper { max-width: 520px; padding: 1.4rem 1.6rem; background: #FFFDF8; border-radius: 6px;
+  box-shadow: 0 18px 40px -24px rgba(52, 49, 59, 0.5); font-family: var(--serif); font-size: 1.1rem;
+  line-height: 1.6; color: var(--charcoal); white-space: pre-wrap; }
+.ritual-paper.burn { animation: burn-away 3.2s ease-in 0.6s both; }
+.ritual-paper.float { animation: float-away 3.6s ease-in 0.6s both; }
+.ritual-paper.fade { animation: fade-away 2.4s ease 0.6s both; }
+@keyframes burn-away {
+  0% { filter: none; opacity: 1; transform: none; }
+  40% { filter: sepia(1) saturate(3) brightness(0.9); background: #F3C98B; }
+  75% { filter: sepia(1) brightness(0.4) blur(1px); transform: scale(0.94) rotate(-2deg); opacity: 0.6; }
+  100% { filter: brightness(0) blur(6px); transform: scale(0.6) translateY(20px); opacity: 0; }
+}
+@keyframes float-away {
+  0% { transform: none; opacity: 1; }
+  100% { transform: translateY(-260px) rotate(6deg) scale(0.7); opacity: 0; }
+}
+@keyframes fade-away { from { opacity: 1; } to { opacity: 0; } }
+.ritual-words { font-family: var(--serif); font-size: 1.4rem; color: var(--charcoal); text-align: center; }
+.letter-text { font-family: var(--serif); font-size: 1.15rem; line-height: 1.7; white-space: pre-wrap; margin: 0.4rem 0; }
+.sealed-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
+.sealed { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.9rem; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.9); font-size: 0.84rem; color: var(--muted); }
+
+/* ---------- Safety plan ---------- */
+.plan { display: grid; gap: 0.8rem; }
+.plan-step { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.8rem; align-items: start; }
+.plan-step > span { width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(201, 185, 232, 0.6); font-weight: 600; }
+.plan-step b { font-size: 1rem; }
+.plan-step .body { white-space: pre-wrap; margin-top: 0.15rem; }
 """

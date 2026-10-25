@@ -251,8 +251,9 @@ def list_ratings():
 # ---------------------------------------------------------------
 # Notes the user chose to keep (Reach Out drafts)
 # ---------------------------------------------------------------
-def add_note(kind, title, text):
-    run("INSERT INTO notes (created_at, kind, title, text) VALUES (?, ?, ?, ?)", (now(), kind, title, text))
+def add_note(kind, title, text, created_at=None):
+    run("INSERT INTO notes (created_at, kind, title, text) VALUES (?, ?, ?, ?)",
+        (created_at or now(), kind, title, text))
 
 
 def list_notes(kind=None):

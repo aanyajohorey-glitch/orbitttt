@@ -13,7 +13,7 @@ import streamlit as st
 
 import orbit_head
 import storage
-from components import note, section_header
+from components import go_to, note, section_header
 from safety import helplines_html
 
 PRINCIPLES = [
@@ -65,6 +65,13 @@ def care_page():
     st.html('<div class="principles">' + "".join(
         f'<div class="principle"><b>{title}</b><p class="body">{text}</p></div>' for title, text in PRINCIPLES
     ) + "</div>")
+
+    with st.container(key="glass-care-plan"):
+        left, right = st.columns([2.2, 1], vertical_alignment="center")
+        left.html('<div class="eyebrow">My safety plan</div><p class="body">Your own plan for hard moments: warning '
+                  "signs, what helps, and who to call. Private, on this device.</p>")
+        right.button("Open my safety plan", key="care_plan", type="primary", on_click=go_to,
+                     args=("Safety plan",), width="stretch")
 
     with st.container(key="glass-help"):
         st.html('<div class="eyebrow">Real people who can help, any time</div>'

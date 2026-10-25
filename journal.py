@@ -10,6 +10,7 @@ data/orbit.db (see storage.py). This page turns those entries into:
 - a galaxy: one planet per check-in, coloured by emotion, sized by intensity,
   with a ring when two different feelings were mixed together
 """
+import json
 import random
 from datetime import datetime, timedelta
 
@@ -75,10 +76,18 @@ def load_demo():
     for i, (tool, before, after) in enumerate(DEMO_SESSIONS):
         when = start + timedelta(days=i * 2 + 1, hours=20)
         storage.add_wellbeing(tool, before, after, created_at=when.isoformat(timespec="seconds"), demo=True)
+    written = (datetime.now() - timedelta(days=31)).isoformat(timespec="seconds")
+    storage.add_note("future_letter", (datetime.now() - timedelta(days=1)).date().isoformat(),
+                     json.dumps({"letter": "Hi future me. Pre-boards are next week and I'm scared about maths. "
+                                 "I hope you're proud that you kept going, whatever the marks were.",
+                                 "feeling": "Worried", "demo": True}), created_at=written)
     st.session_state.flash.append("Loaded a 14-day demo journal (marked as demo).")
 
 
 def clear_demo():
+    for item in storage.list_notes("future_letter"):
+        if '"demo": true' in item["text"]:
+            storage.delete_note(item["id"])
     storage.clear_entries(demo_only=True)
     storage.clear_wellbeing(demo_only=True)
     st.session_state.flash.append("Demo data removed.")
