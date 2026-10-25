@@ -213,5 +213,7 @@ def patterns_page():
                 st.html('<p class="body" style="margin-top:.8rem"><b>3 ·</b> Because this has lasted about two weeks, '
                         "it could really help to talk to a trusted adult or a school counsellor. You can also call "
                         "<b>Tele-MANAS on 14416</b> (free, confidential, any time).</p>")
+    from feedback_ui import thumbs
+    thumbs("tool", "Pattern Insights", key=f"fb_patterns_{days}", label="Was this page useful?")
     note("These patterns use ORBIT's emotion model on your own words, so they can be wrong. The numbers that decide "
          "\"low\" or \"frequent\" are rules of thumb, not medical thresholds.")

@@ -44,3 +44,12 @@ def satisfaction(ratings):
         up, n = totals.get((r["kind"], r["target"]), (0, 0))
         totals[(r["kind"], r["target"])] = (up + r["value"], n + 1)
     return {k: (up / n, n) for k, (up, n) in totals.items()}
+
+
+def save_count(kind, target, key):
+    """For "which of these fit?" questions: store HOW MANY were picked (for precision@k / novelty rate)."""
+    saved = st.session_state.setdefault("rating_ids", {})
+    if key in saved:
+        storage.delete_rating(saved.pop(key))
+    picked = st.session_state.get(key) or []
+    saved[key] = storage.add_rating(kind, target, len(picked))

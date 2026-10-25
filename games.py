@@ -172,6 +172,8 @@ def game_card(result):
         title = GAMES[key][0]
         st.html(f'<div class="eyebrow">Stress buster · {title}</div>')
         play(key, result)
+        from feedback_ui import thumbs
+        thumbs("tool", f"Game · {title}", key=f"fb_game_{key}", label="Did this game help?")
         st.button("I'm done", key="game_done", on_click=_not_now)
 
 
@@ -188,5 +190,7 @@ def games_page():
     st.html(f'<p class="body" style="margin:.2rem 0 .8rem">Good for: <b>{helps}</b> · about {minutes} minutes</p>')
     with st.container(key="glass-games"):
         play(choice, st.session_state.get("home_result"))
+        from feedback_ui import thumbs
+        thumbs("tool", f"Game · {title}", key=f"fb_gamelib_{choice}", label="Did this game help?")
     note("Games are for everyday stress. If you're struggling a lot, or feel unsafe, please talk to someone you "
          "trust or call Tele-MANAS on 14416 (free, any time).")

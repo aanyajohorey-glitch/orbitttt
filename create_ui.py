@@ -507,6 +507,8 @@ def universe_screen():
     with st.expander("How this was made"):
         how_it_was_made(universe)
 
+    ratings_panel(universe)
+
     with st.container(key="glass-cu-export"):
         st.html('<div class="eyebrow">Export</div>')
         name = f"orbit_brief_{date.today()}"
@@ -531,6 +533,32 @@ def universe_screen():
                           f'{esc(item["universe"]["concept"]["title"])}</b><small>{esc(item["label"])} · '
                           f'{item["time"]}</small></div>')
                 right.button("Restore", key=f"restore_{i}", on_click=restore, args=(i,), width="stretch")
+
+
+def ratings_panel(universe):
+    """Ratings for the AI Lab: palette fit, cohesion, music relevance (1-5), precision@k and novelty."""
+    from feedback_ui import save_count
+    from studio import save_stars
+    sig = (universe["concept"]["title"] + state()["time"]).replace(" ", "_")
+    with st.container(key="glass-cu-ratings"):
+        st.html('<div class="eyebrow">Rate this universe (helps the AI Lab)</div>')
+        cols = st.columns(3)
+        for col, (kind, question) in zip(cols, [("creative_palette", "Does the palette fit your idea?"),
+                                               ("creative_cohesion", "Does it all feel like one world?"),
+                                               ("creative_music", "Does the music fit the project?")]):
+            with col:
+                st.html(f'<span class="feedback-label">{question}</span>')
+                key = f"fb_{kind}_{sig}"
+                st.feedback("stars", key=key, on_change=save_stars, args=(kind, universe["vector"].get(
+                    "direction", "Default"), key))
+        titles = [t["title"] for t in universe["music"]]
+        st.pills("Tracks that fit your project (tap all that do)", titles, selection_mode="multi",
+                 key=f"fb_p8_{sig}", on_change=save_count, args=("music_p_at_k", str(len(titles)), f"fb_p8_{sig}"))
+        st.pills("Tracks that are new to you", titles, selection_mode="multi", key=f"fb_new8_{sig}",
+                 on_change=save_count, args=("music_novel_k", str(len(titles)), f"fb_new8_{sig}"))
+        names = [c["name"] for c in universe["creators"]]
+        st.pills("Creators worth looking up", names, selection_mode="multi", key=f"fb_c6_{sig}",
+                 on_change=save_count, args=("creators_p_at_k", str(len(names)), f"fb_c6_{sig}"))
 
 
 def polish():
