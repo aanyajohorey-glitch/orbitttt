@@ -52,4 +52,7 @@ data/*.db-journal
 data/model/orbit_head_personal.npz
 # Classmates' held-out sentences and their cached scores stay on this computer
 data/eval_heldout.csv
+# Classmates' vibe ratings and the user study stay on this computer (templates are committed)
+data/vibe_eval.csv
+data/user_study.csv
 data/model/base_scores_local.json

@@ -496,6 +496,8 @@ def ai_lab_page():
     note("If Weird ideas score low on “matches my answers” but well on “would make”, the surprise is working. "
          "With only a few ratings these averages can change a lot.")
 
+    creator_evaluation()
+
     # 11. Model card -------------------------------------------------------------
     _, _, meta = current_head()
     st.html(
@@ -515,3 +517,102 @@ def ai_lab_page():
         "<div><span>Not for</span>Diagnosis. ORBIT supports wellbeing; it does not replace professionals</div>"
         "</div>"
     )
+
+# ---------------------------------------------------------------
+# Creator Mode evaluation (creator_eval.py)
+# ---------------------------------------------------------------
+@st.cache_data(show_spinner="Scoring the held-out ideas…")
+def vibe_accuracy(file_mtime_value):
+    import creator_eval
+    ratings = creator_eval.load_ratings()
+    if ratings.empty:
+        return None
+    human = creator_eval.human_agreement(ratings)
+    orbit, detail = creator_eval.orbit_accuracy(ratings, creator_eval.predict_with_orbit)
+    return {"ideas": ratings["idea_id"].nunique(), "human": human, "orbit": orbit, "detail": detail}
+
+
+@st.cache_data(show_spinner="Measuring list diversity…")
+def diversity_table():
+    import creator_eval
+    return creator_eval.list_diversity(creator_eval.load_example_ideas())
+
+
+def creator_evaluation():
+    import creator_eval
+    heading("Creator Mode", "How well does Creator Mode work?",
+            "Four kinds of evidence: held-out ideas rated by people, in-app ratings, computed list diversity, and a "
+            "timed user study. Samples are small, so treat every number as an early signal.")
+
+    # 1. Vibe-prompt accuracy
+    with st.container(key="glass-vibe-accuracy"):
+        st.html('<div class="eyebrow">Vibe-prompt accuracy (held-out ideas, 3 raters each)</div>')
+        result = vibe_accuracy(file_mtime(creator_eval.VIBE_EVAL))
+        if not result:
+            st.html('<p class="body">Not collected yet. Ask about 100 classmates (with teacher permission) to write '
+                    "one anonymous idea each, and have 3 people rate every idea's mood, energy, warmth and era from "
+                    "1 to 5. Use <b>data/vibe_eval_template.csv</b> and the guide in <b>docs/vibe_eval_guide.md</b>. "
+                    "The file stays on this computer and is never used for tuning.</p>")
+        else:
+            rows = [{"Scale": s.capitalize(), "ORBIT within 1 point of the raters' median":
+                     f"{result['orbit'].get(s, 0):.0%}", "A rater within 1 point of the other two (human baseline)":
+                     (f"{result['human'][s]:.0%}" if result["human"][s] is not None else "–")}
+                    for s in creator_eval.SCALES]
+            st.html(stats_html([(str(result["ideas"]), "rated ideas")]))
+            st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+            detail = result["detail"]
+            if "language" in detail and detail["language"].nunique() > 1:
+                by_lang = detail.groupby("language")[creator_eval.SCALES].mean().round(2).reset_index()
+                st.dataframe(by_lang, hide_index=True, width="stretch")
+
+    # 2. In-app ratings
+    ratings = pd.DataFrame(storage.list_ratings())
+    with st.container(key="glass-creator-ratings"):
+        st.html('<div class="eyebrow">In-app ratings of creative universes</div>')
+        if ratings.empty or not ratings["kind"].isin(["creative_palette", "creative_cohesion", "creative_music",
+                                                      "music_p_at_k", "music_novel_k", "creators_p_at_k"]).any():
+            st.html('<p class="body">No ratings yet. Rate a universe at the bottom of the Create tab.</p>')
+        else:
+            def mean_of(kind):
+                part = ratings[ratings["kind"] == kind]
+                return (part["value"].mean(), len(part)) if len(part) else (None, 0)
+
+            def share_of(kind):
+                part = ratings[ratings["kind"] == kind]
+                if not len(part):
+                    return None, 0
+                return (part["value"] / part["target"].astype(float)).mean(), len(part)
+            rows = []
+            for kind, label in (("creative_palette", "Palette fit (1-5)"), ("creative_cohesion", "Cohesion (1-5)"),
+                                ("creative_music", "Music relevance (1-5)")):
+                value, n = mean_of(kind)
+                rows.append({"Measure": label, "Result": f"{value:.1f}" if value is not None else "–", "Ratings": n})
+            for kind, label in (("music_p_at_k", "Music precision@8 (share of tracks that fit)"),
+                                ("creators_p_at_k", "Creators precision@6 (share worth looking up)"),
+                                ("music_novel_k", "Novelty rate (share of tracks new to the user)")):
+                value, n = share_of(kind)
+                rows.append({"Measure": label, "Result": f"{value:.0%}" if value is not None else "–", "Ratings": n})
+            st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+
+    # 3. List diversity (computed)
+    with st.container(key="glass-list-diversity"):
+        st.html('<div class="eyebrow">List diversity (computed on 20 example ideas)</div><p class="body" '
+                'style="margin:.2rem 0 .6rem">How varied the music and creator lists are as the discovery dial moves '
+                "from comfort zone (0) to unfamiliar (1). No people needed: it measures the method itself.</p>")
+        st.dataframe(diversity_table(), hide_index=True, width="stretch")
+
+    # 4. User study
+    with st.container(key="glass-user-study"):
+        st.html('<div class="eyebrow">Timed user study</div>')
+        summary = creator_eval.user_study_summary()
+        if summary is None:
+            st.html('<p class="body">Not run yet. Each participant builds a creative brief twice: once with their usual '
+                    "tools and once with ORBIT (in a random order), recording minutes, number of tools and "
+                    "satisfaction. Template: <b>data/user_study_template.csv</b>; protocol: "
+                    "<b>docs/user_study.md</b>.</p>")
+        else:
+            st.dataframe(summary, hide_index=True, width="stretch")
+    note("Modest claims only: a handful of classmates is not a scientific sample, raters were not trained, and the "
+         "people who try ORBIT may already like it. These numbers show whether the method is reasonable, not that "
+         "it is better than professional tools.")
+
