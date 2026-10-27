@@ -33,7 +33,7 @@ See [`data_card.md`](data_card.md). In short: the classifier was trained on 338 
 the project; evaluation sets were also written for the project (70 development, 33 body-feelings), and a classmate
 held-out set (150-200 anonymous sentences, with teacher permission) is still to be collected.
 
-## 4. Evaluation (measured; details in the AI Lab and `methodology.md`)
+## 4. Evaluation (measured; details in `methodology.md`)
 
 | Test | A: RoBERTa only | B: + dictionary | C: classifier | **D: live** |
 |---|---|---|---|---|
@@ -44,7 +44,7 @@ held-out set (150-200 anonymous sentences, with teacher permission) is still to 
 - **Safety suite** (93 phrases, English/Hinglish/Hindi, direct and indirect): crisis recall 98% on
   development phrases with 0 false alarms, but only 17% and then 33% on fresh holdout rounds. This is
   why helplines are always visible and crisis rules are only one layer.
-- **Creator Mode:** computed list diversity (AI Lab). People-rated vibe accuracy, in-app ratings and
+- **Creator Mode:** computed list diversity (`creator_eval.py`). People-rated vibe accuracy, in-app ratings and
   the timed user study are set up but **not collected yet**.
 
 ## 5. Limitations
@@ -63,8 +63,8 @@ held-out set (150-200 anonymous sentences, with teacher permission) is still to 
 
 - Crisis handling is deterministic, runs first in both modes, never uses an AI model, and the crisis
   text is never stored.
-- No covert monitoring: ORBIT only reads what the user types or says into ORBIT.
-- Data stays on the device (or one temporary session online), can be exported, and is deleted by
-  Panic wipe. Nothing is uploaded unless the user turns on cloud replies (with clear consent).
-- Teenagers are the users: onboarding explains that ORBIT is an AI, not a therapist, and suggests
-  telling a trusted adult.
+- No covert monitoring: ORBIT only reads what the user types into ORBIT.
+- Data stays on the device (or one temporary session online), and can be exported.
+  Nothing is uploaded unless the user turns on cloud replies (with clear consent).
+- Teenagers are the users: the landing page says that ORBIT is an AI, not a therapist, and shows
+  the helplines; repeated low moods bring a gentle suggestion to talk to a trusted adult.

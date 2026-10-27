@@ -163,4 +163,4 @@ def letters_page():
         future_section()
     else:
         unsent_section()
-    note("Letters stay on this device, are included in Download my data, and are deleted by Panic wipe.")
+    note("Letters stay on this device and are included in Download my data (Settings, top right).")

@@ -20,7 +20,7 @@ tools, and feel satisfied with it?
 
 ## Recording
 Copy `data/user_study_template.csv` to `data/user_study.csv` (it stays on this computer). One row per
-participant per condition. The AI Lab shows the averages for each condition.
+participant per condition. To see the averages for each condition, run `python -c "import creator_eval as c; print(c.user_study_summary())"`.
 
 ## Reporting honestly
 - With under 10 people, report averages and the range, and avoid words like "proves".

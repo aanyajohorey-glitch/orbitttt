@@ -27,8 +27,14 @@ Three raters (initials only: A, B, C) rate each idea **without seeing ORBIT's ou
 Copy `data/vibe_eval_template.csv` to `data/vibe_eval.csv`. One row per idea per rater:
 `idea_id, idea, language, rater, mood, energy, warmth, era`.
 
-## Step 4: read the results in the AI Lab
-About & AI Lab -> Creator Mode -> *Vibe-prompt accuracy*. For each scale it shows:
+## Step 4: read the results
+Run this in the project folder (with the virtual environment's Python):
+
+```
+python -c "import creator_eval as c; r = c.load_ratings(); print(c.orbit_accuracy(r, c.predict_with_orbit)[0]); print(c.human_agreement(r))"
+```
+
+For each scale it prints:
 - **ORBIT:** how often ORBIT is within 1 point of the raters' median;
 - **Human baseline:** how often one rater is within 1 point of the other two raters' median.
 

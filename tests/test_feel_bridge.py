@@ -68,7 +68,7 @@ def app():
     storage.delete_everything()
     storage.set_setting("onboarded", "1")
     at = AppTest.from_file(APP, default_timeout=120)
-    at.session_state.mode_chosen = True
+    at.session_state.started = True
     at.run()
     return at
 

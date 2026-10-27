@@ -172,7 +172,7 @@ def calm_room_page():
         mood_slider("And how do you feel now?", "calm_after")
         st.button("Save this session", key="calm_finish", type="primary", on_click=finish_session, args=(tool,))
     if st.session_state.get("calm_done") == tool:
-        note("Session saved to your private wellbeing log. It counts towards the impact study in the AI Lab.")
+        note("Session saved to your private wellbeing log.")
 
 
 def render_tool(tool):

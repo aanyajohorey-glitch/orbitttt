@@ -24,12 +24,11 @@ disk is shared by everyone using the app. A single `orbit.db` would therefore (a
 and (b) mix different visitors' journals together. That isn't acceptable for a wellbeing app.
 
 So online, every browser session gets **its own** small database file, named with a random
-session id. Nobody else can see it, and it's deleted when it's more than 24 hours old (or
-straight away with **Panic wipe**). A browser session is one open tab: **refreshing the page or opening a new tab starts a fresh, empty session.** The trade-off:
+session id. Nobody else can see it, and it's deleted when it's more than 24 hours old. A browser session is one open tab: **refreshing the page or opening a new tab starts a fresh, empty session.** The trade-off:
 
 - **Privacy:** better. Nothing is kept long-term, and nothing is linked to a name or account.
 - **Convenience:** worse. Closing the tab ends the journal. To keep it, go to
-  **About → Settings → Download my data**. This saves a `.json` file to your own device;
+  **Settings (top right) → Download my data**. This saves a `.json` file to your own device;
   **Import** brings it back next time.
 - **The downloaded file contains journal text.** Keep it private. ORBIT never uploads it anywhere.
 - Crisis messages are never stored, online or offline.
@@ -43,7 +42,7 @@ it can write warmer replies using Anthropic's Claude.
 
 - Add the key in **App settings → Secrets** (format in `.streamlit/secrets.toml.example`).
   Never put a key in the code or in GitHub.
-- **Users must opt in** (in onboarding, or in About → Settings). Without consent, nothing is sent.
+- **Users must opt in** (in Settings, top right). Without consent, nothing is sent.
 - When it's on, the user's message (and the last few chat messages) **is sent to Anthropic**
   to write the reply. That's a real privacy trade-off, and the app says so.
 - Default model: `claude-opus-5-5`. Set `ORBIT_CLOUD_MODEL = "claude-haiku-5-5"` for a cheaper,
@@ -81,5 +80,5 @@ If the model can't be downloaded (no internet, or Hugging Face is down), ORBIT s
 2. Go to share.streamlit.io, choose **Create app**, pick the repository, branch `main` and file `app.py`.
 3. Under **Advanced settings**, choose **Python 3.12**.
 4. (Optional) Paste the secrets from `.streamlit/secrets.toml.example` with a real key.
-5. Deploy, then test: the onboarding screen, a check-in, a crisis phrase (it should show the
-   helplines only), Download my data, Panic wipe, and offline demo mode.
+5. Deploy, then test: the landing page, a check-in, a crisis phrase (it should show the
+   helplines only), Download my data, and offline demo mode.

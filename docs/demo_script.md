@@ -13,8 +13,8 @@ mode** (About -> Settings) if the internet is unreliable. Have one test idea rea
 | 1:40 | Choose the **Perfectionism exercise** or the game, then **Back to my project**. | "And back to exactly where I was." |
 | 1:55 | Expand **How this was made**, then download the **Creative brief (PDF)**. | "Every number is visible; the brief is ready to share." |
 | 2:15 | Go to **Feel**, type a crisis phrase from `safety_tests.csv` (for example *"I don't want to live anymore"*). | "Safety always comes first: a fixed response with Tele-MANAS 14416 and 112. No AI, no games, nothing stored." |
-| 2:40 | Open **About -> AI Lab** for a moment. | "And this is how I measured it, including where it fails: crisis recall on new phrasings is still low, so helplines are always visible." |
+| 2:40 | Open **My Galaxy -> Wrapped**. | "Every check-in becomes colour in a painting and songs in a playlist. And I measured how well it works, including where it fails (see the methodology): crisis recall on new phrasings is still low, so helplines are always visible." |
 | 3:00 | End. | |
 
-**If something fails:** demo mode keeps sample sentences working offline; Panic wipe resets everything
+**If something fails:** demo mode keeps sample sentences working offline; deleting `data/orbit.db` resets everything
 in one click.

@@ -23,8 +23,14 @@ def app():
     storage.delete_everything()
     storage.set_setting("onboarded", "1")
     at = AppTest.from_file(APP, default_timeout=120)
+    at.session_state.started = True
     at.run()
     return at
+
+
+def page_downloads(at):
+    """Download buttons on the page itself (not the one in the Settings menu)."""
+    return [b for b in at.get("download_button") if b.key != "set_export"]
 
 
 def bodies(at):
@@ -38,7 +44,7 @@ def test_a_crisis_check_in_shows_only_the_safety_response(app, page):
     app.run()
     assert not app.exception
     assert any("14416" in b for b in bodies(app))
-    assert not app.text_area and not app.slider and not app.get("download_button")
+    assert not app.text_area and not app.slider and not page_downloads(app)
 
 
 def test_crisis_words_in_a_vibe_show_only_the_safety_response(app):

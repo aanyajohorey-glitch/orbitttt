@@ -293,7 +293,7 @@ def companion_page():
     style = llm.mode_label()
     note(
         f"ORBIT is an AI, not a person, and not a replacement for a counsellor. Replies: <b>{esc(style)}</b> "
-        "(change this in About → Settings). If you are ever in danger, call Tele-MANAS on 14416 or 112."
+        "(change this in Settings, top right). If you are ever in danger, call Tele-MANAS on 14416 or 112."
     )
     nudge_card()
 

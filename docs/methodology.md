@@ -56,7 +56,7 @@ finding to report.
 
 ### 5a. Result of rule 1, and two problems found afterwards
 Rule 1 was met (body Fear F1 0.33 → 0.82; dev macro-F1 0.914 → 0.929), so
-classifier **C** was adopted. The fuller evaluation in the AI Lab then showed
+classifier **C** was adopted. The fuller evaluation (`evaluation.py`) then showed
 two problems:
 1. **Over-predicting fear on body sentences that are not anxiety.** Controls
    read correctly fell from 77% to 54% (for example "my hands are cold, I forgot
@@ -114,5 +114,5 @@ the live model D:
 
 ## 7. Human in the loop ("Teach Orbit")
 Users can correct ORBIT. Corrections are stored locally (never uploaded) and
-can be added to training. The AI Lab reports metrics before and after.
+can be added to training. `evaluation.py` reports metrics before and after.
 Correction texts are never part of any test set.

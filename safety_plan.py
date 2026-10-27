@@ -5,7 +5,7 @@ things feel hard. Based on the common structure of safety-planning templates
 used by counsellors (warning signs, things that help, people, helplines).
 
 It is stored ONLY on this device (in the settings table), is included in
-Download my data, and is deleted by Panic wipe. ORBIT never shares it.
+Download my data. ORBIT never shares it.
 It can be opened from Feel -> Safety plan and from About -> Care & privacy.
 """
 import json

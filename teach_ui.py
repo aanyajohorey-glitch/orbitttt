@@ -64,7 +64,7 @@ def teach_panel(result, key, on_update=None):
     with st.expander("Not quite right? Teach ORBIT"):
         current = result["final"]["family"]
         st.html(f'<p class="body">ORBIT read this as <b>{esc(current)}</b>. Which feeling fits better? '
-                "Your answer is saved only on this computer and helps ORBIT learn (AI Lab → Teach Orbit).</p>")
+                "Your answer is saved only on this computer and helps ORBIT learn.</p>")
         options = [f for f in FAMILIES if f != current]
         choice = st.pills("A better fit", options, key=f"{key}_pick",
                           format_func=lambda f: f"{f} ({FAMILY_HELP[f]})")

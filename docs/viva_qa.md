@@ -1,6 +1,6 @@
 # Viva questions and answers
 
-Short, honest answers. Numbers come from the AI Lab and `docs/methodology.md`.
+Short, honest answers. Numbers come from `docs/methodology.md`.
 
 **1. How is ORBIT different from ChatGPT?**
 ChatGPT is a general chatbot: it writes whatever fits the prompt, and you can't see why. ORBIT is
@@ -16,13 +16,13 @@ Every output is generated from the same Vibe Vector (valence, arousal, brightnes
 texture, boldness, themes). The palette, fonts, moodboard, aesthetics, music and creators all read
 those same numbers, so a "warm, nostalgic, calm" idea gets warm colours, a vintage serif, film grain,
 nostalgic songs and creators near that point. Refining changes the vector, and everything updates
-together. Cohesion is also rated by users (1-5) in the AI Lab.
+together. Cohesion is also rated by users (1-5) under each universe.
 
 **3. What if it misses a crisis?**
 It can, and I measured that honestly. Crisis recall was 98% on development phrases but only 17% and then
 33% on fresh holdout rounds, because fixed rules can't foresee every wording. So the crisis check is
-one layer, not the only one: helplines (Tele-MANAS 14416, 112) are always reachable, onboarding
-suggests telling a trusted adult, concern-level messages get a gentle note, repeated low moods trigger
+one layer, not the only one: helplines (Tele-MANAS 14416, 112) are always reachable and on the
+landing page, concern-level messages get a gentle note, repeated low moods trigger
 a "talk to someone" suggestion, and there is a Safety Plan. ORBIT says clearly that it is not a crisis
 service.
 
@@ -59,7 +59,7 @@ Hinglish, body feelings and calibrated confidence, plus the evaluation, safety l
 
 **8. What are the privacy risks?**
 Journals are sensitive. So everything stays on the device (or in a temporary session online), can be
-downloaded or wiped instantly (Panic wipe), and nothing is uploaded unless the user opts in to cloud
+downloaded from Settings, and nothing is uploaded unless the user opts in to cloud
 replies. Crisis text is never stored. There is no monitoring of other apps or messages.
 
 **9. How is it different from Wysa?**

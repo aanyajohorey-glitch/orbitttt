@@ -21,9 +21,9 @@ wellbeing with safe, explainable check-ins, coping tools and stress-buster games
 Built with **Python**, **Streamlit**, **pandas**, **Altair**, **SQLite**
 and a **pre-trained transformer model** running offline.
 
-> Status: prototype v0.5: Create (Creator Mode) and Feel (wellbeing) modes, joined by two bridges.
+> Create (Creator Mode) and Feel (wellbeing) modes, joined by two bridges.
 > ORBIT has its own trained classifier, confidence handling, "Teach Orbit", a tested safety net that
-> runs first in both modes, 450 automated tests and CI.
+> runs first in both modes, 458 automated tests and CI.
 >
 > Documentation: [methodology](docs/methodology.md) · [safety report](docs/safety_report.md) ·
 > [model card](docs/model_card.md) · [data card](docs/data_card.md) · [viva Q&A](docs/viva_qa.md) ·
@@ -48,7 +48,7 @@ and a **pre-trained transformer model** running offline.
 4. Keep users **safe**: deterministic crisis handling first, in both modes, with helplines; no diagnosis.
 5. Offer **evidence-based coping tools**, stress-buster games, Reach Out drafts, letters and a safety plan,
    and gently point to real people.
-6. Keep data **private** (on the device, exportable, Panic wipe) and **evaluate honestly** in the AI Lab.
+6. Keep data **private** (on the device, exportable) and **evaluate honestly**.
 
 ## SDGs
 
@@ -58,52 +58,53 @@ and a **pre-trained transformer model** running offline.
 | **SDG 8: Decent Work and Economic Growth** | 8.3: support creativity, innovation and small enterprises | Create mode turns ideas into professional-style creative briefs (palette, type, references) for young creators and small brands, for free |
 | **SDG 9: Industry, Innovation and Infrastructure** | 9.5: enhance research and technological capability | Explainable, offline-first AI (Vibe Vector, cosine similarity + MMR, occlusion heatmap) with an open evaluation lab |
 | **SDG 10: Reduced Inequalities** | 10.2: social and economic inclusion of all | Free and offline; Hinglish and Hindi; Indian regional, folk and classical creators in discovery |
-| SDG 4: Quality Education (optional) | 4.7: knowledge and skills | Exam-stress support, emotional vocabulary, CBT thought reframe, and the AI Lab as a learning tool |
+| SDG 4: Quality Education (optional) | 4.7: knowledge and skills | Exam-stress support, emotional vocabulary, CBT thought reframe, and the evaluation as a learning tool |
 
 ## How ORBIT is organised
 
-The first visit shows an **onboarding and consent screen**: ORBIT is an AI and not a therapist,
-what is stored and where, no personal details are needed, and under-18s are encouraged to let a
-parent, guardian or teacher know. It also offers the accessibility options.
-
-Then ORBIT asks **Feel or Create?** (and remembers your last choice). There are four tabs:
+Every visit opens on a **landing page**: a small universe with planets revolving around a glowing
+core, and a card that asks your **name and age** (saved only on this device). One line reminds you
+that ORBIT is an AI, not a therapist, with the helplines. **Start Exploring Your Universe** opens the
+app at the mode you used last. There are three tabs:
 
 | Tab | Sections | What it does |
 |---|---|---|
 | **Create** | Creative universe | **Creator Mode**: one idea → concept, palette, type, moodboard, aesthetics, music, creators; refine chips, sliders, locks, three directions (Safe, Bold, Weird), version history, PDF brief. "I don't have an idea yet" opens the **Spark** path. |
 | | Quick palette & music | The Mood Studio: a palette or playlist straight from a feeling or a vibe. |
-| **Feel** | Check-in | A guided flow: **1** check in (text or voice) → **2** what ORBIT noticed (emotion + confidence) → **3** ORBIT's reply → **4** one small exercise to try → **5** mood after → **6** a new planet joins your galaxy. |
+| **Feel** | Check-in | A guided flow: **1** check in (text) → **2** what ORBIT noticed (emotion + confidence) → **3** ORBIT's reply → **4** one small exercise to try → **5** mood after → **6** a new planet joins your galaxy. |
 | | Talk to ORBIT | A chat. Every message is checked for safety first, then analysed; replies reflect, validate and ask one gentle question. |
 | **My Galaxy** | Galaxy & journal | Private mood history: emotional weather, patterns, insights and a **galaxy where every check-in is a planet**. |
+| | Wrapped | **ORBIT Wrapped**, like a year-in-review: for 7 days, 30 days, a year or all time, your top feelings, a mood tracker, an **abstract painting made from your emotion blend**, a playlist for the period, the world you visited most, and a card to download. |
 | | Patterns | **Pattern Insights** over 7 days, 14 days, 30 days or a year: feelings, mood line, calendar heatmap, when low moods cluster, and layered suggestions. |
 | | Saved worlds · Collection | Saved aesthetic worlds, as planets on an orbit, and as a collection. |
 | | Calm Room | Breathing (box, 4-6, 4-7-8), 5-4-3-2-1 grounding, a **CBT thought reframe** and a gratitude jar, with mood before and after. |
-| | Mood Lab | Detailed analysis with **"Why does ORBIT think this?"** (word importance), Hinglish translation and voice notes. |
+| | Mood Lab | Detailed analysis with **"Why does ORBIT think this?"** (word importance), and Hinglish translation. |
 | | Soundspace | Soundscapes generated by Python maths. |
 | | Stress busters | Nine gentle 2-5 minute games (no scores). Also offered once per visit after a confident stress, anxiety, sadness or anger check-in, never for happy/neutral feelings, a crisis or repeated low moods. |
 | | Reach Out | **Reach Out Helper**: drafts a short message to a friend, parent or teacher that you edit, copy and send yourself. |
 | | Letters | **A letter you'll never send** (let it burn or float away; nothing kept unless you choose) and **a letter to future me** (sealed for 30 days, then shown next to what you felt). |
-| | Safety plan | Your own plan for hard moments: warning signs, what helps, people and helplines. Private; also opened from Care. |
+| | Safety plan | Your own plan for hard moments: warning signs, what helps, people and helplines. Private. |
 | | Arcade | A realistic vending machine; tokens are **earned by self-care**. |
-| **About & AI Lab** | About ORBIT | The problem, the SDGs, how a check-in works and what ORBIT is not. |
-| | AI Lab | The full evaluation (methods A to D, per-family metrics, confusion matrices, languages, calibration, safety suite, Teach Orbit retraining, fairness, impact study, **satisfaction from thumbs ratings**, model card). |
-| | Care & privacy | Principles, helplines, privacy controls. |
-| | Settings | Accessibility, who writes replies, offline demo mode, **download / import my data**, Panic wipe. |
 
-Also on every page: a **Panic wipe** button (top right) that deletes all ORBIT data immediately,
-and **thumbs up/down** under replies and exercises. After a long session, or several low-mood
+Also on every page: the **Settings** menu (top right) with high contrast, dark theme, larger
+text, the readability font, reduce motion, background music, who writes replies, demo mode, and
+**download / import my data**; and **thumbs up/down** under replies and exercises. After a long session, or several low-mood
 check-ins in a week, ORBIT gently suggests **talking to a real person**.
 
 In **Today**, step 2 shows the check-in's **emotion constellation** (every detected emotion is a
 star; stronger = bigger and brighter) and the words that drove the decision glowing brighter. Each
 check-in's constellation becomes a planet in the galaxy. After a feeling is detected, the **whole app
-takes on that feeling's world** (colours from `worlds.csv`, smooth fade); its soundscape plays only if
-you switch **Sound** on.
+takes on that feeling's world** (colours from `worlds.csv`, smooth fade).
 
-**Accessibility:** reduce motion (also follows the device setting), larger text, high contrast,
-and the Lexend readability font.
+**Background music:** a calm general soundscape plays from the moment you press Start (that tap is
+what browsers need before they allow sound). Once ORBIT knows your mood, or you build a creative
+universe, it changes to that world's soundscape. It pauses while a Soundspace track plays, and can be
+switched off in Settings.
 
-**Offline demo mode** (About → Settings, or automatic if the model can't load): sample sentences
+**Accessibility (Settings, top right):** reduce motion (also follows the device setting), larger text,
+high contrast, a dark theme and the Lexend readability font.
+
+**Offline demo mode** (Settings, or automatic if the model can't load): sample sentences
 give real results saved earlier; other text gets a simpler text-only estimate (variant T,
 out-of-fold accuracy 0.45). Safety checks work exactly as usual.
 
@@ -114,8 +115,7 @@ corrections stay on the computer and can be used to retrain the classifier.
 
 ## Creator Mode (the Create tab)
 
-**Entry.** One big box: *"What are you making, or what's on your mind?"* (text or voice, English,
-Hinglish or Hindi), with optional tap-chips for medium, audience and "start from a feeling, colour,
+**Entry.** One big box: *"What are you making, or what's on your mind?"* (English, Hinglish or Hindi), with optional tap-chips for medium, audience and "start from a feeling, colour,
 song or word". The **crisis check runs first, silently**: crisis wording shows only the helplines,
 nothing is generated and the text is not kept. If something is unclear, ORBIT asks **at most three
 tappable questions** (medium, feeling, era), which can all be skipped.
@@ -132,7 +132,7 @@ translation. **Every output is generated from this one vector**, which is why th
 |---|---|
 | Concept | Title + one-paragraph vision from a template grammar. Optional **AI polish** (cloud or local, only if set up) with the template as fallback and the same output checks as replies. |
 | Palette | 5 colours with names, roles, hex codes and a WCAG contrast check (`palette.py`): valence and arousal → hue, saturation and lightness, plus a harmony rule. |
-| Typography | Closest heading font in `data/fonts.csv` (32 Google Fonts tagged by mood), plus a readable body font from a different family; Devanagari fonts for Hindi ideas. |
+| Typography | Closest heading font in `data/fonts.csv` (77 Google Fonts tagged by mood), plus a readable body font from a different family; Devanagari fonts for Hindi ideas. Every font is **shown in its own typeface**, with eight more font ideas for the vibe (at most two per category, for variety). |
 | Moodboard | Generated gradients, patterns, lighting and keyword tiles; no images. |
 | Aesthetics | The 3 closest of 66 movements in `data/aesthetics.csv` (Bauhaus to Madhubani to Solarpunk). |
 | Music | 8 tracks from `data/music_catalog.csv` with Spotify/YouTube search links. |
@@ -160,7 +160,7 @@ of the Feel tab; ORBIT never diagnoses from the answers.
 and deterministic, that every refine chip changes it, that locks hold, that the three directions differ,
 that the discovery dial reaches less-known creators, that **all 64 skip paths** still produce three ideas,
 and that Remix changes only the chosen element. In the app, each Spark idea is rated 1-5 for **"Would you
-actually make this?"** and **"Does it match your answers?"**, reported per direction in AI Lab.
+actually make this?"** and **"Does it match your answers?"**, reported per direction in the evaluation.
 **Limits.** The word tables, font moods, aesthetics, creators and seeds were labelled by one student, so
 they encode one person's taste; colour meaning differs between cultures; the template grammar can sound
 formulaic; matching a creator by numbers is a starting point for research, not a judgement of their work.
@@ -210,7 +210,7 @@ sad, scared or angry check-in.
 
 **Evaluation and limits.** Tests check that all 27 combinations (3 people × 3 levels × 3 languages)
 give three complete drafts, that language detection works, and that crisis wording produces no drafts
-and saves nothing. Thumbs up/down under the drafts are reported in **AI Lab → Satisfaction**. Limits:
+and saves nothing. Thumbs up/down under the drafts are reported in the satisfaction metric. Limits:
 templates can sound generic; the Hindi and Hinglish use "raha/rahi" so the user picks their own form;
 the drafts were written by the student, not reviewed by a counsellor.
 
@@ -240,7 +240,7 @@ palette without re-typing the vibe. Export as **PNG, CSS variables or JSON**.
 **Evaluation.** A sweep of 1,620 combinations (valences, arousals, slider positions and refine
 settings) gave **0 contrast failures and always 5 valid hex colours**; the tests run a 300-case version of
 this on every push. After each palette, a **1-5 "fits the vibe" rating** is stored on the device and the
-**average per emotion** is reported in AI Lab.
+**average per emotion** is reported in the evaluation.
 **Limits.** The emotion-to-colour mapping is the author's rule of thumb, not a scientific law; colour
 meaning differs between cultures and people. Fear and anger sit in the same place on the circle, so
 they get similar colours. Only about 80 vibe keywords are understood.
@@ -251,7 +251,7 @@ they get similar colours. Only about 80 vibe keywords are understood.
 moods) and a **discovery dial** from *comfort zone* to *explore*. ORBIT builds a playlist of **10 tracks**
 with a one-line "why this" for each, and links that open a **search** on Spotify or YouTube. There are
 no API calls and no scraping, and no lyrics are stored. After each playlist: "Did this fit your mood?
-(1-5)" and "New to you? (yes/no)", reported in AI Lab as **average fit** and **novelty rate**.
+(1-5)" and "New to you? (yes/no)", reported in the evaluation as **average fit** and **novelty rate**.
 
 **Data.** `data/music_catalog.csv`: **271 tracks in 24 languages**, hand-labelled by the student with
 energy (1-5), valence (1-5), mainstream level (1-5) and tags. It includes Indian indie (Prateek Kuhad, The
@@ -324,7 +324,7 @@ offer one coping tool. If **Ollama** (a free local AI runner) is installed and r
 language model writes the replies instead. Either way, ORBIT says it is an AI, and crisis messages
 always get a fixed safety reply.
 
-### Evaluation results (measured; see the AI Lab)
+### Evaluation results (measured)
 Methods compared:
 - **A:** RoBERTa only
 - **B:** RoBERTa + dictionary (v0.3)
@@ -354,7 +354,7 @@ every wording, so helplines are always visible. See `docs/safety_report.md`.
 | 0.5 | 7.8 | 8.0 | 5.8 | 3.74 | 52% |
 | 1 (unfamiliar) | 8.0 | 8.0 | 6.0 | 3.05 | 68% |
 
-**Set up but not collected yet** (the AI Lab shows them as soon as data exists):
+**Set up but not collected yet** (computed by `evaluation.py` and `creator_eval.py` as soon as data exists):
 - **Vibe-prompt accuracy:** about 100 held-out ideas, each rated by 3 people (`docs/vibe_eval_guide.md`).
   ORBIT is compared with a **human baseline** (how often one rater agrees with the other two).
 - **In-app ratings:** palette fit, cohesion and music relevance (1-5), music and creator **precision@k**,
@@ -402,7 +402,7 @@ advice. **ORBIT will not monitor private browsing or private messages without th
 - Crisis messages **never reach any AI model**, local or cloud, and are never stored.
 - All data (journal, saved worlds, sessions, ratings, corrections) is stored in `data/orbit.db` **on this
   computer only**. It's listed in `.gitignore`, so it's never uploaded. It can be downloaded, imported,
-  or deleted (Care, Settings, or Panic wipe).
+  or deleted.
 - Online (Streamlit Community Cloud), each browser session gets its own temporary database, deleted
   within 24 hours; see [docs/deploy.md](docs/deploy.md) for the privacy trade-off.
 - Cloud AI replies are optional, need the user's consent, and are protected by a prompt-injection
@@ -413,18 +413,19 @@ advice. **ORBIT will not monitor private browsing or private messages without th
 
 ```
 Mood-to-World/
-├── app.py            # Page settings, onboarding gate, 4 tabs, Panic wipe
+├── app.py            # Page settings, landing gate, 3 tabs, Settings menu, background music
+├── landing.py        # Landing page: revolving planets, name and age, Start Exploring
 ├── today.py          # Today: the guided check-in flow
-├── onboarding.py     # Consent screen and accessibility options
-├── settings_ui.py    # Settings: replies, demo mode, export/import, Panic wipe
-├── about.py          # About ORBIT
+├── onboarding.py     # Accessibility settings
+├── settings_ui.py    # Settings menu: display, music, replies, demo mode, export/import
+├── wrapped.py        # ORBIT Wrapped: painting, playlist, mood tracker, card
 ├── views.py          # Mood Lab, saved worlds, Soundspace, collection
 ├── companion.py      # Companion chat + template replies
 ├── llm.py            # Optional AI replies (Claude / Ollama) with injection + output guards
 ├── nudges.py         # "Talk to a real person" nudges
 ├── feedback_ui.py    # Thumbs up/down and the satisfaction metric
 ├── constellation.py  # The emotion constellation (SVG) and constellation planets
-├── theme.py          # The app takes on the detected feeling's world; opt-in Sound
+├── theme.py          # The app takes on the detected feeling's world; background music
 ├── games.py + games/ # Stress-buster pop-up rules and 9 HTML/JS games
 ├── reach_out.py      # Reach Out Helper (template drafts the user sends themselves)
 ├── patterns.py       # Pattern Insights (rule-of-thumb thresholds at the top)
@@ -449,8 +450,6 @@ Mood-to-World/
 ├── calm_room.py      # Breathing, grounding, thought reframe, gratitude jar
 ├── journal.py        # Journal charts, insights, emotion galaxy, demo data
 ├── vending.py        # Arcade vending machine (a state machine)
-├── ai_lab.py         # Evaluation, confusion matrix, impact study, model card
-├── care.py           # Principles, helplines, privacy controls
 ├── analysis.py       # The shared AI pipeline (classifier, confidence, safety rules, Teach Orbit)
 ├── orbit_head.py     # ORBIT's trained classifier (NumPy softmax regression, temperature scaling)
 ├── train_head.py     # Trains classifier variants and applies the pre-registered adoption rules
@@ -464,7 +463,6 @@ Mood-to-World/
 ├── safety.py         # Crisis and concern detection, helplines
 ├── storage.py        # SQLite: local file, or one temporary file per session online; export/import
 ├── soundscapes.py    # Generated soundscapes and arcade sound effects
-├── voice.py          # Optional voice notes (needs faster-whisper)
 ├── components.py     # Reusable pieces: planets, cards, saving worlds
 ├── styles.py         # All the visual design (CSS)
 ├── world_data.py     # Loads worlds.csv, matches emotions to worlds, Soundspace data
@@ -489,7 +487,7 @@ Mood-to-World/
     ├── safety_tests.csv          # 93 safety phrases with dev/holdout rounds
     ├── music_catalog.csv         # 271 hand-labelled tracks (no lyrics)
     ├── music_labelling_template.csv  # for classmates to add and tag tracks
-    ├── fonts.csv                 # 32 Google Fonts tagged by mood
+    ├── fonts.csv                 # 77 Google Fonts tagged by mood
     ├── aesthetics.csv            # 66 art and design movements
     ├── creators.csv              # 98 creators and artists (53 from India)
     ├── idea_seeds.csv            # Spark: settings, contrast pairs, textures, story structures
@@ -537,6 +535,4 @@ python -m venv "$env:USERPROFILE\.venvs\mood-to-world"
 - **Richer companion replies:** install [Ollama](https://ollama.com), then run `ollama pull llama3.2:3b`.
   ORBIT detects it automatically.
 - **Cloud replies with Claude:** `pip install anthropic` (already in requirements.txt), then put your key
-  in `.streamlit/secrets.toml` (see `secrets.toml.example`) and opt in under About → Settings.
-- **Voice notes:** `pip install faster-whisper` inside the virtual environment. The speech model
-  downloads on first use.
+  in `.streamlit/secrets.toml` (see `secrets.toml.example`) and opt in under Settings (top right).

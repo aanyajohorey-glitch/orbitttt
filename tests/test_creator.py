@@ -24,9 +24,15 @@ def app():
     storage.set_setting("onboarded", "1")
     storage.set_setting("demo_mode", "1")        # no emotion model needed
     at = AppTest.from_file(APP, default_timeout=120)
+    at.session_state.started = True
+    at.session_state.page = "Create"
     at.run()
-    at.button(key="mode_Create").click().run()
     return at
+
+
+def page_downloads(at):
+    """Download buttons on the page itself (not the one in the Settings menu)."""
+    return [b for b in at.get("download_button") if b.key != "set_export"]
 
 
 def bodies(at):
@@ -34,16 +40,31 @@ def bodies(at):
 
 
 # ---------------------------------------------------------------- crisis runs first in Create too
-def test_mode_choice_is_remembered(app):
-    assert app.session_state.page == "Create"
-    assert storage.get_setting("last_mode") == "Create"
+def test_landing_page_comes_first_and_saves_name_and_age():
+    storage.delete_everything()
+    at = AppTest.from_file(APP, default_timeout=120)
+    at.run()
+    assert not at.session_state["started"] if "started" in at.session_state else True
+    at.text_input(key="landing_name").input("Asha")
+    at.number_input(key="landing_age").set_value(16)
+    at.button(key="landing_start").click().run()
+    assert at.session_state.started
+    assert storage.get_setting("name") == "Asha" and storage.get_setting("age") == "16"
+    assert at.session_state.page == "Create"
+    assert not at.exception
+
+
+def test_opening_a_tab_is_remembered(app):
+    app.button(key="tab_Feel").click().run()
+    assert storage.get_setting("last_mode") == "Feel"
+    assert app.session_state.page == "Home"
 
 
 def test_crisis_idea_shows_only_help_and_generates_nothing(app):
     app.text_area(key="create_text").input("i want to end my life").run()
     app.button(key="create_go").click().run()
     assert any("14416" in b for b in bodies(app))
-    assert app.session_state.creative is None and not app.get("download_button")
+    assert app.session_state.creative is None and not page_downloads(app)
     assert "create_text" not in app.session_state or not app.session_state.create_text   # not kept
 
 
@@ -64,7 +85,7 @@ def test_a_normal_idea_builds_a_universe(app):
     if app.session_state.create_pending:
         app.button(key="cq_skip").click().run()
     assert not app.exception and app.session_state.creative
-    assert len(app.get("download_button")) == 4
+    assert len(page_downloads(app)) == 4
 
 
 # ---------------------------------------------------------------- the Vibe Vector and the universe
@@ -89,7 +110,10 @@ def test_fonts_come_from_the_csv():
     families = set(fonts.load_fonts()["family"])
     pair = fonts.pair(0.5, -0.5, -0.5)
     assert pair["heading"] in families and pair["body"] in families and pair["heading"] != pair["body"]
-    assert fonts.pair(0.3, 0, 0, hindi=True)["heading"] == "Tiro Devanagari Hindi"
+    hindi = fonts.pair(0.3, 0, 0, hindi=True)["heading"]
+    table = fonts.load_fonts()
+    assert "devanagari" in table[table["family"] == hindi].iloc[0]["tag_list"]
+    assert len(fonts.pair(0.3, 0, 0)["more"]) == 8
 
 
 @pytest.mark.parametrize("chip", list(vibe.CHIPS))

@@ -930,6 +930,10 @@ button[data-variant="pills"][aria-checked="true"], button[data-variant="pills"][
 [data-testid="stChatInputSubmitButton"] { background: rgba(168, 149, 210, 0.35) !important; color: #EEEAF6 !important; }
 .confidence.sure { background: rgba(152, 170, 140, 0.35); }
 .confidence.unsure { background: rgba(198, 149, 170, 0.35); }
+[data-testid="stButtonGroup"] button[aria-checked="false"], [data-testid="stButtonGroup"] button[aria-pressed="false"] {
+  background: rgba(255, 255, 255, 0.06) !important; }
+[data-testid="stButtonGroup"] button[aria-checked="true"] { background: rgba(201, 185, 232, 0.28) !important; }
+.st-key-topbar-row [data-testid="stPopover"] button { background: rgba(255, 255, 255, 0.06) !important; }
 """
 READABLE_FONT_CSS = """
 .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp textarea, .stApp button,

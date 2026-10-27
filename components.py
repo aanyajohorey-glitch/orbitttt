@@ -184,12 +184,11 @@ def top_bar():
     st.html(
         '<div class="topbar"><div class="brand">'
         + planet_html("#E6DCF6", "#A895D2", 20)
-        + '<span>ORBIT</span></div><div class="topbar-meta">Prototype · v0.5</div></div>'
+        + '<span>ORBIT</span></div></div>'
     )
 
 
 def footer():
     st.html(
-        '<div class="footer"><span>ORBIT · Every feeling has a universe.</span>'
-        "<span>Class 12 CBSE Artificial Intelligence project · Python + Streamlit</span></div>"
+        '<div class="footer"><span style="margin-left:auto">Class 12 CBSE Artificial Intelligence</span></div>'
     )

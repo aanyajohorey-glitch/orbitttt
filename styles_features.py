@@ -28,7 +28,6 @@ FEATURE_CSS = """
 .world-chip span { width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--c);
   box-shadow: 0 0 10px var(--c); }
 .world-chip b { color: var(--charcoal); font-weight: 600; }
-.st-key-world-sound [data-testid="stAudio"] { max-width: 360px; margin-left: auto; }
 
 /* ---------- Stress-buster pop-up ---------- */
 .game-offer { display: grid; gap: 0.2rem; padding: 0.9rem 1rem; margin: 0.6rem 0 0.9rem; border-radius: 16px;
@@ -173,4 +172,98 @@ FEATURE_CSS = """
 /* ---------- Hide the default Streamlit chrome (ORBIT has its own top bar) ---------- */
 [data-testid="stToolbarActions"], [data-testid="stMainMenu"], [data-testid="stAppDeployButton"],
 [data-testid="stDecoration"], #MainMenu, footer { display: none !important; }
+
+/* ---------- Landing page: a universe with revolving planets ---------- */
+.stApp:has(.lp-sky) { background: radial-gradient(1200px 700px at 50% 30%, #3A2E5C 0%, #1D1832 55%, #120F1F 100%) !important; }
+.lp-sky { position: relative; height: 560px; overflow: hidden; margin: -1rem -1rem 0; border-radius: 28px; }
+.lp-stars { position: absolute; inset: 0; opacity: 0.8; animation: lp-twinkle 6s ease-in-out infinite alternate;
+  background:
+    radial-gradient(1.5px 1.5px at 8% 12%, #fff, transparent), radial-gradient(1px 1px at 22% 68%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 37% 24%, #fff, transparent), radial-gradient(1px 1px at 51% 84%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 66% 18%, #fff, transparent), radial-gradient(1px 1px at 78% 58%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 90% 30%, #fff, transparent), radial-gradient(1px 1px at 14% 44%, #fff, transparent),
+    radial-gradient(1px 1px at 46% 52%, #fff, transparent), radial-gradient(1.5px 1.5px at 84% 86%, #fff, transparent),
+    radial-gradient(1px 1px at 30% 92%, #fff, transparent), radial-gradient(1px 1px at 60% 40%, #fff, transparent); }
+.lp-stars-2 { transform: scale(1.6) rotate(18deg); opacity: 0.45; animation-delay: -3s; }
+@keyframes lp-twinkle { from { opacity: 0.35; } to { opacity: 0.9; } }
+.lp-system { position: absolute; left: 50%; top: 42%; width: 0; height: 0; transform: scale(0.8); }
+.lp-orbit { position: absolute; left: calc(var(--s) / -2); top: calc(var(--s) / -2); width: var(--s); height: var(--s);
+  border-radius: 50%; border: 1px dashed rgba(255, 255, 255, 0.16);
+  animation: lp-spin var(--t) linear infinite; animation-delay: var(--d); }
+.lp-planet { position: absolute; left: 50%; top: calc(var(--p) / -2); width: var(--p); height: var(--p);
+  transform: translateX(-50%); border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #ffffff 0%, var(--c1) 30%, var(--c2) 85%);
+  box-shadow: 0 0 22px -2px var(--c1), inset -6px -8px 14px rgba(0, 0, 0, 0.28); }
+.lp-ring { position: absolute; left: -45%; top: 38%; width: 190%; height: 24%; border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.75); transform: rotate(-18deg); }
+.lp-core { position: absolute; left: -70px; top: -70px; width: 140px; height: 140px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFFFFF, #E6DCF6 35%, #A895D2 75%, #6E5A8A);
+  box-shadow: 0 0 80px 10px rgba(201, 185, 232, 0.55), 0 0 160px 40px rgba(168, 149, 210, 0.25);
+  animation: lp-pulse 6s ease-in-out infinite; }
+@keyframes lp-spin { to { transform: rotate(360deg); } }
+@keyframes lp-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.lp-title { position: absolute; left: 0; right: 0; bottom: 24px; text-align: center; }
+.lp-wordmark { font-family: var(--serif); font-size: clamp(3rem, 9vw, 5.6rem); letter-spacing: 0.4em; color: #FFFFFF;
+  text-indent: 0.4em; text-shadow: 0 0 30px rgba(201, 185, 232, 0.8); line-height: 1; }
+.lp-tagline { font-family: var(--serif); font-style: italic; font-size: 1.35rem; color: rgba(255, 255, 255, 0.82);
+  margin-top: 0.6rem; }
+.st-key-landing-form { max-width: 460px; margin: -10px auto 1rem; padding: 1.6rem 1.6rem 1.2rem; border-radius: 26px;
+  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8), 0 0 50px -20px rgba(201, 185, 232, 0.7); }
+.lp-ask { font-family: var(--serif); font-size: 1.7rem; color: #FFFFFF; text-align: center; margin-bottom: 0.4rem; }
+.st-key-landing-form label, .st-key-landing-form label p { color: rgba(255, 255, 255, 0.78) !important;
+  letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.72rem !important; }
+.st-key-landing-form div:has(> input) { background: rgba(255, 255, 255, 0.10) !important;
+  border: 1px solid rgba(255, 255, 255, 0.30) !important; border-radius: 16px !important; }
+.st-key-landing-form div:has(> input):focus-within { border-color: #C9B9E8 !important;
+  box-shadow: 0 0 0 3px rgba(201, 185, 232, 0.35) !important; }
+.st-key-landing-form input { background: transparent !important; color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important; font-size: 1.1rem !important; caret-color: #F6E1E9; }
+.st-key-landing-form button:not([data-testid="stBaseButton-primary"]) { background: transparent !important;
+  color: #FFFFFF !important; }
+.st-key-landing-form input::placeholder { color: rgba(255, 255, 255, 0.5) !important; }
+.st-key-landing-form [data-testid="stNumberInputStepDown"], .st-key-landing-form [data-testid="stNumberInputStepUp"] {
+  background: rgba(255, 255, 255, 0.12) !important; color: #FFFFFF !important; }
+.st-key-landing-form [data-testid="stBaseButton-primary"] { margin-top: 0.6rem; padding: 0.95rem 1rem !important;
+  border-radius: 999px !important; border: none !important;
+  background: linear-gradient(90deg, #F6E1E9, #C9B9E8 45%, #B9C8EA) !important;
+  box-shadow: 0 0 30px -4px rgba(201, 185, 232, 0.9) !important; }
+.st-key-landing-form [data-testid="stBaseButton-primary"] p { color: #1D1832 !important; font-weight: 700 !important;
+  font-size: 1.05rem !important; letter-spacing: 0.03em; }
+.lp-note { text-align: center; font-size: 0.76rem; color: rgba(255, 255, 255, 0.62); margin: 0.8rem 0 0; }
+@media (max-width: 640px) { .lp-sky { height: 480px; } .lp-system { transform: scale(0.62); } }
+@media (prefers-reduced-motion: reduce) { .lp-orbit, .lp-stars, .lp-core { animation: none !important; } }
+
+/* ---------- Top bar with the Settings menu, and the hidden background music ---------- */
+.st-key-topbar-row .topbar { margin-bottom: 0; }
+.st-key-topbar-row [data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; align-items: center; }
+.st-key-topbar-row [data-testid="stColumn"]:first-child { flex: 1 1 0 !important; width: auto !important; min-width: 0 !important; }
+.st-key-topbar-row [data-testid="stColumn"]:last-child { flex: 0 0 auto !important; width: auto !important;
+  min-width: 0 !important; display: flex; justify-content: flex-end; }
+.st-key-landing-form input::placeholder { -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important; }
+.st-key-topbar-row [data-testid="stPopover"] button { border-radius: 999px !important; }
+.set-head { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+  margin: 0.9rem 0 0.2rem; font-weight: 700; }
+.set-head:first-child { margin-top: 0; }
+.st-key-bg-music { position: fixed !important; width: 1px !important; height: 1px !important; overflow: hidden !important;
+  opacity: 0 !important; pointer-events: none !important; left: -9999px !important; }
+
+/* ---------- Wrapped ---------- */
+.wr-stat { font-family: var(--serif); font-size: 1.1rem; color: var(--muted); }
+.wr-stat span { display: block; font-size: 4.2rem; line-height: 1; color: var(--charcoal); }
+.wr-rank { font-family: var(--serif); font-size: 1.6rem; color: var(--charcoal); margin: 0.2rem 0; }
+.wr-rank b { display: inline-block; width: 2rem; color: var(--accent, #A895D2); }
+.wr-chip { display: inline-block; margin: 0.25rem 0.35rem 0 0; padding: 0.3rem 0.75rem; border-radius: 999px;
+  font-size: 0.82rem; border: 1px solid var(--c); background: color-mix(in srgb, var(--c) 18%, transparent); }
+
+/* ---------- Font gallery: each font shown in its own typeface ---------- */
+.font-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; margin-top: 0.5rem; }
+.font-card { padding: 1rem 1.1rem; border-radius: 18px; background: var(--glass);
+  border: 1px solid var(--line); overflow: hidden; }
+.font-aa { font-size: 2.6rem; line-height: 1; color: var(--charcoal); }
+.font-sample { font-size: 1.15rem; margin: 0.5rem 0 0.35rem; color: var(--charcoal); line-height: 1.25;
+  overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.font-name { font-size: 1rem; font-weight: 600; color: var(--charcoal); }
+.font-card small { color: var(--muted); font-size: 0.75rem; }
 """
