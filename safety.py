@@ -24,9 +24,6 @@ Known misses are reported honestly on the AI Lab page.
 """
 import re
 
-# ---------------------------------------------------------------
-# Crisis: exact phrases (English, Hinglish, Hindi)
-# ---------------------------------------------------------------
 CRISIS_PHRASES = [
     "kill myself", "killing myself", "want to die", "wanna die", "wish i was dead", "wish i were dead",
     "end my life", "ending my life", "take my life", "suicide", "suicidal", "self harm", "self-harm",
@@ -34,55 +31,40 @@ CRISIS_PHRASES = [
     "do not want to live", "no reason to live", "better off without me", "better off dead", "end it all",
     "ending it all", "kill me now", "hang myself", "overdose", "not worth living", "can't go on living",
     "cant go on living",
-    # Hinglish
     "marna chahta", "marna chahti", "mar jana chahta", "mar jana chahti", "mar jaana chahta",
     "mar jaana chahti", "khudkushi", "aatmahatya", "jeena nahi chahta", "jeena nahi chahti",
     "zinda nahi rehna", "mar jaun",
-    # Hindi
     "आत्महत्या", "खुदकुशी", "मरना चाहता", "मरना चाहती", "जीना नहीं चाहता", "जीना नहीं चाहती",
 ]
 
-# ---------------------------------------------------------------
-# Crisis: flexible patterns, one group per warning-sign category
-# ---------------------------------------------------------------
 CRISIS_PATTERNS = [
-    # Wanting to die / not wanting to be alive
     r"\b(don'?t|do not|no longer|never)\s+want\s+to\s+(live|be alive|exist|be here)\b",
     r"\b(want|wanna|wish|going|planning|plan|thinking about|thinking of)\s+(to\s+)?(die|be dead)\b(?!\s+(of|from|laughing|for))",
     r"\b(kill|hurt|harm|cut|injure)\w*\s+myself\b",
     r"\b(end|ending|take|taking)\s+my\s+(own\s+)?life\b",
-    # Not waking up
     r"\b(never|not|don'?t want to)\s+wake\s+up\b",
-    # Burden / absence ("everyone would be better off without me")
     r"\bbetter off\s+(without me|dead|if i\s+(was|were)n'?t\s+(here|around|alive))",
     r"\bif i\s+(was|were)n'?t\s+(here|around|alive)\b",
     r"\bwon'?t be\s+(around|here|alive)\b",
     r"\b(disappear|vanish)\s+(forever|and never come back)\b",
-    # Preparing / saying goodbye
     r"\bgiving away my\s+(things|stuff|belongings)\b",
     r"\bgoodbye\s+(letter|note|message)s?\b",
     r"\bsuicide\s+note\b",
-    # No reason to live
     r"\bno\s+(reason|point)\s+(for me\s+)?(to|in)\s+(keep going|go on|live|living|be alive)\b",
     r"\bpoint\s+(in|of)\s+living\b",
-    # Methods and searching for a way (added in round 2)
     r"\b(take|swallow|took|taking)\s+(all\s+)?(of\s+)?(my\s+|the\s+|these\s+|those\s+)?(sleeping\s+)?(pills|tablets)\b",
     r"\bjump(ing)?\s+(off|from)\s+(the\s+|a\s+)?(building|bridge|roof|terrace)\b",
     r"\b(ways|how)\s+to\s+(die|kill myself|end it)\b",
-    # Intent to "end things" (but not "end things with someone")
     r"\b(decided|going|planning|plan|want|wanna)\s+to\s+end\s+(things|it|everything)\b(?!\s+with)",
-    # Finality and absence (added in round 2)
     r"\bcan'?t\s+do\s+(this\s+)?life\b",
     r"\bdone\s+for\s+good\b",
     r"\b(happier|better|fine)\s+without\s+me\b",
-    # Added in round 3 (after the round-2 holdout misses were reviewed)
     r"\bstop(ped)?\s+existing\b",
     r"\b(pills|tablets)\b.{0,40}\bswallow|\bswallow\w*\s+(them\s+)?all\b",
     r"\b(this is|it'?s)\s+my\s+last\s+(message|goodbye|text)\b",
     r"\blife\s+(isn'?t|is not)\s+worth\b",
     r"\bi\s+want\s+out\b(?!\s+of)",
     r"\bthrow\s+myself\s+(in front of|off|under)\b",
-    # Hinglish
     r"\bjeena\s+nahi\b",
     r"\bkhud\s+ko\s+(khatam|maar)",
     r"\bkhatam\s+kar\s+(dena|dunga|dungi|lunga|lungi|du|doon)\b",
@@ -93,7 +75,6 @@ CRISIS_PATTERNS = [
     r"\bsabko\s+alvida\b",
     r"\bjaan\s+de\s*(dunga|dungi|doon|du|denge)\b",
     r"\bjeene\s+ka\s+(koi\s+)?matlab\s+nahi\b",
-    # Hindi
     r"मर\s*जाना",
     r"जीना\s*नहीं",
     r"जान\s*दे",
@@ -102,12 +83,8 @@ CRISIS_PATTERNS = [
     r"(ज़िंदा|जिंदा)\s*नहीं",
 ]
 
-# Mentions that are clearly not about the user (a film title, a school lesson)
 NOT_ABOUT_ME = [r"suicide\s+squad", r"suicide\s+(prevention|awareness)"]
 
-# ---------------------------------------------------------------
-# Concern: hopelessness, feeling like a burden, emptiness
-# ---------------------------------------------------------------
 CONCERN_PHRASES = [
     "hopeless", "worthless", "no point", "pointless", "can't do this anymore", "cant do this anymore",
     "can't take it anymore", "cant take it anymore", "nobody cares", "no one cares", "give up on everything",

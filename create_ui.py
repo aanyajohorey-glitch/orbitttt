@@ -44,9 +44,6 @@ DIRECTION_HINTS = {"Safe": "your vibe, familiar picks", "Bold": "louder, stronge
                    "Weird": "flipped and unexpected"}
 
 
-# ---------------------------------------------------------------
-# Safety and analysis
-# ---------------------------------------------------------------
 def crisis_in(*texts):
     return any(t and safety_check(t) == "crisis" for t in texts)
 
@@ -57,7 +54,7 @@ def block():
     for key in ("create_text", "create_song", "create_word", "spark_word"):
         st.session_state.pop(key, None)
     st.session_state.creative = None
-    theme.reset_world()                     # calm, neutral colours while help is shown
+    theme.reset_world()
 
 
 def read_emotions(text):
@@ -82,9 +79,6 @@ def colour_to_vibe(hex_colour):
     return {"warmth": warmth * s, "brightness": vibe.clamp((l - 0.5) * 2), "bold": vibe.clamp((s - 0.4) * 2)}
 
 
-# ---------------------------------------------------------------
-# Generating and storing versions
-# ---------------------------------------------------------------
 def state():
     return st.session_state.get("creative")
 
@@ -101,7 +95,7 @@ def generate(vector, discovery=None, label="New idea"):
                    + history)[:HISTORY_SIZE]
     st.session_state.creative = {"universe": universe, "label": label, "history": history,
                                  "time": datetime.now().strftime("%H:%M:%S")}
-    theme.set_vibe_world(universe)          # the whole app takes on this universe's colours
+    theme.set_vibe_world(universe)
 
 
 def restore(index):
@@ -139,9 +133,6 @@ def new_idea():
     st.session_state.create_locks = set()
 
 
-# ---------------------------------------------------------------
-# 1. Entry screen
-# ---------------------------------------------------------------
 def build_from_input():
     s = st.session_state
     text = s.get("create_text", "").strip()
@@ -166,12 +157,11 @@ def build_from_input():
     if start == "A colour" and s.get("create_colour"):
         vector.update({k: round(v, 3) for k, v in colour_to_vibe(s["create_colour"]).items()})
     vector["result"] = {k: result[k] for k in ("text", "model_text", "final", "translated")}
-    st.session_state.create_offer = bridge.offer_for(full)       # stress or creative-block words?
+    st.session_state.create_offer = bridge.offer_for(full)
     vector["concern"] = result.get("safety") == "concern"
-    if not vector["medium"]:                     # "a short film about..." already says the medium
+    if not vector["medium"]:
         words = vibe.words_in(result.get("model_text") or full)
         vector["medium"] = next((MEDIUM_HINTS[w] for w in words if w in MEDIUM_HINTS), None)
-    # Up to 3 tappable questions when something is unclear.
     questions = []
     if not vector["medium"]:
         questions.append("medium")
@@ -181,7 +171,7 @@ def build_from_input():
         questions.append("era")
     st.session_state.create_pending = {"vector": vector, "questions": questions[:3]}
     if not questions:
-        finish_questions(skip=True)            # nothing to ask: straight to the universe
+        finish_questions(skip=True)
 
 
 def entry_screen():
@@ -216,9 +206,6 @@ def spark_start():
     st.session_state.spark_ideas = None
 
 
-# ---------------------------------------------------------------
-# 2. Clarifying questions (tappable, skippable)
-# ---------------------------------------------------------------
 def finish_questions(skip=False):
     pending = st.session_state.create_pending
     vector = pending["vector"]
@@ -227,7 +214,7 @@ def finish_questions(skip=False):
         if s.get("cq_medium"):
             vector["medium"] = s.cq_medium
         if s.get("cq_feeling"):
-            chosen = [spark.EMOTIONS[f] for f in s.cq_feeling[:2]]      # "up to 2"
+            chosen = [spark.EMOTIONS[f] for f in s.cq_feeling[:2]]
             vector["valence"] = round(sum(e[0] for e in chosen) / len(chosen), 3)
             vector["arousal"] = round(sum(e[1] for e in chosen) / len(chosen), 3)
             vector["emotions"] = [(e[2], 1.0 / len(chosen)) for e in chosen] + vector["emotions"][:3]
@@ -253,16 +240,13 @@ def questions_screen():
         right.button("Skip", key="cq_skip", on_click=finish_questions, args=(True,), width="stretch")
 
 
-# ---------------------------------------------------------------
-# The bridge to Feel: a short break, then back to the project
-# ---------------------------------------------------------------
 def take_break(kind, game=None, block=None):
     st.session_state.create_break = {"kind": kind, "game": game, "block": block}
     st.session_state.create_offer = None
 
 
 def end_break():
-    st.session_state.create_break = None          # the project in session state is untouched
+    st.session_state.create_break = None
 
 
 def check_in_on_project():
@@ -319,9 +303,6 @@ def break_screen(pause):
     st.button("Back to my project", key="br_back", type="primary", on_click=end_break)
 
 
-# ---------------------------------------------------------------
-# 3. The Creative Universe
-# ---------------------------------------------------------------
 def lock_toggle(element):
     locks = st.session_state.setdefault("create_locks", set())
     key = f"lock_{element}"
@@ -428,7 +409,7 @@ def universe_screen():
     with st.container(key="glass-cu-refine"):
         st.html('<div class="eyebrow">Refine the vibe</div>')
         chips = list(vibe.CHIPS.items())
-        for row in (chips[:3], chips[3:]):                         # two rows of three, so labels fit
+        for row in (chips[:3], chips[3:]):
             for col, (chip, help_text) in zip(st.columns(3), row):
                 col.button(chip, key=f"chip_{chip}", on_click=apply_chip, args=(chip,), help=help_text,
                            width="stretch")
@@ -567,9 +548,6 @@ def polish():
         st.session_state.flash.append("The AI wasn't available, so the template version stays.")
 
 
-# ---------------------------------------------------------------
-# The page
-# ---------------------------------------------------------------
 def create_page():
     if st.session_state.get("create_blocked"):
         st.html(safety_card_html("crisis"))

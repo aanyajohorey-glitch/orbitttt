@@ -493,8 +493,6 @@ button[data-variant="pills"] * { color: inherit !important; }
 """
 
 
-# Styles for the features added in v0.3 (companion, safety, calm room,
-# journal, AI lab, care and the arcade vending machine).
 EXTRA_CSS = """
 /* ---------- Navigation with many pages ---------- */
 .st-key-nav button { padding: 0.42rem 0.75rem !important; }
@@ -852,9 +850,6 @@ EXTRA_CSS = """
 """
 
 
-# ---------------------------------------------------------------
-# Accessibility options (chosen in About -> Settings, or in onboarding)
-# ---------------------------------------------------------------
 REDUCED_MOTION_CSS = """
 *, *::before, *::after {
   animation: none !important; transition: none !important; scroll-behavior: auto !important;
@@ -882,8 +877,6 @@ HIGH_CONTRAST_CSS = """
 [data-testid="stBaseButton-secondary"], button[data-variant="pills"] { border: 2px solid #000000 !important; }
 button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px solid #0047FF !important; outline-offset: 2px; }
 """
-# Night mode: ORBIT's own dark theme (an accessibility option). Surfaces that are light in the
-# day theme become deep violet glass; text becomes light. Generated palettes keep their colours.
 NIGHT_CSS = """
 :root { --ivory: #15131D; --charcoal: #EEEAF6; --muted: rgba(238, 234, 246, 0.68); --line: rgba(255, 255, 255, 0.12);
   --glass: rgba(34, 30, 48, 0.72); }

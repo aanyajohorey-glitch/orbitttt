@@ -34,7 +34,6 @@ CATALOG = Path(__file__).parent / "data" / "music_catalog.csv"
 PLAYLIST_SIZE = 10
 TAG_WEIGHT = 0.6
 
-# Tags that suit each feeling family, for each intent.
 INTENT_TAGS = {
     "Sadness": {"match": ["bittersweet", "longing", "cathartic", "acoustic", "calm"],
                 "lift": ["comfort", "hopeful", "warm", "calm"]},
@@ -67,9 +66,6 @@ def all_tags(table):
     return sorted({tag for tags in table["tag_list"] for tag in tags})
 
 
-# ---------------------------------------------------------------
-# 1. The target
-# ---------------------------------------------------------------
 def target_for(emotions, intent):
     """emotions: [(label, score), ...]. Returns (mood 1-5, energy 1-5, family, preferred tags)."""
     total = sum(score for _, score in emotions) or 1.0
@@ -78,8 +74,8 @@ def target_for(emotions, intent):
     family = GROUP_OF[max(emotions, key=lambda pair: pair[1])[0]]
     mood, energy = 3 + 2 * valence, 3 + 2 * arousal
     if intent == "lift":
-        mood = min(5.0, mood + (1.5 if valence < 0 else 0.5))     # a gentle step up, not a leap
-        energy = energy + 0.4 * (3.2 - energy)                    # high energy settles, very low energy rises a little
+        mood = min(5.0, mood + (1.5 if valence < 0 else 0.5))
+        energy = energy + 0.4 * (3.2 - energy)
     return mood, energy, family, INTENT_TAGS[family][intent]
 
 
@@ -88,11 +84,6 @@ def vector(mood, energy, tags, vocabulary):
     return [1.0, (mood - 3) / 2, (energy - 3) / 2] + [TAG_WEIGHT if t in tags else 0.0 for t in vocabulary]
 
 
-
-
-# ---------------------------------------------------------------
-# 2-4. Ranking and diversity
-# ---------------------------------------------------------------
 def track_similarity(a, b):
     """How alike two tracks are, for diversity: same artist / genre / language."""
     return 0.45 * (a["artist"] == b["artist"]) + 0.3 * (a["genre"] == b["genre"]) + \
@@ -116,12 +107,12 @@ def recommend_target(mood, energy, tags, intent="match", discovery=0.5, size=PLA
     candidates = []
     for track in table.to_dict("records"):
         similarity = cosine(goal, vector(track["valence"], track["energy"], track["tag_list"], vocabulary))
-        popularity = (track["mainstream_level"] - 1) / 4                     # 0 = obscure, 1 = everyone knows it
+        popularity = (track["mainstream_level"] - 1) / 4
         relevance = similarity + 0.15 * (1 - 2 * discovery) * popularity
         candidates.append({**track, "similarity": similarity, "relevance": relevance})
     candidates.sort(key=lambda t: -t["relevance"])
-    pool = candidates[:60]                                                   # the most relevant 60
-    chosen = mmr(pool, track_similarity, size, discovery_trade_off(discovery), unique="artist")  # one per artist
+    pool = candidates[:60]
+    chosen = mmr(pool, track_similarity, size, discovery_trade_off(discovery), unique="artist")
     for track in chosen:
         track["reason"] = reason(track, intent, tags, chosen)
     return chosen

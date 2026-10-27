@@ -6,7 +6,7 @@ import datasets
 import safety
 
 SUITE = pd.read_csv(datasets.DATA / "safety_tests.csv", encoding="utf-8")
-KNOWN_MISSES = {"I've thought about how I would do it"}   # documented in docs/safety_report.md
+KNOWN_MISSES = {"I've thought about how I would do it"}
 HELPLINE_NUMBERS = ["14416", "1-800-891-4416", "112"]
 
 

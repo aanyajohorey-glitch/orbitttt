@@ -36,7 +36,6 @@ def confidence_html(result):
 
 
 def _apply(result, family, source, on_update):
-    # result is the dictionary kept in session state, so changing it here persists
     teach(result, family, source)
     if on_update:
         on_update(result)

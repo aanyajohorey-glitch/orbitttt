@@ -32,22 +32,19 @@ def make_pack(previous=None):
     worlds = load_worlds()
     world = random.choice(worlds)
     while previous and world["name"] == previous["world"] and len(worlds) > 1:
-        world = random.choice(worlds)  # avoid the same world twice in a row
+        world = random.choice(worlds)
     return {"world": world["name"], "intent": random.choice(INTENTS), "constraint": random.choice(CONSTRAINTS)}
 
 
-# ---------------------------------------------------------------
-# Machine state
-# ---------------------------------------------------------------
 DEFAULT_STATE = {
-    "vm_state": "idle",   # idle / vending / tray / open
-    "vm_credit": False,   # is a token in the machine?
-    "vm_code": "",        # what has been typed on the keypad
-    "vm_slot": None,      # the slot being vended
-    "vm_pack": None,      # the creative pack inside the capsule
-    "vm_sold": [],        # empty slots
-    "vm_message": None,   # a short LED message (e.g. SOLD OUT)
-    "vm_sfx": None,       # a sound to play on the next run
+    "vm_state": "idle",
+    "vm_credit": False,
+    "vm_code": "",
+    "vm_slot": None,
+    "vm_pack": None,
+    "vm_sold": [],
+    "vm_message": None,
+    "vm_sfx": None,
     "vm_sfx_count": 0,
 }
 
@@ -147,9 +144,6 @@ def restock():
     say("RESTOCKED!", "coin")
 
 
-# ---------------------------------------------------------------
-# Drawing the machine
-# ---------------------------------------------------------------
 def led_text():
     s = st.session_state
     if s.vm_message:
@@ -243,7 +237,7 @@ def vending_machine():
     with panel_col:
         with st.container(key="vm-panel"):
             st.html(led_html())
-            st.session_state.vm_message = None   # like a real machine, messages flash once
+            st.session_state.vm_message = None
             st.html(tokens_html())
             with st.container(key="vm-coinbtns"):
                 left, right = st.columns(2)
@@ -265,7 +259,7 @@ def vending_machine():
             st.button("PUSH the flap to collect your capsule", key="vm_collect", type="primary",
                       on_click=collect, width="stretch")
     if st.session_state.vm_state == "vending":
-        st.session_state.vm_state = "tray"   # the fall animation plays only once
+        st.session_state.vm_state = "tray"
 
     if st.session_state.vm_state == "open" and st.session_state.vm_pack:
         show_pack(st.session_state.vm_pack, st.session_state.vm_slot)

@@ -43,8 +43,8 @@ def training_arrays(extra=None, use_dictionary=False):
         fams.append(family)
         raw.append(raw_scores)
         translated.append(dict_scores)
-        weights.append(2.0)   # a person took the time to correct ORBIT
-    if use_dictionary == "text_only":   # variant T: word patterns only (offline demo mode)
+        weights.append(2.0)
+    if use_dictionary == "text_only":
         X = np.stack([orbit_head.text_features(t) for t in texts])
     else:
         X = evaluation.feature_matrix(texts, raw, translated if use_dictionary else None)
@@ -87,7 +87,6 @@ def fit(use_dictionary, path, extra=None, verbose=True):
         print(f"Variant {name}: cross-validation on training data (macro-F1)")
         print("   " + "  ".join(f"l2={l2:g}: {f1:.3f}" for l2, (f1, _) in cv.items()) + f"   -> chose {best_l2:g}")
     W, b = orbit_head.train(X, y, w, l2=best_l2)
-    # Temperature scaling, fitted on out-of-fold predictions (never on test sets)
     temperature, loss_before, loss_after = orbit_head.fit_temperature(
         out_of_fold_logits(use_dictionary, best_l2), y)
     if verbose:
@@ -143,7 +142,6 @@ def main():
     else:
         print("No classifier adopted: ORBIT keeps RoBERTa + dictionary")
 
-    # Variant T: the offline demo-mode classifier (word patterns only, no emotion model)
     _, _, t_meta = fit("text_only", orbit_head.CANDIDATES["T"])
     oof_t = orbit_head.softmax(out_of_fold_logits("text_only", t_meta["l2"])).argmax(axis=1)
     print(f"Variant T out-of-fold accuracy {np.mean(oof_t == y):.2f}, macro-F1 {orbit_head.macro_f1(y, oof_t):.3f} "

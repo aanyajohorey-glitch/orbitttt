@@ -35,13 +35,13 @@ from emotion_model import EMOTION_GROUPS, GROUP_OF
 
 FAMILIES = list(EMOTION_GROUPS)
 MODEL_DIR = Path(__file__).parent / "data" / "model"
-SHARED_MODEL = MODEL_DIR / "orbit_head.npz"            # the ADOPTED model (in the repo)
-CANDIDATES = {                                           # every trained variant, kept for comparison
-    "C": MODEL_DIR / "orbit_head_C.npz",                 # classifier, no dictionary
-    "D": MODEL_DIR / "orbit_head_D.npz",                 # classifier + dictionary features
-    "T": MODEL_DIR / "orbit_head_T.npz",                 # text only: offline demo mode, no emotion model
+SHARED_MODEL = MODEL_DIR / "orbit_head.npz"
+CANDIDATES = {
+    "C": MODEL_DIR / "orbit_head_C.npz",
+    "D": MODEL_DIR / "orbit_head_D.npz",
+    "T": MODEL_DIR / "orbit_head_T.npz",
 }
-LOCAL_PERSONAL_MODEL = MODEL_DIR / "orbit_head_personal.npz"   # + the user's corrections (never uploaded)
+LOCAL_PERSONAL_MODEL = MODEL_DIR / "orbit_head_personal.npz"
 
 
 def personal_model():
@@ -56,9 +56,6 @@ CHAR_BUCKETS = 1024
 TOKEN = re.compile(r"[^\s.,!?।\"'()]+")
 
 
-# ---------------------------------------------------------------
-# Features
-# ---------------------------------------------------------------
 def _bucket(prefix, piece, size):
     return zlib.crc32(f"{prefix}:{piece}".encode("utf-8")) % size
 
@@ -102,9 +99,6 @@ def features(text, base_scores, labels, dict_scores=None):
     return np.concatenate(parts)
 
 
-# ---------------------------------------------------------------
-# Softmax regression
-# ---------------------------------------------------------------
 def softmax(z):
     z = z - z.max(axis=1, keepdims=True)
     e = np.exp(z)
@@ -124,7 +118,7 @@ def train(X, y, sample_weight=None, l2=1e-3, steps=800, lr=0.5, seed=0):
     mW, vW, mb, vb = np.zeros_like(W), np.zeros_like(W), np.zeros_like(b), np.zeros_like(b)
     for step in range(1, steps + 1):
         P = softmax(X @ W + b)
-        G = (P - Y) * w[:, None] / n                       # gradient of the loss
+        G = (P - Y) * w[:, None] / n
         gW = X.T @ G + l2 * W
         gb = G.sum(axis=0)
         for param, grad, m, v in ((W, gW, mW, vW), (b, gb, mb, vb)):
@@ -193,9 +187,6 @@ def cross_validate(X, y, sample_weight, l2_values=(1e-5, 3e-5, 1e-4, 3e-4, 1e-3,
     return results
 
 
-# ---------------------------------------------------------------
-# Saving and loading
-# ---------------------------------------------------------------
 def save(path, W, b, meta):
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(path, W=W, b=b, meta=json.dumps(meta))

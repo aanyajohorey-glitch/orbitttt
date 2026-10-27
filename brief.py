@@ -13,12 +13,11 @@ from PIL import Image, ImageDraw, ImageFont
 
 from palette import hex_to_rgb
 
-WIDTH, HEIGHT, MARGIN = 1240, 1754, 90          # A4 at 150 dots per inch
+WIDTH, HEIGHT, MARGIN = 1240, 1754, 90
 INK = (52, 49, 59)
 MUTED = (110, 104, 118)
 
 
-# Fonts with accented letters (and Devanagari, for Nirmala UI on Windows). Tried in order.
 SYSTEM_FONTS = ["Nirmala.ttc", "Nirmala.ttf", "DejaVuSans.ttf", "arial.ttf", "Arial.ttf"]
 _FULL_FONT = None
 
@@ -35,7 +34,7 @@ def _font(size):
     _FULL_FONT = False
     try:
         return ImageFont.load_default(size=size)
-    except TypeError:            # very old Pillow
+    except TypeError:
         return ImageFont.load_default()
 
 
@@ -62,7 +61,6 @@ def page_image(universe):
     concept, colours = universe["concept"], universe["palette"]["colours"]
     vector = universe["vector"]
 
-    # gradient band at the top (primary -> harmony A)
     a, b = hex_to_rgb(colours[0]["hex"]), hex_to_rgb(colours[1]["hex"])
     for x in range(WIDTH):
         t = x / WIDTH
@@ -77,7 +75,6 @@ def page_image(universe):
         y += 34
     y = _wrapped(draw, (MARGIN, y), concept["vision"], body, 88) + 30
 
-    # palette
     draw.text((MARGIN, y), "PALETTE", fill=MUTED, font=small)
     y += 32
     swatch = (WIDTH - 2 * MARGIN - 4 * 20) // 5

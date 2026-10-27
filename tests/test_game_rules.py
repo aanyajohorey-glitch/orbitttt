@@ -11,7 +11,6 @@ NORMAL = dict(CRISIS, text="I passed my exam!", safety=None,
               final=dict(CRISIS["final"], family="Joy", emotion="joy"))
 
 
-# ---------------------------------------------------------------- crisis rules
 def test_crisis_disables_games_and_storage(session):
     assert not analysis.games_allowed(CRISIS)
     assert not analysis.may_store(CRISIS)
@@ -39,11 +38,10 @@ def test_journal_switch_off_stops_saving(session):
     storage.set_setting("journal_on", "0")
     analysis.record_checkin(NORMAL, "Home")
     assert storage.list_entries() == []
-    assert session.tokens == 4          # the token is still earned
+    assert session.tokens == 4
     storage.set_setting("journal_on", "1")
 
 
-# ---------------------------------------------------------------- vending machine state machine
 def start_machine(session, tokens=3):
     vending.ensure_state()
     session.tokens = tokens

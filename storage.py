@@ -32,9 +32,8 @@ from contextlib import closing
 from datetime import datetime
 from pathlib import Path
 
-# Tests can point ORBIT at a temporary database with the ORBIT_DB variable.
 LOCAL_DB = Path(os.environ.get("ORBIT_DB", Path(__file__).parent / "data" / "orbit.db"))
-DB_PATH = LOCAL_DB          # kept for older code; use db_path() instead
+DB_PATH = LOCAL_DB
 SESSION_DIR = Path(tempfile.gettempdir()) / "orbit_sessions"
 SESSION_MAX_AGE = 24 * 3600
 
@@ -130,9 +129,6 @@ def _clean_old_sessions():
             pass
 
 
-# ---------------------------------------------------------------
-# Settings
-# ---------------------------------------------------------------
 def get_setting(key, default=None):
     rows = run("SELECT value FROM settings WHERE key = ?", (key,))
     return rows[0]["value"] if rows else default
@@ -146,9 +142,6 @@ def journal_enabled():
     return get_setting("journal_on", "1") == "1"
 
 
-# ---------------------------------------------------------------
-# Journal entries
-# ---------------------------------------------------------------
 def add_entry(source, text, emotions, world, created_at=None, demo=False, primary=None):
     """primary: ORBIT's final emotion (from the trained classifier). Defaults to
     the base model's strongest emotion."""
@@ -177,9 +170,6 @@ def clear_entries(demo_only=False):
     run("DELETE FROM entries" + (" WHERE demo = 1" if demo_only else ""))
 
 
-# ---------------------------------------------------------------
-# My Collection
-# ---------------------------------------------------------------
 def add_collection_item(item):
     run(
         "INSERT OR REPLACE INTO collection (id, world, source, intent, prompt, constraint_text, note, saved_at) "
@@ -204,9 +194,6 @@ def clear_collection():
     run("DELETE FROM collection")
 
 
-# ---------------------------------------------------------------
-# Calm Room sessions and feedback (the impact study)
-# ---------------------------------------------------------------
 def add_wellbeing(tool, before, after, created_at=None, demo=False):
     run(
         "INSERT INTO wellbeing (created_at, tool, before, after, demo) VALUES (?, ?, ?, ?, ?)",
@@ -230,9 +217,6 @@ def list_feedback():
     return run("SELECT * FROM feedback ORDER BY created_at")
 
 
-# ---------------------------------------------------------------
-# Thumbs up / down on replies and tools (satisfaction metric)
-# ---------------------------------------------------------------
 def add_rating(kind, target, value):
     """kind: 'reply' or 'tool'; target: e.g. 'ORBIT templates' or 'Breathing'; value: 1 (up) or 0 (down)."""
     rows = run("INSERT INTO ratings (created_at, kind, target, value) VALUES (?, ?, ?, ?) RETURNING id",
@@ -248,9 +232,6 @@ def list_ratings():
     return run("SELECT * FROM ratings ORDER BY created_at")
 
 
-# ---------------------------------------------------------------
-# Notes the user chose to keep (Reach Out drafts)
-# ---------------------------------------------------------------
 def add_note(kind, title, text, created_at=None):
     run("INSERT INTO notes (created_at, kind, title, text) VALUES (?, ?, ?, ?)",
         (created_at or now(), kind, title, text))
@@ -266,9 +247,6 @@ def delete_note(note_id):
     run("DELETE FROM notes WHERE id = ?", (note_id,))
 
 
-# ---------------------------------------------------------------
-# Teach Orbit corrections (human-in-the-loop labels)
-# ---------------------------------------------------------------
 def add_correction(text, predicted, corrected, raw_scores, source):
     run("INSERT INTO corrections (created_at, text, predicted, corrected, raw_scores, source) "
         "VALUES (?, ?, ?, ?, ?, ?)", (now(), text, predicted, corrected, json.dumps(raw_scores), source))
@@ -285,9 +263,6 @@ def clear_corrections():
     run("DELETE FROM corrections")
 
 
-# ---------------------------------------------------------------
-# Export / import (so a journal can be kept when hosted on Streamlit Cloud)
-# ---------------------------------------------------------------
 EXPORT_TABLES = ("entries", "collection", "wellbeing", "feedback", "ratings", "corrections", "notes", "settings")
 
 
@@ -334,7 +309,7 @@ def panic_wipe():
     """Delete ALL local data immediately: every table, the personal model and,
     in session mode, the session's database file."""
     delete_everything()
-    import orbit_head   # imported here to avoid a circular import
+    import orbit_head
     personal = orbit_head.personal_model()
     if personal.exists():
         personal.unlink()

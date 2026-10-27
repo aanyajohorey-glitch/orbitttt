@@ -28,9 +28,6 @@ SEALED_DAYS = 30
 FEELINGS = ["Hopeful", "Calm", "Happy", "Proud", "Worried", "Stressed", "Sad", "Lonely", "Angry", "Mixed"]
 
 
-# ---------------------------------------------------------------
-# 1. A letter you'll never send
-# ---------------------------------------------------------------
 def let_go(ritual):
     text = st.session_state.get("unsent_text", "").strip()
     if not text:
@@ -43,7 +40,7 @@ def let_go(ritual):
     if st.session_state.get("unsent_keep"):
         storage.add_note("unsent_letter", st.session_state.get("unsent_to", "") or "Unsent letter", text)
     st.session_state.letter_ritual = {"kind": ritual, "text": text}
-    st.session_state.unsent_text = ""            # gone from the page
+    st.session_state.unsent_text = ""
 
 
 def ritual_html(kind, text):
@@ -89,9 +86,6 @@ def unsent_section():
                              on_click=storage.delete_note, args=(item["id"],))
 
 
-# ---------------------------------------------------------------
-# 2. A letter to future me
-# ---------------------------------------------------------------
 def feeling_now():
     """What the writer feels right now: their choice, or else their last (non-crisis) check-in."""
     chosen = st.session_state.get("future_feeling")

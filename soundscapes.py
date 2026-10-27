@@ -17,7 +17,7 @@ import wave
 import numpy as np
 import streamlit as st
 
-RATE = 16000  # samples per second (enough for soft ambient sound)
+RATE = 16000
 
 
 def to_wav(samples):
@@ -78,9 +78,9 @@ def soundscape(kind, seconds=24):
         swell = (0.5 + 0.5 * np.sin(2 * np.pi * t / 8)) ** 2
         sound = surf * (0.15 + swell)
     elif kind == "dream":
-        sound = chord([220.0, 261.6, 329.6, 392.0, 493.9], seconds)       # A minor 9: soft and dreamy
+        sound = chord([220.0, 261.6, 329.6, 392.0, 493.9], seconds)
     elif kind == "sunset":
-        sound = chord([196.0, 246.9, 293.7, 370.0], seconds, wobble=0.08)  # G major 7: warm
+        sound = chord([196.0, 246.9, 293.7, 370.0], seconds, wobble=0.08)
     elif kind == "focus":
         drone = chord([110.0, 164.8], seconds, wobble=0.05)
         air = smooth(rng.normal(0, 1, n), 60) * 0.6
@@ -97,9 +97,6 @@ def soundscape(kind, seconds=24):
     return to_wav(seamless(normalise(sound)))
 
 
-# ---------------------------------------------------------------
-# Arcade sound effects
-# ---------------------------------------------------------------
 def _tone(freq, seconds, decay=8.0):
     t = np.arange(int(seconds * RATE)) / RATE
     return np.sin(2 * np.pi * freq * t) * np.exp(-decay * t)
@@ -124,7 +121,7 @@ def sfx(kind, variant=0):
     elif kind == "chime":
         length = int(1.6 * RATE)
         sound = np.zeros(length)
-        for i, f in enumerate([784, 988, 1175, 1568]):  # a rising arpeggio
+        for i, f in enumerate([784, 988, 1175, 1568]):
             note = _tone(f, 0.9, 4)
             start = i * 1600
             sound[start:start + len(note)] += note[: length - start]

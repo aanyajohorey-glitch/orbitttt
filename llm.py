@@ -64,9 +64,6 @@ def acceptable_output(reply):
     return safety_check(reply) is None
 
 
-# ---------------------------------------------------------------
-# Which modes are available
-# ---------------------------------------------------------------
 def _secret(name):
     try:
         return st.secrets.get(name)
@@ -119,9 +116,6 @@ def active_mode():
     return "local" if local_model() else "templates"
 
 
-# ---------------------------------------------------------------
-# Writing a reply
-# ---------------------------------------------------------------
 def system_prompt(result, name):
     top = ", ".join(f"{label} {score:.0%}" for label, score in result["emotions"][:4])
     final = result["final"]
@@ -165,15 +159,15 @@ def messages_for(history, result):
 
 
 def cloud_reply(result, history, name):
-    import anthropic  # only needed when cloud mode is used
+    import anthropic
 
     client = anthropic.Anthropic(api_key=cloud_key(), timeout=30.0, max_retries=1)
     response = client.beta.messages.create(
         model=cloud_model(),
         max_tokens=2048,
-        output_config={"effort": "low"},          # short, everyday chat replies
+        output_config={"effort": "low"},
         betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",                      # if the model declines, a fallback model can answer
+        fallbacks="default",
         system=system_prompt(result, name),
         messages=messages_for(history, result),
     )

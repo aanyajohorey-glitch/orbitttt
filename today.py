@@ -99,7 +99,6 @@ def today_page():
     current = 1 if not result else 6 if st.session_state.get("today_done") else 3
     st.html(steps_html(current))
 
-    # ---------------------------------------------------------------- 1. Check in
     with st.container(key="glass-composer"):
         st.html(
             f'<div class="eyebrow">{greeting(name)} · Step 1</div>'
@@ -131,15 +130,14 @@ def today_page():
             st.session_state.home_result = result
             st.session_state.today_done = False
             if result:
-                set_world(result)          # the whole app changes to this feeling's world
+                set_world(result)
             if result:
-                st.rerun()   # redraw from step 1 with the new result (no rerun on a warning, so it stays visible)
+                st.rerun()
 
     if not result:
         note("ORBIT is an AI, not a therapist. If you are ever in danger, call Tele-MANAS on 14416 or 112.")
         return
 
-    # ---------------------------------------------------------------- crisis: help only
     if result["safety"] == "crisis":
         st.html(safety_card_html("crisis"))
         with st.container(key="glass-companion"):
@@ -148,7 +146,6 @@ def today_page():
         st.button("Start a new check-in", key="today_new", on_click=new_checkin)
         return
 
-    # ---------------------------------------------------------------- 2. What I noticed
     with st.container(key="glass-noticed"):
         step_title(2, "What ORBIT noticed")
         sky, facts = st.columns([1, 1.25], vertical_alignment="center")
@@ -170,7 +167,6 @@ def today_page():
     if result["safety"] == "concern":
         st.html(safety_card_html("concern"))
 
-    # ---------------------------------------------------------------- 3. ORBIT's reply
     with st.container(key="glass-companion"):
         step_title(3, "ORBIT's reply")
         st.html(companion_card_html(result["reply"], result["style"]))
@@ -179,18 +175,16 @@ def today_page():
         with right:
             thumbs("reply", result["style"], key="fb_today_reply")
     nudge_card(result)
-    maybe_offer(result)          # the stress-buster pop-up, only when it fits (games.py)
+    maybe_offer(result)
     game_card(result)
-    offer_card(result)           # Reach Out Helper, after a distress-type feeling
+    offer_card(result)
 
-    # ---------------------------------------------------------------- 4. Try this
     tool, line = suggestion(result)
     with st.container(key="glass-try"):
         step_title(4, f"One small thing to try · {tool}", esc(line))
         calm_room.render_tool(tool)
         st.button("Choose a different tool", key="home_tool", type="tertiary", on_click=open_tools, args=(tool,))
 
-    # ---------------------------------------------------------------- 5. How now?
     with st.container(key="glass-after"):
         step_title(5, "How do you feel now?")
         st.select_slider("Right now I feel…", options=list(MOOD_SCALE), value=st.session_state.get("today_before", 3),
@@ -200,7 +194,6 @@ def today_page():
         else:
             thumbs("tool", tool, key=f"fb_today_tool_{tool}")
 
-    # ---------------------------------------------------------------- 6. Your planet
     if st.session_state.get("today_done"):
         show_planet(result)
 

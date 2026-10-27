@@ -17,7 +17,7 @@ import streamlit as st
 from components import esc
 from emotion_model import score_texts
 
-MAX_WORDS = 40  # longer texts are explained using their first 40 words
+MAX_WORDS = 40
 
 
 def word_importance(text, emotion):
@@ -43,7 +43,7 @@ def importance_of(result):
     isn't available (offline demo mode keeps saved ones for sample sentences)."""
     if result.get("importance"):
         return [tuple(pair) for pair in result["importance"]]
-    import demo_mode   # local import avoids a circular import
+    import demo_mode
     if demo_mode.enabled():
         return None
     try:

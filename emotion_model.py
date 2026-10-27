@@ -43,8 +43,6 @@ def get_file(filename):
         return hf_hub_download(MODEL_REPO, filename)
 
 
-# The model's 28 labels in its own order (from its config file). Kept here too,
-# so pages that only need the names still work if the model can't be downloaded.
 GO_EMOTIONS_LABELS = [
     "admiration", "amusement", "anger", "annoyance", "approval", "caring", "confusion", "curiosity",
     "desire", "disappointment", "disapproval", "disgust", "embarrassment", "excitement", "fear",
@@ -65,9 +63,7 @@ def load_model():
     )
 
     tokenizer = Tokenizer.from_file(get_file(TOKENIZER_FILE))
-    tokenizer.enable_truncation(max_length=512)  # the model's maximum length
-    # Note: the model's tokenizer.json already pads every text to 128 tokens.
-    # Keep that setting: the model's scores depend slightly on padding.
+    tokenizer.enable_truncation(max_length=512)
 
     with open(get_file(CONFIG_FILE), encoding="utf-8") as file:
         id_to_label = json.load(file)["id2label"]
@@ -83,17 +79,14 @@ def detect_emotions(text):
     """
     model = load_model()
 
-    # 1. Text -> token numbers
     encoding = model["tokenizer"].encode(text)
     inputs = {
         "input_ids": np.array([encoding.ids], dtype=np.int64),
         "attention_mask": np.array([encoding.attention_mask], dtype=np.int64),
     }
 
-    # 2. Token numbers -> 28 raw scores
     logits = model["session"].run(None, inputs)[0][0]
 
-    # 3. Raw scores -> values between 0 and 1 (sigmoid)
     scores = 1 / (1 + np.exp(-logits))
 
     results = [(label, float(score)) for label, score in zip(model["labels"], scores)]
@@ -111,11 +104,6 @@ def score_texts(texts):
     return [dict(detect_emotions(text)) for text in texts]
 
 
-# ---------------------------------------------------------------
-# Emotion families
-# The 28 emotions are grouped into 7 families. Families decide a planet's
-# colour, which coping tool is suggested and how the journal charts look.
-# ---------------------------------------------------------------
 EMOTION_GROUPS = {
     "Joy": ["joy", "amusement", "excitement", "pride", "optimism", "relief", "approval"],
     "Warmth": ["love", "caring", "gratitude", "admiration", "desire"],
@@ -127,7 +115,6 @@ EMOTION_GROUPS = {
 }
 GROUP_OF = {label: group for group, labels in EMOTION_GROUPS.items() for label in labels}
 
-# Planet colours for each family: (light, dark)
 GROUP_COLOURS = {
     "Joy": ("#F6E7CC", "#CDAA78"),
     "Warmth": ("#F6E1E9", "#C695AA"),
@@ -138,7 +125,6 @@ GROUP_COLOURS = {
     "Neutral": ("#F1EDE6", "#B3AB9C"),
 }
 
-# How a person might say each emotion ("you're feeling ...")
 FEELING_WORDS = {
     "admiration": "admiration", "amusement": "amused", "anger": "angry", "annoyance": "annoyed",
     "approval": "okay with how things are", "caring": "caring", "confusion": "confused",

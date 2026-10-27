@@ -33,7 +33,7 @@ VIBE_EVAL = DATA / "vibe_eval.csv"
 EXAMPLE_IDEAS = DATA / "example_ideas.csv"
 USER_STUDY = DATA / "user_study.csv"
 SCALES = ["mood", "energy", "warmth", "era"]
-TOLERANCE = 1      # within 1 point on a 1-5 scale counts as agreement
+TOLERANCE = 1
 
 
 def to_scale(x):
@@ -98,9 +98,6 @@ def predict_with_orbit(text):
     return vector_scales(vector)
 
 
-# ---------------------------------------------------------------
-# List diversity
-# ---------------------------------------------------------------
 def list_diversity(ideas, discovery_levels=(0.0, 0.5, 1.0)):
     """Average variety of the music and creator lists for the example ideas."""
     import creative
@@ -135,9 +132,6 @@ def load_example_ideas():
     return list(zip(table["idea"], table["valence"], table["arousal"]))
 
 
-# ---------------------------------------------------------------
-# User study
-# ---------------------------------------------------------------
 def user_study_summary(path=USER_STUDY):
     if not Path(path).exists():
         return None

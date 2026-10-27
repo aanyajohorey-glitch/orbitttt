@@ -1,5 +1,3 @@
-# Runs ORBIT's tests on GitHub every time code is pushed.
-# The emotion model (about 125 MB) is downloaded once and then cached.
 name: tests
 
 on:

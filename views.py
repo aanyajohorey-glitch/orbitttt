@@ -31,9 +31,6 @@ from theme import set_world
 from world_data import INTENTS, SOUND_MOODS, SOUNDSPACES, load_worlds, prompt_for
 
 
-# ===============================================================
-# 1. HOME
-# ===============================================================
 def hero_html():
     """The large ORBIT title with floating planets behind it."""
     stars = "".join(
@@ -98,7 +95,7 @@ def open_in_lab(result):
 def refresh_home(result):
     """After the user teaches ORBIT, rewrite the companion's reply."""
     result["reply"], result["style"] = reply(result, name=storage.get_setting("name", ""))
-    set_world(result)          # a correction can change the world too
+    set_world(result)
 
 
 def final_stats_html(result):
@@ -128,9 +125,6 @@ def understood_html(result):
             f'<i>“{esc(result["model_text"])}”</i></p>')
 
 
-# ===============================================================
-# 2. MOOD LAB
-# ===============================================================
 def mood_lab():
     section_header(
         "Mood Lab",
@@ -233,7 +227,7 @@ def show_lab_result(result):
         )
 
     if result.get("safety") == "crisis":
-        return  # only help is shown when someone may be in danger
+        return
 
     with st.container(key="glass-lab-why"):
         st.html('<div class="eyebrow">Explainable AI</div>'
@@ -279,9 +273,6 @@ def show_lab_result(result):
             )
 
 
-# ===============================================================
-# 3. ORBIT UNIVERSE
-# ===============================================================
 def orbit_map_html(items):
     """Saved planets arranged around an oval orbit."""
     stops = ""
@@ -355,10 +346,6 @@ def saved_cards(items):
                     world_dialog(item)
 
 
-# ===============================================================
-# 4. SOUNDSPACE
-# ===============================================================
-# Which generated soundscape (soundscapes.py) plays for each vibe
 SOUND_KIND = {
     "Dream Pop Haze": ("dream", "a soft, dreamy chord"),
     "Neo-classical Rain": ("rain", "gentle rain"),
@@ -435,9 +422,6 @@ def soundspace():
                           args=(vibe["name"],), width="stretch")
 
 
-# ===============================================================
-# 5. MY COLLECTION
-# ===============================================================
 def collection():
     section_header(
         "My Collection",
@@ -455,7 +439,7 @@ def collection():
         return
 
     st.html('<div style="height:.8rem"></div>')
-    for item in reversed(items):  # newest first
+    for item in reversed(items):
         world = next(w for w in load_worlds() if w["name"] == item["world"])
         with st.container(key=f"glass-item-{item['id']}"):
             planet_col, info_col, action_col = st.columns([0.8, 4, 1.3], vertical_alignment="center")

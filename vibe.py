@@ -21,7 +21,6 @@ import re
 
 from palette import EMOTION_VA, VIBE_WORDS
 
-# Extra word tables (each value nudges one number).
 ERA_WORDS = {"ancient": -1.0, "myth": -0.9, "mythology": -0.9, "mughal": -0.9, "medieval": -0.9, "victorian": -0.8,
              "vintage": -0.7, "old": -0.5, "retro": -0.4, "70s": -0.5, "80s": -0.3, "90s": -0.2, "y2k": 0.0,
              "classic": -0.5, "folk": -0.6, "traditional": -0.7, "heritage": -0.7, "nostalgic": -0.5, "today": 0.2,
@@ -37,7 +36,6 @@ TEXTURE_WORDS = {"grain": 0.7, "grainy": 0.7, "film": 0.5, "paper": 0.6, "handma
                  "rustic": 0.7, "grunge": 0.9, "wood": 0.5, "embroidery": 0.7, "glossy": -0.8, "chrome": -0.9,
                  "glass": -0.6, "clean": -0.7, "minimal": -0.7, "sleek": -0.8, "smooth": -0.7, "digital": -0.4,
                  "corporate": -0.8, "neon": -0.3}
-# Everyday words that still carry a feel (only the numbers they clearly suggest).
 FEEL_WORDS = {
     "grandmother": {"warmth": 0.7, "era": -0.6, "texture": 0.5}, "nani": {"warmth": 0.7, "era": -0.6, "texture": 0.5},
     "dadi": {"warmth": 0.7, "era": -0.6, "texture": 0.5}, "kitchen": {"warmth": 0.6, "texture": 0.4},
@@ -48,7 +46,6 @@ FEEL_WORDS = {
     "bubble": {"brightness": 0.5, "texture": -0.5}, "shop": {}, "wedding": {"warmth": 0.8, "brightness": 0.4},
 }
 
-# Words that are themes on their own (shown as tiles and used to match aesthetics and creators).
 THEME_WORDS = {"rain", "monsoon", "city", "night", "love", "friendship", "home", "family", "journey", "travel",
                "school", "exams", "space", "ocean", "sea", "forest", "garden", "desert", "mountain", "festival",
                "food", "tea", "chai", "coffee", "music", "dance", "memory", "dream", "dreams", "childhood",
@@ -100,7 +97,7 @@ def build(text, emotions, medium=None, audience=None, start_from=None, importanc
     total = sum(s for _, s in emotions) or 1.0
     ev = sum(EMOTION_VA[label][0] * s for label, s in emotions) / total
     ea = sum(EMOTION_VA[label][1] * s for label, s in emotions) / total
-    words, themes = from_words(words_in(match_text or text))      # Hinglish/Hindi: match on the translation
+    words, themes = from_words(words_in(match_text or text))
 
     def mix(emotion_value, word_value, word_weight=0.6):
         """Words describe the vibe more directly than a short sentence's emotion, so they count a bit more."""
@@ -120,13 +117,10 @@ def build(text, emotions, medium=None, audience=None, start_from=None, importanc
         "bold": round(clamp(words["bold"] if words["bold"] is not None else 0.4 * arousal), 3),
         "themes": themes or [label for label, _ in emotions[:2]],
         "importance": importance,
-        "tweaks": {},          # palette refinements (muted, contrast, playful)
+        "tweaks": {},
     }
 
 
-# ---------------------------------------------------------------
-# Refine chips and sliders: change the vector, then regenerate everything
-# ---------------------------------------------------------------
 CHIPS = {
     "Muted": "softer, greyer colours",
     "Warmer": "warmer colours and mood",
@@ -174,9 +168,6 @@ def with_sliders(vector, warm_cool=0.0, calm_energy=0.0, soft_bold=0.0, vintage_
     return v
 
 
-# ---------------------------------------------------------------
-# Three directions from one idea
-# ---------------------------------------------------------------
 def directions(vector):
     """safe = the vibe as it is; bold = stronger and louder; weird = flipped and unexpected."""
     safe = copy.deepcopy(vector)

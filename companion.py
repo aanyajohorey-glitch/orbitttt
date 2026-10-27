@@ -37,9 +37,6 @@ from safety import safety_card_html
 from teach_ui import clarify, confidence_html, teach_panel
 
 
-# ---------------------------------------------------------------
-# Hand-written reply pieces, one set per emotion family
-# ---------------------------------------------------------------
 OPENERS = {
     "Joy": ["I can feel the light in that.", "That sounds genuinely good.", "I'm really glad you shared this."],
     "Warmth": ["That's a tender thing to feel.", "There's a lot of heart in what you wrote.", "That's really warm."],
@@ -71,7 +68,6 @@ QUESTIONS = {
     "Wonder": ["What's the question you keep coming back to?", "What would help you make sense of it?"],
     "Neutral": ["How has your day been, honestly?", "Is there anything sitting at the back of your mind?"],
 }
-# Which Calm Room tool fits each family, and how to offer it
 SUGGESTIONS = {
     "Joy": ("Gratitude Jar", "Want to keep this moment safe in your gratitude jar?"),
     "Warmth": ("Gratitude Jar", "You could add this to your gratitude jar so you can come back to it."),
@@ -85,7 +81,6 @@ PATTERN_WORDS = {
     "Joy": "something good", "Warmth": "warm feelings", "Sadness": "feeling low", "Fear": "worry",
     "Anger": "frustration", "Wonder": "big questions", "Neutral": "a quiet mood",
 }
-# Short describing words for a second feeling ("…and a little nervous too")
 SECOND_WORDS = {
     "admiration": "admiring", "amusement": "amused", "anger": "angry", "annoyance": "annoyed",
     "approval": "settled", "caring": "caring", "confusion": "confused", "curiosity": "curious",
@@ -122,7 +117,6 @@ def secondary_feeling(result):
     return None
 
 
-# How to describe a family when ORBIT asks a clarifying question
 FAMILY_PHRASES = {
     "Joy": "something good", "Warmth": "a warm, caring feeling", "Sadness": "feeling low",
     "Fear": "worry or nerves", "Anger": "frustration", "Wonder": "confusion or curiosity",
@@ -169,7 +163,7 @@ def template_reply(result, name=""):
         return clarifying_reply(result, name)
     group = family(result)
     primary = result["final"]["emotion"]
-    rng = random.Random(zlib.crc32(result["text"].encode("utf-8")))  # same text -> same reply
+    rng = random.Random(zlib.crc32(result["text"].encode("utf-8")))
 
     opener = rng.choice(OPENERS[group])
     if name and rng.random() < 0.6:
@@ -225,9 +219,6 @@ def open_calm_room(tool):
     go_to("Calm Room")
 
 
-# ---------------------------------------------------------------
-# Companion page (a chat)
-# ---------------------------------------------------------------
 STARTERS = [
     "Exams are next week and I can't stop worrying.",
     "Today was actually really good!",

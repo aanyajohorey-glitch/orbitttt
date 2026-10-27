@@ -20,7 +20,7 @@ AGREE = ratings([
 
 def test_vector_numbers_map_to_1_to_5():
     assert ce.to_scale(-1) == 1 and ce.to_scale(0) == 3 and ce.to_scale(1) == 5
-    assert ce.to_scale(5) == 5                      # clipped
+    assert ce.to_scale(5) == 5
 
 
 def test_human_baseline_when_raters_agree():
@@ -34,8 +34,8 @@ def test_orbit_accuracy_counts_within_one_point_of_the_median():
     assert accuracy == {s: 1.0 for s in ce.SCALES} and len(detail) == 2
     wrong = {k: {"mood": 1, "energy": 3, "warmth": 4, "era": 3} for k in perfect}
     accuracy, _ = ce.orbit_accuracy(AGREE, wrong.get)
-    assert accuracy["mood"] == 0.0          # 1 vs medians of 4 and 4
-    assert accuracy["warmth"] == 0.5        # 4 vs 4 (right) and 4 vs 2 (more than 1 point away)
+    assert accuracy["mood"] == 0.0
+    assert accuracy["warmth"] == 0.5
 
 
 def test_ideas_with_fewer_than_three_raters_are_skipped():

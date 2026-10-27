@@ -22,7 +22,7 @@ import random
 from components import esc
 from emotion_model import GO_EMOTIONS_LABELS, GROUP_COLOURS, GROUP_OF
 
-MIN_SCORE = 0.02   # emotions weaker than 2% are left out
+MIN_SCORE = 0.02
 MAX_STARS = 9
 MIN_STARS = 3
 
@@ -44,17 +44,16 @@ def stars_for(emotions, seed_text=""):
     for label, score in chosen:
         home = GO_EMOTIONS_LABELS.index(label) / len(GO_EMOTIONS_LABELS) * 2 * math.pi
         angle = home + rng.uniform(-0.35, 0.35)
-        strength = score / strongest            # 1.0 for the strongest emotion
-        distance = 0.88 - 0.5 * strength + rng.uniform(-0.08, 0.08)   # strong feelings sit near the middle
+        strength = score / strongest
+        distance = 0.88 - 0.5 * strength + rng.uniform(-0.08, 0.08)
         stars.append({
             "label": label, "score": score, "strength": strength,
             "x": math.cos(angle - math.pi / 2) * distance, "y": math.sin(angle - math.pi / 2) * distance,
             "angle": angle % (2 * math.pi), "colour": GROUP_COLOURS[GROUP_OF[label]][1],
         })
-    return sorted(stars, key=lambda star: star["angle"])   # go round the circle to make the shape
+    return sorted(stars, key=lambda star: star["angle"])
 
 
-# The animation lives INSIDE the SVG, because page CSS can't reach into an image.
 SVG_CSS = (
     ".cst-label{fill:#EDE8F7;font-family:system-ui,'Segoe UI',sans-serif;font-weight:500}"
     ".animate .cst-line{stroke-dasharray:100;animation:draw 1.8s ease .3s both}"
@@ -83,7 +82,7 @@ def constellation_svg(emotions, seed_text="", size=320, labels=True, animate=Tru
     """
     stars = stars_for(emotions, seed_text)
     half = size / 2
-    pad = 0.64 if labels else 0.84       # leave room for the labels at the edge
+    pad = 0.64 if labels else 0.84
 
     def point(star):
         return half + star["x"] * half * pad, half + star["y"] * half * pad
@@ -100,7 +99,7 @@ def constellation_svg(emotions, seed_text="", size=320, labels=True, animate=Tru
         f'<radialGradient id="sky-{uid}" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#4A4170"/>'
         f'<stop offset="1" stop-color="#25213A"/></radialGradient></defs>',
     ]
-    if labels:   # the night sky, with a little faint star dust
+    if labels:
         parts.append(f'<circle cx="{half}" cy="{half}" r="{half - 1}" fill="url(#sky-{uid})"/>')
         dust = random.Random(_seed(seed_text) + 7)
         for _ in range(38):
@@ -110,10 +109,10 @@ def constellation_svg(emotions, seed_text="", size=320, labels=True, animate=Tru
     line_colour = ink or "#E8E2F7"
     parts.append(f'<path class="cst-line" d="{path}" fill="none" stroke="{line_colour}" stroke-opacity="0.5" '
                  f'stroke-width="{max(1.0, 1.3 * scale):.1f}" stroke-linejoin="round" pathLength="100"/>')
-    placed = []   # label positions so far, to stop labels overlapping
+    placed = []
     for i, (star, (x, y)) in enumerate(zip(stars, points)):
         radius = (2.5 + 10 * math.sqrt(star["score"])) * scale
-        colour = ink or GROUP_COLOURS[GROUP_OF[star["label"]]][0]   # the light family colour glows on the sky
+        colour = ink or GROUP_COLOURS[GROUP_OF[star["label"]]][0]
         opacity = 0.55 + 0.45 * star["strength"]
         parts.append(
             f'<g class="cst-star" style="--d:{0.15 * i + 0.4:.2f}s">'
@@ -124,11 +123,11 @@ def constellation_svg(emotions, seed_text="", size=320, labels=True, animate=Tru
         )
         if labels and star["score"] >= 0.04:
             anchor = "start" if x >= half else "end"
-            text_width = (len(star["label"]) + 4) * 6.2 * scale       # a rough estimate, in pixels
+            text_width = (len(star["label"]) + 4) * 6.2 * scale
             if anchor == "end" and x - radius - 6 - text_width < 2:
-                anchor = "start"                                       # would fall off the left edge
+                anchor = "start"
             elif anchor == "start" and x + radius + 6 + text_width > size - 2:
-                anchor = "end"                                         # would fall off the right edge
+                anchor = "end"
             dx = radius + 6 if anchor == "start" else -(radius + 6)
             label_y = y + 4
             while any(abs(label_y - other_y) < 13 * scale and abs(x - other_x) < 90 * scale

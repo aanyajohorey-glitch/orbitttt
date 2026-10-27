@@ -13,7 +13,6 @@ import streamlit as st
 
 DATA_FOLDER = Path(__file__).parent / "data"
 
-# The creative intents a user can pick on the Home page.
 INTENTS = ["Explore", "Digital Art", "Poster", "Presentation", "Scrapbook"]
 
 
@@ -26,7 +25,6 @@ def load_worlds():
     table = pd.read_csv(DATA_FOLDER / "worlds.csv")
     worlds = []
     for row in table.to_dict("records"):
-        # Some columns hold several values separated by "|".
         row["palette"] = row["palette"].split("|")
         row["elements"] = row["elements"].split("|")
         row["emotions"] = row["emotions"].split("|")
@@ -61,7 +59,7 @@ def match_world(emotion_scores, family=None):
         an emotion from that family are considered.
     Returns: (best world, its match score, the emotions that matched).
     """
-    from emotion_model import EMOTION_GROUPS  # local import avoids a circular import
+    from emotion_model import EMOTION_GROUPS
 
     scores = dict(emotion_scores)
     worlds = load_worlds()
@@ -74,7 +72,6 @@ def match_world(emotion_scores, family=None):
         if total > best_total:
             best_world, best_total = world, total
 
-    # The emotions that contributed most, for explaining the match.
     matched = sorted(best_world["emotions"], key=lambda emotion: scores.get(emotion, 0.0), reverse=True)
     if family:
         in_family = [e for e in matched if e in EMOTION_GROUPS[family]]
@@ -83,10 +80,6 @@ def match_world(emotion_scores, family=None):
     return best_world, best_total, matched
 
 
-# ---------------------------------------------------------------
-# Aesthetic Vending Machine
-# ---------------------------------------------------------------
-# A small creative challenge added to every pack.
 CONSTRAINTS = [
     "Use only three colours from the palette.",
     "Leave at least half of the space empty.",
@@ -96,9 +89,6 @@ CONSTRAINTS = [
     "Keep all of the text in lowercase.",
 ]
 
-# ---------------------------------------------------------------
-# Soundspace
-# ---------------------------------------------------------------
 SOUND_MOODS = ["Calm", "Reflective", "Hopeful", "Nostalgic", "Focused", "Restless"]
 
 SOUNDSPACES = [

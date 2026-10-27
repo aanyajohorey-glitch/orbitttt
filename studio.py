@@ -18,7 +18,7 @@ from components import esc, note, section_header
 from safety import check as safety_check
 from safety import safety_card_html
 
-PATTERN_CSS = {   # texture name -> a CSS background built only from gradients (no images)
+PATTERN_CSS = {
     "soft grain": "radial-gradient(circle at 20% 30%, {b}55 0 12%, transparent 13%), "
                   "radial-gradient(circle at 70% 60%, {a}44 0 18%, transparent 19%), {bg}",
     "linen": "repeating-linear-gradient(0deg, {a}22 0 2px, transparent 2px 6px), "
@@ -60,9 +60,6 @@ def save_stars(kind, target, key, offset=1):
         saved[key] = storage.add_rating(kind, target, int(value) + offset)
 
 
-# ---------------------------------------------------------------
-# Palettes and moodboards
-# ---------------------------------------------------------------
 def refine_click(action):
     if action == "reset":
         st.session_state.studio_tweaks = {}
@@ -76,7 +73,7 @@ def moodboard_html(result, fonts, tiles, keywords):
     pattern_tiles = "".join(
         f'<div class="mb-tile mb-pattern" style="background:{PATTERN_CSS[name].format(**fill)}">'
         f'<span>{esc(name)}</span></div>' for name in tiles)
-    def label_colour(background):        # ink or white, whichever is easier to read on this swatch
+    def label_colour(background):
         ink = c["Ink (text)"]
         return ink if palette.contrast(ink, background) >= palette.contrast("#FFFFFF", background) else "#FFFFFF"
     swatches = "".join(
@@ -130,10 +127,9 @@ def palette_section():
         st.html('<p class="body">Do a check-in on Today, or describe a vibe above, to make a palette.</p>')
         return
 
-    # Sliders add to what the feeling/vibe suggested. Left = warm/calm/soft/vintage.
     warm, bold, vintage = warm - warm_cool, bold + soft_bold, vintage - vintage_modern
     signature = hashlib.md5(f"{source}|{vibe}|{target}".encode()).hexdigest()
-    if st.session_state.get("studio_signature") != signature:      # new feeling or vibe -> forget old refinements
+    if st.session_state.get("studio_signature") != signature:
         st.session_state.studio_signature, st.session_state.studio_tweaks = signature, {}
     tweaks = st.session_state.get("studio_tweaks", {})
     result = palette.make_palette(valence, arousal, warm, calm_energy, bold, vintage, tweaks,
@@ -192,9 +188,6 @@ def palette_section():
                     args=("palette_fit", target, f"fb_palette_{signature[:8]}"))
 
 
-# ---------------------------------------------------------------
-# The page
-# ---------------------------------------------------------------
 def studio_page():
     section_header("Mood Studio", "Your feeling, in colour and sound",
                    "Turn a check-in or a vibe into a palette and moodboard, or find music that fits. Everything "
@@ -204,7 +197,7 @@ def studio_page():
     part = st.segmented_control("Studio", ["Palettes & moodboards", "Music discovery"], key="studio_part",
                                 default="Palettes & moodboards", label_visibility="collapsed")
     if part == "Music discovery":
-        import music_ui   # loaded only when needed
+        import music_ui
         music_ui.music_section()
     else:
         palette_section()

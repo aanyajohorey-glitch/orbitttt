@@ -54,7 +54,7 @@ def build_demo_results():
         r = interpret(text)
         results[text] = {k: r[k] for k in ("text", "model_text", "translated", "emotions", "raw_scores", "final",
                                            "world", "matched", "safety")}
-        if not r["safety"]:   # saved "why" heatmap, so it also works offline
+        if not r["safety"]:
             results[text]["importance"] = word_importance(r["model_text"], r["final"]["emotion"])
     DEMO_RESULTS.write_text(json.dumps(results, ensure_ascii=False, indent=1), encoding="utf-8")
     return len(results)
@@ -76,7 +76,7 @@ def interpret_offline(text):
 
     stored = _stored().get(text)
     if stored:
-        result = json.loads(json.dumps(stored))   # a fresh copy
+        result = json.loads(json.dumps(stored))
         result["emotions"] = [tuple(pair) for pair in result["emotions"]]
         result["final"]["alternatives"] = [tuple(pair) for pair in result["final"]["alternatives"]]
         result["final"]["source"] = "Demo (saved real result)"
@@ -90,7 +90,6 @@ def interpret_offline(text):
     probs = orbit_head.predict_proba(orbit_head.text_features(text)[None, :], W, b, meta.get("temperature", 1.0))[0]
     order = np.argsort(probs)[::-1]
     family_probs = [(orbit_head.FAMILIES[i], float(probs[i])) for i in order]
-    # Without the emotion model there are no 28 scores: show the family estimate instead.
     emotions = []
     for family, p in family_probs:
         emotions += [(label, p / len(EMOTION_GROUPS[family])) for label in EMOTION_GROUPS[family]]

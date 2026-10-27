@@ -33,9 +33,6 @@ TOOL_INFO = {
 }
 MOOD_SCALE = {1: "Very low", 2: "Low", 3: "Okay", 4: "Good", 5: "Great"}
 
-# ---------------------------------------------------------------
-# Breathing patterns: (label, seconds, orb size at the END of the phase)
-# ---------------------------------------------------------------
 PATTERNS = {
     "Box 4-4-4-4": [("Breathe in", 4, 1.0), ("Hold", 4, 1.0), ("Breathe out", 4, 0.62), ("Hold", 4, 0.62)],
     "Calm 4-6": [("Breathe in", 4, 1.0), ("Breathe out", 6, 0.62)],
@@ -53,14 +50,12 @@ def breathing_css():
     for name, phases in PATTERNS.items():
         key = pattern_key(name)
         total = sum(seconds for _, seconds, _ in phases)
-        # The orb grows and shrinks
         frames, elapsed, size = ["0% { transform: scale(0.62); }"], 0, 0.62
         for _, seconds, end_size in phases:
             elapsed += seconds
             frames.append(f"{elapsed / total * 100:.2f}% {{ transform: scale({end_size}); }}")
         css.append(f"@keyframes orb-{key} {{ {' '.join(frames)} }}")
         css.append(f".breath-{key} .breath-orb {{ animation: orb-{key} {total}s ease-in-out infinite; }}")
-        # Each label is visible only during its own phase
         start = 0
         for index, (_, seconds, _) in enumerate(phases):
             a, b = start / total * 100, (start + seconds) / total * 100
@@ -87,9 +82,6 @@ def breathing_html(name):
     )
 
 
-# ---------------------------------------------------------------
-# Thought Reframe: thinking traps (CBT "cognitive distortions")
-# ---------------------------------------------------------------
 THINKING_TRAPS = {
     "All-or-nothing thinking": (["always", "never", "completely", "totally", "nothing", "everything", "perfect"],
                                 "Seeing things as all good or all bad, with nothing in between."),
@@ -128,9 +120,6 @@ def heaviness(text):
     return label, scores[label]
 
 
-# ---------------------------------------------------------------
-# Saving a session
-# ---------------------------------------------------------------
 def finish_session(tool):
     before = st.session_state.get("calm_before", 3)
     after = st.session_state.get("calm_after", 3)
@@ -228,7 +217,6 @@ def reframe_tool():
         return
     if thought.strip() and balanced.strip() and st.button("See how the feeling changes", key="reframe_compare"):
         with st.spinner("Asking the emotion model…"):
-            # Compare the SAME emotion before and after (the original thought's heaviest one)
             label_a, before = heaviness(thought)
             label_after_score = dict(detect_emotions(to_english(balanced)[0]))[label_a]
         st.html(

@@ -55,7 +55,7 @@ def dismiss(reason):
 
 def nudge_card(result=None):
     if result is not None and result.get("safety") == "crisis":
-        return  # the crisis card already points to people
+        return
     reason = nudge_reason()
     if not reason or reason in st.session_state.get("nudges_dismissed", set()):
         return

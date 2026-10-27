@@ -52,7 +52,7 @@ def test_painting_is_the_same_for_the_same_check_ins():
     one, two = wrapped.painting(families, seed=3), wrapped.painting(families, seed=3)
     assert one.size == (900, 600) and one.tobytes() == two.tobytes()
     assert wrapped.painting(families, seed=4).tobytes() != one.tobytes()
-    assert wrapped.painting([]).size == (900, 600)        # no feelings yet: still a calm picture
+    assert wrapped.painting([]).size == (900, 600)
 
 
 def test_card_is_a_png():
@@ -77,7 +77,7 @@ def test_wrapped_page_shows_painting_playlist_and_download():
     at = app_on("Wrapped")
     assert not at.exception
     assert any(b.key == "wrapped_download" for b in at.get("download_button"))
-    assert at.get("image")          # the painting
+    assert at.get("image")
 
 
 def test_no_about_tab_and_no_panic_button():

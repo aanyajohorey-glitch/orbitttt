@@ -21,18 +21,14 @@ import streamlit as st
 from components import esc, go_to, note, section_header
 from journal import WEEKDAYS, entries_table, style
 
-# ---------------------------------------------------------------
-# Rules of thumb. These numbers are NOT clinical thresholds: they were chosen
-# by the student and should be reviewed by a school counsellor before real use.
-# ---------------------------------------------------------------
 RANGES = {"7 days": 7, "14 days": 14, "30 days": 30, "1 year": 365}
-MIN_DAYS = {7: 3, 14: 5, 30: 7, 365: 14}   # days with check-ins needed before showing patterns
-LOW_DAY_BELOW = -0.2                      # a day whose average mood is below this counts as a low day
-BRIGHT_DAY_ABOVE = 0.2                    # ... above this counts as a bright day
-FREQUENT_LOW_SHARE = 0.4                  # low days are "frequent" if they are 40% or more of check-in days
-FREQUENT_LOW_MIN = 3                      # ... and there are at least 3 of them
-PERSIST_WINDOW = 7                        # "lasting about two weeks": low days in BOTH of the last two weeks
-PERSIST_MIN_PER_WINDOW = 2                # ... at least 2 low days in each of those weeks
+MIN_DAYS = {7: 3, 14: 5, 30: 7, 365: 14}
+LOW_DAY_BELOW = -0.2
+BRIGHT_DAY_ABOVE = 0.2
+FREQUENT_LOW_SHARE = 0.4
+FREQUENT_LOW_MIN = 3
+PERSIST_WINDOW = 7
+PERSIST_MIN_PER_WINDOW = 2
 PARTS_OF_DAY = [(5, "Morning"), (12, "Afternoon"), (17, "Evening"), (21, "Night")]
 
 
@@ -90,9 +86,6 @@ def low_clusters(table):
     return list(weekdays.items()), list(parts.items())
 
 
-# ---------------------------------------------------------------
-# Charts
-# ---------------------------------------------------------------
 def family_bars(table):
     counts = table["family"].value_counts().reset_index()
     counts.columns = ["family", "check-ins"]
@@ -139,9 +132,6 @@ def calendar(days_table, days, now=None):
     return style(chart.properties(height=cell * 7, width=alt.Step(cell)))
 
 
-# ---------------------------------------------------------------
-# The page
-# ---------------------------------------------------------------
 def patterns_page():
     section_header("Patterns", "What your check-ins show",
                    "Patterns we noticed in your own check-ins. They describe, they don't diagnose: only you know "

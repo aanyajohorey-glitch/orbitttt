@@ -27,15 +27,12 @@ import streamlit as st
 from soundscapes import soundscape
 from world_data import SOUNDSPACES, get_world
 
-SPEED = {"slow": 1.5, "medium": 1.0, "lively": 0.65}   # multiplies animation durations
+SPEED = {"slow": 1.5, "medium": 1.0, "lively": 0.65}
 SOUND_FOR_SPACE = {"Dream Pop Haze": "dream", "Neo-classical Rain": "rain", "Indie Folk Morning": "sunset",
                    "City Pop Sunset": "sunset", "Late-night Jazz": "focus", "Cinematic Electronica": "waves",
                    "Soft Ambient": "night"}
 
 
-# ---------------------------------------------------------------
-# Which world is active
-# ---------------------------------------------------------------
 def set_world(result):
     """Called after every analysis. Crisis -> back to ORBIT's neutral look."""
     new = None if not result or result.get("safety") == "crisis" else result.get("world")
@@ -78,9 +75,6 @@ def set_vibe_world(universe):
         st.session_state.world_theme = name
 
 
-# ---------------------------------------------------------------
-# CSS
-# ---------------------------------------------------------------
 def _rgba(hex_colour, alpha):
     hex_colour = hex_colour.lstrip("#")
     r, g, b = (int(hex_colour[i:i + 2], 16) for i in (0, 2, 4))
@@ -123,8 +117,6 @@ def theme_css(settings):
 .why-word {{ background: {_rgba(accent, 0.25)}; box-shadow: 0 0 calc(var(--w) * 14px) {_rgba(accent, 0.55)}; }}
 """)
     if old_name != st.session_state.get("world_theme"):
-        # Fade the previous world's gradient out. A new animation name for every change,
-        # so it plays once per change and not again on every click.
         name = "worldfade" + hashlib.md5(f"{old_name}>{st.session_state.get('world_theme')}".encode()).hexdigest()[:6]
         css.append(f"""
 .stApp::before {{ content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
@@ -135,9 +127,6 @@ def theme_css(settings):
     return "\n".join(css)
 
 
-# ---------------------------------------------------------------
-# The world chip and the sound toggle (shown under the top bar)
-# ---------------------------------------------------------------
 @st.cache_data(show_spinner=False)
 def world_sound(kind):
     """The soundscape is made once and then remembered (it takes a moment to build)."""

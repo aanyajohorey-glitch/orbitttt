@@ -27,13 +27,10 @@ from world_data import get_world
 
 GAMES_DIR = Path(__file__).parent / "games"
 
-# Rules of thumb, kept in one place so they are easy to explain and change.
-# GoEmotions has no "anxiety" label: nervousness and fear cover it. "annoyance" is mild anger.
-# Grief is left out on purpose: heavy loss deserves people, not games.
 DISTRESS = {"nervousness", "fear", "sadness", "anger", "annoyance", "disappointment"}
-REPEATED_LOW_MOODS = 3        # this many low-mood check-ins in 7 days -> suggest a person, not a game
+REPEATED_LOW_MOODS = 3
 
-GAMES = {   # key: (title, what it helps with, file, minutes)
+GAMES = {
     "pop_worry": ("Pop the Worry", "Anxious thoughts", "pop_the_worry.html", "2-3"),
     "orb_flow": ("Orb Flow", "Feeling anxious or overwhelmed", "orb_flow.html", "3-5"),
     "zen_sand": ("Zen Sand Garden", "Feeling sad or tired", "zen_sand.html", "2-5"),
@@ -44,7 +41,7 @@ GAMES = {   # key: (title, what it helps with, file, minutes)
     "mandala": ("Mandala Colouring", "Feeling stressed", "mandala.html", "3-5"),
     "rhythm": ("Rhythm Pulse", "Feeling tense", "rhythm_pulse.html", "2-3"),
 }
-FOR_EMOTION = {   # which games suit which feeling
+FOR_EMOTION = {
     "nervousness": ["pop_worry", "orb_flow", "rhythm"],
     "fear": ["orb_flow", "pop_worry", "constellation"],
     "sadness": ["zen_sand", "planet_builder", "tiny_wins"],
@@ -54,9 +51,6 @@ FOR_EMOTION = {   # which games suit which feeling
 }
 
 
-# ---------------------------------------------------------------
-# Should a game be offered?
-# ---------------------------------------------------------------
 def opted_out():
     return storage.get_setting("games_opt_out", "0") == "1"
 
@@ -66,14 +60,14 @@ def offer_reason(result):
     if result is None:
         return "no result"
     if result.get("safety") == "crisis":
-        return "crisis"              # the safety flow only
+        return "crisis"
     if result.get("safety") == "concern":
-        return "intense"             # a gentle note and real people, not games
+        return "intense"
     if result["final"]["emotion"] not in DISTRESS:
         return "not distress"
     if result["final"].get("unsure"):
-        return "unsure"              # ask the clarifying question first
-    from nudges import low_mood_count   # local import keeps this module light
+        return "unsure"
+    from nudges import low_mood_count
     if low_mood_count() >= REPEATED_LOW_MOODS:
         return "repeated low mood"
     if opted_out():
@@ -88,9 +82,6 @@ def pick_game(emotion):
     return random.choice(choices)
 
 
-# ---------------------------------------------------------------
-# The pop-up
-# ---------------------------------------------------------------
 def _play(key):
     st.session_state.game_playing = key
 
@@ -126,9 +117,6 @@ def maybe_offer(result):
         offer_dialog(pick_game(result["final"]["emotion"]))
 
 
-# ---------------------------------------------------------------
-# Showing a game
-# ---------------------------------------------------------------
 def palette_for(result=None):
     """Colours for a game: the feeling's world palette, or ORBIT's lavender."""
     world = get_world(result["world"]) if result and result.get("world") else None
@@ -160,7 +148,7 @@ def game_html(key, palette, ink, reduced):
 def play(key, result=None, height=620):
     from onboarding import reduced_motion
     palette, ink = palette_for(result)
-    st.iframe(game_html(key, palette, ink, reduced_motion()), height=height)   # ORBIT's own game code only
+    st.iframe(game_html(key, palette, ink, reduced_motion()), height=height)
 
 
 def game_card(result):
@@ -177,9 +165,6 @@ def game_card(result):
         st.button("I'm done", key="game_done", on_click=_not_now)
 
 
-# ---------------------------------------------------------------
-# Feel -> Stress busters: every game, any time
-# ---------------------------------------------------------------
 def games_page():
     from components import note, section_header
     section_header("Stress busters", "Small games for big feelings",

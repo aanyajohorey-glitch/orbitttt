@@ -39,14 +39,14 @@ def pair(vintage, bold, energy, warmth=0.0, hindi=False):
     headings = table[table["use"].isin(["heading", "both"])].copy()
     headings["d"] = headings.apply(_distance, axis=1, args=(vintage, bold, energy, warmth))
     devanagari = headings["tag_list"].apply(lambda t: "devanagari" in t)
-    headings.loc[devanagari, "d"] += -0.6 if hindi else 0.6       # Hindi script fonts only for Hindi text
+    headings.loc[devanagari, "d"] += -0.6 if hindi else 0.6
     heading = headings.sort_values("d").iloc[0]
 
     bodies = table[table["use"].isin(["body", "both"]) & (table["family"] != heading["family"])].copy()
     bodies["d"] = bodies.apply(_distance, axis=1, args=(vintage * 0.5, min(bold, 0.0), energy * 0.3, warmth))
-    bodies.loc[bodies["category"] == heading["category"], "d"] += 0.5        # contrast: different category
+    bodies.loc[bodies["category"] == heading["category"], "d"] += 0.5
     bodies.loc[bodies["tag_list"].apply(lambda t: "readable" in t), "d"] -= 0.1
-    bodies.loc[bodies["category"].isin(["mono", "script"]), "d"] += 0.6       # long text in these is tiring
+    bodies.loc[bodies["category"].isin(["mono", "script"]), "d"] += 0.6
     if hindi:
         bodies.loc[bodies["tag_list"].apply(lambda t: "devanagari" in t), "d"] -= 0.6
     body = bodies.sort_values("d").iloc[0]

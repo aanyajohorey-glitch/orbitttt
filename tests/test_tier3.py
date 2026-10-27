@@ -16,7 +16,6 @@ def result_for(emotion, confidence=0.9, safety=None, unsure=False, world="Blue H
             "final": {"emotion": emotion, "confidence": confidence, "unsure": unsure, "family": "Sadness"}}
 
 
-# ---------------------------------------------------------------- constellation
 def test_constellation_is_the_same_for_the_same_check_in():
     emotions = [("joy", 0.6), ("relief", 0.3), ("neutral", 0.1)]
     assert constellation.constellation_svg(emotions, "a") == constellation.constellation_svg(emotions, "a")
@@ -39,26 +38,24 @@ def test_constellation_has_between_3_and_9_stars():
 def test_constellation_is_an_image_with_escaped_labels():
     html = constellation.constellation_html([("joy", 0.8), ("neutral", 0.2), ("love", 0.1)], "t")
     assert html.startswith('<img class="cst-img" src="data:image/svg+xml;base64,')
-    assert "<svg" not in html          # st.html would strip inline SVG
+    assert "<svg" not in html
 
 
-# ---------------------------------------------------------------- world theme
 def test_theme_follows_the_detected_world_but_not_a_crisis(session):
     theme.set_world(result_for("sadness"))
     assert st.session_state.world_theme == "Blue Hour Tide"
     theme.set_world(result_for("sadness", safety="crisis"))
-    assert st.session_state.world_theme is None          # back to ORBIT's calm colours
+    assert st.session_state.world_theme is None
 
 
 def test_theme_css_uses_the_world_palette_and_skips_high_contrast(session):
     theme.set_world(result_for("sadness"))
     css = theme.theme_css({})
-    assert "rgba(185, 200, 234" in css                   # #B9C8EA, Blue Hour Tide's first colour
-    assert not re.search(r"<[/\w]", css)                 # tag-like text would break st.html
+    assert "rgba(185, 200, 234" in css
+    assert not re.search(r"<[/\w]", css)
     assert theme.theme_css({"high_contrast": True}) == ""
 
 
-# ---------------------------------------------------------------- game rules
 @pytest.fixture
 def fresh(session, monkeypatch):
     monkeypatch.setattr("nudges.low_mood_count", lambda days=7: 0)
@@ -110,4 +107,4 @@ def test_every_game_builds_with_its_colours(key):
     html = games.game_html(key, ["#C9B9E8", "#B9C8EA", "#EBCBD7"], "#A895D2", reduced=True)
     assert "const PALETTE" in html and "REDUCED = true" in html
     assert "<canvas" in html or "<svg" in html
-    assert "fetch(" not in html and "XMLHttpRequest" not in html   # games never send anything anywhere
+    assert "fetch(" not in html and "XMLHttpRequest" not in html

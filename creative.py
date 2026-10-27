@@ -61,9 +61,6 @@ def closest_dimensions(target, item, count=2):
     return [DIMENSIONS[i] for i in gaps[:count]]
 
 
-# ---------------------------------------------------------------
-# Aesthetics and creators
-# ---------------------------------------------------------------
 def rank_aesthetics(vector, discovery=0.5, size=3):
     target = vibe.numbers(vector)
     rows = []
@@ -99,7 +96,7 @@ def rank_creators(vector, discovery=0.5, size=6):
                 + 0.3 * (a["language"] == b["language"] and a["language"] != ""))
     pool = sorted(rows, key=lambda r: -r["relevance"])[:40]
     chosen = mmr(pool, similar, size, discovery_trade_off(discovery), unique="name")
-    if not any("India" in c["region"] for c in chosen):            # always include someone from India
+    if not any("India" in c["region"] for c in chosen):
         indian = next((r for r in pool if "India" in r["region"]), None)
         if indian:
             chosen[-1] = indian
@@ -111,10 +108,7 @@ def rank_creators(vector, discovery=0.5, size=6):
     return chosen
 
 
-# ---------------------------------------------------------------
-# Moodboard tiles
-# ---------------------------------------------------------------
-LIGHTING = [  # (min brightness, warm?) -> lighting idea
+LIGHTING = [
     ((0.3, True), "golden-hour sunlight"), ((0.3, False), "clear daylight"),
     ((-0.3, True), "soft lamp light"), ((-0.3, False), "overcast window light"),
     ((-1.1, True), "candlelight and warm shadows"), ((-1.1, False), "moonlight and neon"),
@@ -138,9 +132,6 @@ def moodboard(vector, aesthetics):
     return {"textures": textures, "lighting": lighting(vector), "keywords": keywords[:8]}
 
 
-# ---------------------------------------------------------------
-# Concept: title + vision (template grammar)
-# ---------------------------------------------------------------
 MEDIUM_PHRASE = {"Film": "a short film", "Book": "a book", "Brand": "a brand", "Poster": "a poster series",
                  "Music video": "a music video", "App": "an app", None: "a creative project"}
 NOUNS = {"rain": "Rain", "monsoon": "Monsoon", "city": "City", "night": "Night", "love": "Hearts", "home": "Home",
@@ -184,7 +175,7 @@ def concept(vector, colours, aesthetics, fonts_used):
     patterns = [f"{noun} in {colour_word}", f"Notes from {noun}"]
     if "'" not in noun:
         patterns.append(f"{adjective} {noun}")
-    if "'" not in noun:                       # these only read well with simple nouns
+    if "'" not in noun:
         patterns += [f"After the {noun}"] + ([f"The {noun} Hour"] if " " not in noun else [])
     title = rng.choice(patterns)
     words = vibe.describe(vector)
@@ -194,7 +185,7 @@ def concept(vector, colours, aesthetics, fonts_used):
                                             "poem", "novel", "album", "logo", "website"}
                        for w in vibe.words_in(idea)[:5])
     if idea and len(idea) <= 140 and names_medium:
-        opening = idea[0].upper() + idea[1:]                       # the idea already says what it is
+        opening = idea[0].upper() + idea[1:]
     elif idea and len(idea) <= 140:
         opening = f"{medium[0].upper() + medium[1:]} about {idea[0].lower() + idea[1:]}"
     else:
@@ -223,9 +214,6 @@ def polish(concept_result, vector):
     return concept_result
 
 
-# ---------------------------------------------------------------
-# Music: vibe words -> the catalogue's tags
-# ---------------------------------------------------------------
 THEME_TO_MUSIC = {"rain": "rain", "rainy": "rain", "monsoon": "rain", "night": "night", "midnight": "night",
                   "nostalgic": "nostalgic", "nostalgia": "nostalgic", "cafe": "chill", "coffee": "chill",
                   "chai": "warm", "tea": "calm", "love": "love", "romantic": "love", "friendship": "friendship",
@@ -254,9 +242,6 @@ def music_tags(vector):
     return list(dict.fromkeys(tags))[:5]
 
 
-# ---------------------------------------------------------------
-# The whole universe
-# ---------------------------------------------------------------
 def universe(vector, discovery=None, locks=(), previous=None):
     """Generate every element from the vector. Locked elements keep their previous version."""
     discovery = vector.get("discovery", 0.5) if discovery is None else discovery

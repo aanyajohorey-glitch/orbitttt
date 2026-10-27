@@ -15,7 +15,6 @@ limitation is measured honestly on the AI Lab page.
 """
 import re
 
-# Longer phrases are replaced first so "lag raha hai" wins over "hai".
 PHRASES = {
     "dil toot gaya": "my heart is broken",
     "dil toot": "heartbroken",
@@ -48,7 +47,6 @@ PHRASES = {
     "bore ho": "bored",
     "maza aa raha": "i am having fun",
     "maza aa gaya": "that was so much fun",
-    # Hindi phrases
     "समझ नहीं": "i don't understand",
     "डर लग रहा": "i am scared",
     "गुस्सा आ रहा": "i am angry",
@@ -57,7 +55,6 @@ PHRASES = {
 }
 
 WORDS = {
-    # feelings
     "khush": "happy", "khushi": "happiness", "mast": "great", "maza": "fun", "mazaa": "fun",
     "udaas": "sad", "udas": "sad", "udaasi": "sadness", "dukhi": "unhappy", "dukh": "sorrow",
     "rona": "crying", "roya": "cried", "royi": "cried",
@@ -74,7 +71,6 @@ WORDS = {
     "sukoon": "peace", "sukun": "peace", "shaant": "calm", "shant": "calm",
     "accha": "good", "acha": "good", "achha": "good", "bura": "bad", "bure": "bad", "kharab": "bad",
     "pagal": "crazy", "boring": "boring",
-    # little words that make sentences readable
     "bahut": "very", "bohot": "very", "bohut": "very", "zyada": "too much", "jyada": "too much",
     "bilkul": "completely", "thoda": "a little", "kam": "less", "sach": "really",
     "nahi": "not", "nahin": "not", "nhi": "not", "mat": "don't",
@@ -86,7 +82,6 @@ WORDS = {
     "kyun": "why", "kya": "what", "chahiye": "need", "chahta": "want", "chahti": "want",
     "lag": "feel", "lagta": "feel", "lagti": "feel", "raha": "", "rahi": "", "rahe": "",
     "ko": "", "ki": "", "ka": "", "ke": "", "se": "", "toh": "", "to": "to", "bhi": "also",
-    # Hindi (Devanagari)
     "खुश": "happy", "खुशी": "happiness", "दुखी": "sad", "उदास": "sad", "गुस्सा": "angry",
     "डर": "fear", "अकेला": "alone", "अकेली": "alone", "थका": "tired", "थकी": "tired",
     "बहुत": "very", "अच्छा": "good", "बुरा": "bad", "प्यार": "love", "याद": "miss",
@@ -97,8 +92,6 @@ WORDS = {
     "कल": "tomorrow", "स्कूल": "school", "अपनी": "my", "से": "", "को": "", "कुछ": "anything",
 }
 
-# Words that are common in Hinglish but unusual in English. Two or more of
-# them (or any Hindi letters) means the text is probably Hinglish/Hindi.
 MARKERS = {
     "hai", "hain", "nahi", "nahin", "nhi", "bahut", "bohot", "mujhe", "mera", "meri", "yaar",
     "kya", "kyun", "aaj", "raha", "rahi", "hoon", "hu", "tha", "thi", "kuch", "sab", "accha",
@@ -129,7 +122,6 @@ def to_english(text):
     for phrase, english in sorted(PHRASES.items(), key=lambda pair: -len(pair[0])):
         result = re.sub(rf"(?<!\w){re.escape(phrase)}(?!\w)", english, result)
 
-    # Split on spaces and punctuation (not \w, which breaks Hindi words apart).
     words = re.findall(r"[^\s.,!?।]+|[.,!?]", result)
     translated = [WORDS.get(word, word) for word in words]
     english = " ".join(word for word in translated if word)

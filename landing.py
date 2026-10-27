@@ -11,7 +11,7 @@ import streamlit as st
 
 import storage
 
-ORBITS = [  # (orbit size in px, seconds per turn, planet size, light colour, dark colour, ring?)
+ORBITS = [
     (300, 28, 26, "#F6E1E9", "#C695AA", False),
     (430, 46, 38, "#DCE5F7", "#7F93BF", True),
     (560, 70, 30, "#E2EADC", "#98AA8C", False),

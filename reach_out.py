@@ -33,7 +33,6 @@ LEVELS = {
 LANGUAGES = ["English", "Hinglish", "Hindi"]
 DISTRESS_FAMILIES = {"Sadness", "Fear", "Anger"}
 
-# How each feeling family is said in each language (simple, everyday words).
 FEELING = {
     "English": {"Sadness": "really low", "Fear": "really anxious and stressed", "Anger": "really angry and frustrated",
                 None: "a bit off"},
@@ -43,7 +42,6 @@ FEELING = {
               "Anger": "मुझे बहुत गुस्सा और चिढ़ हो रही है", None: "मेरा मन ठीक नहीं है"},
 }
 
-# {f} = the feeling, {c} = what it's about. Three versions for each choice.
 TEMPLATES = {
     "English": {
         "friend": {
@@ -151,13 +149,9 @@ TEMPLATES = {
         },
     },
 }
-# "What it's about" when the user leaves it empty
 SOMETHING = {"English": "a few things", "Hinglish": "kuch cheezon", "Hindi": "कुछ बातों"}
 
 
-# ---------------------------------------------------------------
-# The method (no AI: fixed templates, so it's predictable and safe)
-# ---------------------------------------------------------------
 def detect_language(text):
     """Hindi if the text uses Devanagari letters, Hinglish if ORBIT's dictionary
     found Hinglish words, otherwise English."""
@@ -178,13 +172,10 @@ def drafts(who, level, family=None, language="English", context=""):
 
 def needs_extra_care(result):
     """Intense (a "concern" message) or repeated low moods: also point to Tele-MANAS."""
-    from nudges import low_mood_count   # local import keeps this module light
+    from nudges import low_mood_count
     return bool(result and result.get("safety") == "concern") or low_mood_count() >= 3
 
 
-# ---------------------------------------------------------------
-# Offer in Today (after a distress-type feeling)
-# ---------------------------------------------------------------
 def open_helper(result):
     st.session_state.ro_family = result["final"]["family"]
     st.session_state.ro_language = detect_language(result["text"])
@@ -205,9 +196,6 @@ def offer_card(result):
                     "trusted adult, or call <b>Tele-MANAS 14416</b> (free, any time).</p>")
 
 
-# ---------------------------------------------------------------
-# The page (Feel -> Reach Out)
-# ---------------------------------------------------------------
 def save_draft(who, key):
     text = st.session_state.get(key, "").strip()
     if text and safety_check(text) != "crisis":
@@ -221,7 +209,7 @@ def reach_out_page():
                    "You edit, copy and send it yourself. ORBIT never sends anything.", first=True)
     last = st.session_state.get("home_result")
     if last and last.get("safety") == "crisis":
-        st.html(safety_card_html("crisis"))      # in a crisis: help only, no drafts
+        st.html(safety_card_html("crisis"))
         return
     if needs_extra_care(last):
         with st.container(key="glass-ro-care"):
@@ -241,7 +229,7 @@ def reach_out_page():
             context = right.text_input("What's it about? (a few words, optional)", key="ro_context", max_chars=60,
                                        placeholder="e.g. my board exams")
         if context and safety_check(context) == "crisis":
-            st.html(safety_card_html("crisis"))   # never draft around crisis words, and nothing is kept
+            st.html(safety_card_html("crisis"))
             return
         family = st.session_state.get("ro_family")
         if family in DISTRESS_FAMILIES:
@@ -255,7 +243,7 @@ def reach_out_page():
             key = f"ro_text_{signature}_{i}"
             edited = st.text_area("Edit it so it sounds like you", value=text, key=key, height=90,
                                   label_visibility="collapsed")
-            st.code(edited, language=None, wrap_lines=True)    # the copy button is at the top right
+            st.code(edited, language=None, wrap_lines=True)
             st.button("Save on this device", key=f"ro_save_{signature}_{i}", type="tertiary",
                       on_click=save_draft, args=(who, key))
     note("To send it: copy a version (top-right icon in the grey box), then paste it into WhatsApp, SMS or email "

@@ -23,9 +23,6 @@ def esc(text):
     return html.escape(str(text))
 
 
-# ---------------------------------------------------------------
-# HTML pieces
-# ---------------------------------------------------------------
 def planet_html(light, dark, size=96, ring=False, delay=0.0):
     """A glossy 3D-style planet made only with CSS gradients."""
     ring_back = '<div class="ring back"></div>' if ring else ""
@@ -98,12 +95,6 @@ def note(text):
     st.html(f'<div class="note">{text}</div>')
 
 
-# ---------------------------------------------------------------
-# Session state helpers
-# st.session_state is the app's short-term memory for this browser tab.
-# Saved worlds are ALSO written to data/orbit.db (storage.py), so they
-# survive a page refresh and an app restart.
-# ---------------------------------------------------------------
 def go_to(page):
     """Switch to another page (used by the navigation buttons)."""
     st.session_state.page = page
@@ -140,9 +131,6 @@ def remove_world(item_id):
     st.session_state.flash.append("Removed from your collection.")
 
 
-# ---------------------------------------------------------------
-# World details pop-up
-# ---------------------------------------------------------------
 @st.dialog("World details", width="large")
 def world_dialog(item):
     """Show everything about one saved world in a pop-up window."""
@@ -177,9 +165,6 @@ def world_dialog(item):
     st.html(extra)
 
 
-# ---------------------------------------------------------------
-# Shared page parts
-# ---------------------------------------------------------------
 def top_bar():
     st.html(
         '<div class="topbar"><div class="brand">'

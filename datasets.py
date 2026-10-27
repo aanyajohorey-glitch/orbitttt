@@ -25,7 +25,6 @@ DATA = Path(__file__).parent / "data"
 FAMILIES = ["Joy", "Warmth", "Sadness", "Fear", "Anger", "Wonder", "Neutral"]
 LANGUAGES = {"en": "English", "english": "English", "hinglish": "Hinglish", "hindi": "Hindi"}
 
-# Words that describe feelings through the body (English and Hinglish)
 BODY_WORDS = re.compile(
     r"\b(heart\w*|chest|stomach\w*|tummy|breath\w*|breathe|shak\w*|trembl\w*|sweat\w*|hands?|legs?|knees?|"
     r"dizzy|nause\w*|sick to my|throw\w* up|throat|mouth|eyes|face|fists?|head\w*|ache\w*|pulse|chills|"
@@ -33,7 +32,6 @@ BODY_WORDS = re.compile(
     r"dil|dhadak\w*|dhadkan|pasina|haath|pair|pet|kaanp\w*)\b",
     re.IGNORECASE,
 )
-# Hindi body words (Devanagari words don't work with \b, so no word boundaries)
 BODY_WORDS_HINDI = re.compile(r"(सांस|दिल|धड़क|पसीना|हाथ|पेट|काँप|कांप)")
 SLANG = re.compile(r"\b(lol|lmao|ugh|omg|bro|tbh|idk|ngl|fr|yaar|bhai|bruh|wtf)\b|[\U0001F300-\U0001FAFF]",
                    re.IGNORECASE)

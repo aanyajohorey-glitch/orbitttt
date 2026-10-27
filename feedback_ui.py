@@ -12,8 +12,8 @@ import storage
 
 
 def _save(kind, target, key):
-    saved = st.session_state.setdefault("rating_ids", {})   # button key -> row in the ratings table
-    if key in saved:                                        # changed your mind: replace the old rating
+    saved = st.session_state.setdefault("rating_ids", {})
+    if key in saved:
         storage.delete_rating(saved.pop(key))
     value = st.session_state.get(key)
     if value is None:
@@ -31,7 +31,7 @@ def thumbs(kind, target, key, label="Was this helpful?"):
         st.feedback("thumbs", key=key, on_change=_save, args=(kind, target, key))
 
 
-THUMB_KINDS = {"reply": "Reply", "tool": "Tool", "reach_out": "Reach Out draft"}   # thumbs: value 0 or 1
+THUMB_KINDS = {"reply": "Reply", "tool": "Tool", "reach_out": "Reach Out draft"}
 
 
 def satisfaction(ratings):

@@ -32,7 +32,6 @@ def table(moods, start_days_ago):
     return pd.DataFrame(rows)
 
 
-# ---------------------------------------------------------------- Pattern Insights
 def test_not_enough_data_for_sparse_periods():
     sparse = table([0.5, -0.5], start_days_ago=3)
     assert not patterns.enough_data(sparse, 7)
@@ -62,7 +61,6 @@ def test_low_moods_cluster_by_weekday_and_part_of_day():
     assert weekdays and parts[0][0] == "Evening"
 
 
-# ---------------------------------------------------------------- Letters and the safety plan
 @pytest.fixture
 def app():
     storage.delete_everything()
@@ -114,7 +112,6 @@ def test_safety_plan_text_always_lists_helplines():
     assert "14416" in text and "112" in text
 
 
-# ---------------------------------------------------------------- the bridges
 @pytest.mark.parametrize("text,block", [
     ("I'm stuck and have no idea what to make", "No direction"),
     ("it has to be perfect", "Perfectionism"),
@@ -141,7 +138,7 @@ def test_feeling_to_create_uses_the_emotion_blend():
               "text": "I miss home and the rain"}
     vector = bridge.feeling_to_vector(result)
     assert vector["valence"] < 0 and "rain" in vector["themes"]
-    assert "miss home" not in vector["text"]          # the private check-in isn't used as the project text
+    assert "miss home" not in vector["text"]
 
 
 def test_break_keeps_the_project(session):
@@ -153,14 +150,13 @@ def test_break_keeps_the_project(session):
     assert st.session_state.create_break is None
 
 
-# ---------------------------------------------------------------- theme
 def test_the_app_theme_follows_the_vibe_vector(session):
     import creative
     universe = creative.universe(vibe.build("a neon city at midnight", [("excitement", 0.7)]))
     theme.set_vibe_world(universe)
     world = theme.active_world()
     assert world["palette"][0] == universe["palette"]["colours"][0]["hex"]
-    assert theme._rgba(world["palette"][0], 0.42) in theme.theme_css({})      # the page gradient uses it
+    assert theme._rgba(world["palette"][0], 0.42) in theme.theme_css({})
 
 
 def test_night_css_is_safe_for_streamlit():

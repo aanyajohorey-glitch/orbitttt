@@ -22,7 +22,7 @@ EMOTIONS = [("joy", 0.3), ("sadness", 0.3), ("neutral", 0.2)]
 def app():
     storage.delete_everything()
     storage.set_setting("onboarded", "1")
-    storage.set_setting("demo_mode", "1")        # no emotion model needed
+    storage.set_setting("demo_mode", "1")
     at = AppTest.from_file(APP, default_timeout=120)
     at.session_state.started = True
     at.session_state.page = "Create"
@@ -39,7 +39,6 @@ def bodies(at):
     return [h.proto.body for h in at.get("html")]
 
 
-# ---------------------------------------------------------------- crisis runs first in Create too
 def test_landing_page_comes_first_and_saves_name_and_age():
     storage.delete_everything()
     at = AppTest.from_file(APP, default_timeout=120)
@@ -65,7 +64,7 @@ def test_crisis_idea_shows_only_help_and_generates_nothing(app):
     app.button(key="create_go").click().run()
     assert any("14416" in b for b in bodies(app))
     assert app.session_state.creative is None and not page_downloads(app)
-    assert "create_text" not in app.session_state or not app.session_state.create_text   # not kept
+    assert "create_text" not in app.session_state or not app.session_state.create_text
 
 
 def test_crisis_word_in_spark_bypasses_the_ideas(app):
@@ -88,11 +87,10 @@ def test_a_normal_idea_builds_a_universe(app):
     assert len(page_downloads(app)) == 4
 
 
-# ---------------------------------------------------------------- the Vibe Vector and the universe
 def test_vibe_words_are_understood():
     v = vibe.build(IDEA, EMOTIONS)
     assert {"rainy", "cafe", "nostalgic"} <= set(v["themes"])
-    assert v["era"] < 0 and v["texture"] > 0          # nostalgic -> vintage, hand-made
+    assert v["era"] < 0 and v["texture"] > 0
 
 
 def test_universe_is_complete_and_deterministic():
@@ -145,7 +143,7 @@ def test_discovery_reaches_less_known_creators():
     v = vibe.build(IDEA, EMOTIONS, medium="Film")
     familiar = creative.rank_creators(v, discovery=0.0)
     unfamiliar = creative.rank_creators(v, discovery=1.0)
-    level = lambda rows: sum(r["mainstream_level"] for r in rows) / len(rows)   # noqa: E731
+    level = lambda rows: sum(r["mainstream_level"] for r in rows) / len(rows)
     assert level(unfamiliar) < level(familiar)
 
 
@@ -154,7 +152,6 @@ def test_brief_is_a_pdf():
     assert brief.pdf(creative.universe(v))[:5] == b"%PDF-"
 
 
-# ---------------------------------------------------------------- the Spark path
 FULL = {"medium": "Film", "emotions": ["Nostalgia", "Love"], "setting": "a grandmother's kitchen",
         "era": "Retro (1980s-2000s)", "contrast": "lonely + warm", "texture": "film grain", "word": "monsoon"}
 QUESTION_KEYS = ["medium", "emotions", "setting", "era", "contrast", "texture"]

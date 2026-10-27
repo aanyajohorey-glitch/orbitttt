@@ -12,7 +12,6 @@ from conftest import needs_model
 from emotion_model import EMOTION_GROUPS
 
 
-# ---------------------------------------------------------------- metrics (no model needed)
 def test_report_metrics_on_a_small_example():
     truth = ["Joy", "Joy", "Fear", "Fear"]
     pred = ["Joy", "Fear", "Fear", "Fear"]
@@ -27,7 +26,7 @@ def test_report_metrics_on_a_small_example():
 def test_softmax_regression_learns_a_simple_pattern():
     rng = np.random.default_rng(0)
     X = rng.normal(size=(140, 7)).astype(np.float32)
-    y = X.argmax(axis=1)                       # the label is simply the biggest feature
+    y = X.argmax(axis=1)
     W, b = orbit_head.train(X, y, l2=1e-4)
     accuracy = np.mean(orbit_head.predict_proba(X, W, b).argmax(axis=1) == y)
     assert accuracy > 0.9
@@ -56,7 +55,6 @@ def test_writing_style_tags():
     assert datasets.writing_style("lol that was the funniest thing today") == "Informal / slang"
 
 
-# ---------------------------------------------------------------- the live pipeline (needs the model)
 @needs_model
 def test_documented_failure_is_fixed():
     """v0.3 read this as joy. The trained classifier should read it as fear."""

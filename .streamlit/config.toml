@@ -1,6 +1,3 @@
-# Streamlit settings for ORBIT.
-# The [theme] colours match ORBIT's design system. Extra styling
-# (fonts, glass cards, planets) lives in styles.py.
 
 [theme]
 base = "light"

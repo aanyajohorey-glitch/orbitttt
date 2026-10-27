@@ -28,10 +28,6 @@ import io
 import json
 import math
 
-# ---------------------------------------------------------------
-# 1. Feelings and vibes -> (valence, arousal)
-# ---------------------------------------------------------------
-# Approximate positions on the circumplex (author's estimates, -1 to +1).
 EMOTION_VA = {
     "admiration": (0.6, 0.3), "amusement": (0.7, 0.5), "anger": (-0.6, 0.8), "annoyance": (-0.4, 0.5),
     "approval": (0.5, 0.1), "caring": (0.6, 0.1), "confusion": (-0.2, 0.3), "curiosity": (0.3, 0.5),
@@ -42,7 +38,6 @@ EMOTION_VA = {
     "remorse": (-0.6, -0.1), "sadness": (-0.7, -0.4), "surprise": (0.2, 0.7), "neutral": (0.0, 0.0),
 }
 
-# Vibe words: (valence, arousal, warm, bold, vintage) nudges. warm: +warm/-cool; bold: +bold/-soft; vintage: +vintage/-modern
 VIBE_WORDS = {
     "rain": (-0.2, -0.4, -0.5, -0.3, 0.1), "rainy": (-0.2, -0.4, -0.5, -0.3, 0.1), "monsoon": (0.1, -0.2, -0.4, -0.2, 0.1),
     "sunday": (0.2, -0.4, 0.1, -0.3, 0.1), "lazy": (0.1, -0.6, 0.1, -0.4, 0.0), "cafe": (0.3, -0.2, 0.5, -0.1, 0.3),
@@ -88,9 +83,6 @@ def vibe_profile(text):
     return (*sums, found)
 
 
-# ---------------------------------------------------------------
-# 2-5. The palette
-# ---------------------------------------------------------------
 def clamp(x, low=0.0, high=1.0):
     return max(low, min(high, x))
 
@@ -120,10 +112,7 @@ def contrast(a, b):
     return (la + 0.05) / (lb + 0.05)
 
 
-# Where a feeling sits on the circumplex (its ANGLE) chooses the hue.
-# angle: 0 = pleasant, 90 = energetic, 180 = unpleasant, 270 = calm.
 HUE_ANCHORS = [(0, 45), (45, 20), (90, 330), (135, 350), (180, 220), (225, 240), (270, 270), (315, 140), (360, 45)]
-#              gold     coral    pink-magenta crimson  blue      slate-blue lavender  sage      gold again
 
 
 def feeling_hue(valence, arousal):
@@ -137,7 +126,7 @@ def feeling_hue(valence, arousal):
     for (a0, h0), (a1, h1) in zip(HUE_ANCHORS, HUE_ANCHORS[1:]):
         if a0 <= angle <= a1:
             t = (angle - a0) / (a1 - a0)
-            step = (h1 - h0 + 180) % 360 - 180          # go the short way round the colour wheel
+            step = (h1 - h0 + 180) % 360 - 180
             return (h0 + step * t) % 360
     return 270.0
 
@@ -200,7 +189,7 @@ def make_palette(valence, arousal, warm=0.0, energy=0.0, bold=0.0, vintage=0.0, 
     tweaks = tweaks or {}
     arousal_used = clamp(arousal + 0.6 * energy, -1, 1)
     hue = shift_hue(feeling_hue(valence, arousal_used), clamp(warm + tweaks.get("warmth", 0.0), -1, 1))
-    strength = min(1.0, math.hypot(valence, arousal_used))   # how far from neutral: stronger -> more colourful
+    strength = min(1.0, math.hypot(valence, arousal_used))
     saturation = 0.24 + 0.18 * strength + 0.16 * (arousal_used + 1) / 2 + 0.18 * bold - 0.14 * max(0.0, vintage)
     saturation *= tweaks.get("muted", 1.0)
     saturation = clamp(saturation + (0.1 if tweaks.get("playful") else 0.0), 0.08, 0.85)
@@ -213,17 +202,15 @@ def make_palette(valence, arousal, warm=0.0, energy=0.0, bold=0.0, vintage=0.0, 
     harmony_a = hsl_to_hex(hue + first, saturation * 0.9, clamp(lightness + 0.08))
     harmony_b = hsl_to_hex(hue + second, saturation * (0.75 if rule == "complementary" else 0.9),
                            clamp(lightness - 0.1 + (0.04 if tweaks.get("playful") else 0)))
-    background_hue = hue + (20 * vintage if vintage > 0 else 0)            # vintage paper is a little yellower
+    background_hue = hue + (20 * vintage if vintage > 0 else 0)
     background = hsl_to_hex(background_hue, clamp(0.25 * saturation + 0.12 * max(0, vintage)),
                             clamp(0.955 - 0.02 * max(0, vintage) + 0.02 * tweaks.get("contrast", 0.0), 0.88, 0.985))
     ink_lightness = 0.2 - 0.04 * tweaks.get("contrast", 0.0) - 0.03 * (vintage < 0) * abs(vintage)
     ink = hsl_to_hex(hue, 0.22, ink_lightness)
     while (contrast(ink, background) < 4.5 or contrast(ink, primary) < 3.0) and ink_lightness > 0.02:
-        # WCAG AA: 4.5 for normal text on the background, 3 for large text on the primary colour
         ink_lightness -= 0.02
         ink = hsl_to_hex(hue, 0.22, ink_lightness)
     while contrast(ink, primary) < 3.0 and lightness < 0.95:
-        # Even near-black text can't be read on a very dark primary: lighten the primary instead.
         lightness += 0.02
         primary = hsl_to_hex(hue, saturation, lightness)
 
@@ -247,12 +234,9 @@ def contrast_checks(colours):
             for name, a, b, needed in pairs]
 
 
-# ---------------------------------------------------------------
-# Font pairing and textures (rules on the same numbers)
-# ---------------------------------------------------------------
 def font_pair(vintage, bold, arousal, warmth=0.0):
     """Typography from data/fonts.csv (see fonts.py for the rule)."""
-    import fonts   # local import: fonts.py reads a CSV with pandas
+    import fonts
     return fonts.pair(vintage, bold, arousal, warmth)
 
 
@@ -270,9 +254,6 @@ def textures(arousal, vintage):
     return picks
 
 
-# ---------------------------------------------------------------
-# Refine buttons: change the palette without re-explaining the vibe
-# ---------------------------------------------------------------
 def refine(tweaks, action):
     tweaks = dict(tweaks or {})
     if action == "muted":
@@ -289,9 +270,6 @@ def refine(tweaks, action):
     return tweaks
 
 
-# ---------------------------------------------------------------
-# Exports
-# ---------------------------------------------------------------
 def css_variables(result):
     lines = [":root {"]
     for colour in result["colours"]:
@@ -318,21 +296,18 @@ def png_board(result, fonts, keywords, width=1200, height=800):
     draw = ImageDraw.Draw(image)
     try:
         title_font, small_font = ImageFont.load_default(size=34), ImageFont.load_default(size=20)
-    except TypeError:          # very old Pillow
+    except TypeError:
         title_font = small_font = ImageFont.load_default()
 
-    # big gradient tile (primary -> harmony A)
     a, b = hex_to_rgb(colours[0]), hex_to_rgb(colours[1])
     for x in range(40, 720):
         t = (x - 40) / 680
         draw.line([(x, 40), (x, 460)], fill=tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3)))
-    # dotted pattern tile (harmony B dots on background)
     draw.rectangle([760, 40, 1160, 460], fill=colours[1])
     for row in range(14):
         for col in range(13):
             cx, cy = 775 + col * 30 + (row % 2) * 15, 55 + row * 30
             draw.ellipse([cx - 6, cy - 6, cx + 6, cy + 6], fill=colours[2])
-    # swatches
     for i, colour in enumerate(result["colours"]):
         x = 40 + i * 226
         draw.rounded_rectangle([x, 500, x + 206, 650], radius=18, fill=colour["hex"],

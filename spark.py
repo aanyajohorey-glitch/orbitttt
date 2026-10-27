@@ -30,7 +30,6 @@ ELEMENTS = ["medium", "setting", "contrast", "texture", "structure"]
 MEDIUMS = ["Film", "Book", "Brand", "Poster", "Music video", "App"]
 MEDIUM_PHRASE = {"Film": "a short film", "Book": "a short story", "Brand": "a brand identity",
                  "Poster": "a poster series", "Music video": "a music video", "App": "an app"}
-# label -> (valence, arousal, emotion label used by the Vibe Vector, heavy?)
 EMOTIONS = {
     "Joy": (0.8, 0.6, "joy", False), "Calm": (0.5, -0.6, "relief", False), "Wonder": (0.4, 0.5, "curiosity", False),
     "Hope": (0.6, 0.3, "optimism", False), "Love": (0.8, 0.3, "love", False),
@@ -59,9 +58,6 @@ def _rng(*parts):
     return random.Random(int(hashlib.md5("|".join(map(str, parts)).encode()).hexdigest()[:8], 16))
 
 
-# ---------------------------------------------------------------
-# From answers to a target feel
-# ---------------------------------------------------------------
 def target(answers):
     """(valence, arousal) from the chosen emotions, or neutral-ish if skipped."""
     chosen = [EMOTIONS[e] for e in answers.get("emotions") or [] if e in EMOTIONS]
@@ -86,7 +82,7 @@ def _pick(kind, answers, direction, rng, exclude=None):
     options = [s for s in seeds(kind) if s["text"] not in excluded]
     scored = sorted(options, key=lambda s: -cosine([1, valence, arousal], [1, s["valence"], s["arousal"]]))
     if direction == "Weird":
-        pool = scored[len(scored) // 2:]            # the less obvious half
+        pool = scored[len(scored) // 2:]
     elif direction == "Bold":
         pool = scored[:6]
     else:
@@ -94,9 +90,6 @@ def _pick(kind, answers, direction, rng, exclude=None):
     return rng.choice(pool)["text"]
 
 
-# ---------------------------------------------------------------
-# Ideas: elements -> title, logline, why
-# ---------------------------------------------------------------
 def _place(setting):
     for article in ("a ", "an ", "the "):
         if setting.lower().startswith(article):
@@ -104,7 +97,6 @@ def _place(setting):
     return setting
 
 
-# Which answered elements each direction is allowed to change (Safe keeps every answer).
 FREE = {"Safe": set(), "Bold": {"texture", "structure"}, "Weird": {"setting", "structure"}}
 
 
@@ -198,9 +190,6 @@ def lock(idea, element, answers, seed=1):
     return describe(new, answers)
 
 
-# ---------------------------------------------------------------
-# Use this idea -> the Vibe Vector
-# ---------------------------------------------------------------
 def to_vector(idea, answers):
     """Average the numbers of the idea's seeds, with the chosen emotions and era."""
     import vibe

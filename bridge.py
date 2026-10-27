@@ -16,7 +16,6 @@ check: crisis wording always gets only the safety response.
 """
 import re
 
-# The five creative blocks, the words that suggest them, a matched game and a 5-minute exercise.
 BLOCKS = {
     "Perfectionism": {
         "words": ["perfect", "not good enough", "flawless", "mistake", "mistakes", "never good", "ruin", "ruined",
@@ -86,9 +85,6 @@ def offer_for(text):
     return {"block": block, "stressed": stressed, "game": game}
 
 
-# ---------------------------------------------------------------
-# Feel -> Create
-# ---------------------------------------------------------------
 def feeling_to_vector(result):
     """A Vibe Vector from a check-in's emotion blend (the words still shape the themes)."""
     import vibe

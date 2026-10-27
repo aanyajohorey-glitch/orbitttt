@@ -17,7 +17,6 @@ CRISIS = {"text": "x", "safety": "crisis", "world": None, "emotions": [("sadness
           "final": {"emotion": "sadness", "family": "Sadness", "confidence": 0.9, "unsure": False}}
 
 
-# ---------------------------------------------------------------- crisis bypasses all three features
 @pytest.fixture
 def app():
     storage.delete_everything()
@@ -69,14 +68,13 @@ def test_music_page_is_blocked_in_a_crisis_too(app):
     app.session_state.page = "Mood Studio"
     app.session_state.studio_part = "Music discovery"
     app.run()
-    assert not any("track-num" in b and "<style" not in b for b in bodies(app))   # CSS mentions the class too
+    assert not any("track-num" in b and "<style" not in b for b in bodies(app))
 
 
 def test_no_reach_out_offer_in_a_crisis(session):
-    reach_out.offer_card(CRISIS)          # draws nothing (no exception, no button)
+    reach_out.offer_card(CRISIS)
 
 
-# ---------------------------------------------------------------- Reach Out drafts
 @pytest.mark.parametrize("language,who,level",
                          list(itertools.product(reach_out.LANGUAGES, reach_out.WHO, reach_out.LEVELS)))
 def test_three_complete_drafts_for_every_choice(language, who, level):
@@ -91,7 +89,6 @@ def test_language_matches_the_user():
     assert reach_out.detect_language("I feel low today") == "English"
 
 
-# ---------------------------------------------------------------- palettes
 GRID = [i / 2 for i in range(-2, 3)]
 
 
@@ -103,8 +100,8 @@ def test_palette_always_has_5_valid_colours_and_readable_text(valence, arousal, 
                                       tweaks=tweaks)
         colours = {c["role"]: c["hex"] for c in result["colours"]}
         assert len(colours) == 5 and all(palette.is_valid_hex(h) for h in colours.values())
-        assert palette.contrast(colours["Ink (text)"], colours["Background"]) >= 4.5     # WCAG AA, normal text
-        assert palette.contrast(colours["Ink (text)"], colours["Primary"]) >= 3.0        # WCAG AA, large text
+        assert palette.contrast(colours["Ink (text)"], colours["Background"]) >= 4.5
+        assert palette.contrast(colours["Ink (text)"], colours["Primary"]) >= 3.0
 
 
 def test_harmony_rule_follows_energy():
@@ -116,7 +113,7 @@ def test_harmony_rule_follows_energy():
 def test_feelings_get_different_colour_families():
     joy = palette.make_palette(*palette.blend_va([("joy", 1.0)]))["hue"]
     sad = palette.make_palette(*palette.blend_va([("sadness", 1.0)]))["hue"]
-    assert joy < 60 and 200 < sad < 260          # warm gold/coral vs cool blue
+    assert joy < 60 and 200 < sad < 260
 
 
 def test_refine_buttons_change_the_palette_without_new_input():
@@ -140,7 +137,6 @@ def test_exports_are_well_formed():
     assert palette.png_board(result, fonts, ["calm"])[:8] == b"\x89PNG\r\n\x1a\n"
 
 
-# ---------------------------------------------------------------- music
 SAD, ANGRY = [("sadness", 0.9)], [("anger", 0.9)]
 
 
@@ -150,7 +146,7 @@ def test_playlists_are_diverse(emotions, discovery):
     playlist = music.recommend(emotions, "match", discovery)
     spread = music.diversity(playlist)
     assert 8 <= len(playlist) <= 12
-    assert spread["artists"] == len(playlist)              # never the same artist twice
+    assert spread["artists"] == len(playlist)
     assert spread["languages"] >= 3 and spread["genres"] >= 5
 
 
@@ -180,7 +176,7 @@ def test_catalogue_is_complete_and_has_no_lyrics():
                                        "mainstream_level", "tags"]
     assert table[["energy", "valence", "mainstream_level"]].isin([1, 2, 3, 4, 5]).all().all()
     assert "lyrics" not in table.columns
-    assert table["language"].nunique() >= 10            # not only global pop
+    assert table["language"].nunique() >= 10
 
 
 def test_links_are_search_pages_only():

@@ -19,8 +19,8 @@ from emotion_model import detect_emotions
 from hinglish import to_english
 
 MODEL_DIR = Path(__file__).parent / "data" / "model"
-SHARED_CACHE = MODEL_DIR / "base_scores.json"        # ORBIT's own datasets (in the repo)
-LOCAL_CACHE = MODEL_DIR / "base_scores_local.json"   # classmates' held-out sentences (never uploaded)
+SHARED_CACHE = MODEL_DIR / "base_scores.json"
+LOCAL_CACHE = MODEL_DIR / "base_scores_local.json"
 
 
 def _load(path):

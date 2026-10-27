@@ -42,9 +42,6 @@ def entries_table():
     return pd.DataFrame(rows)
 
 
-# ---------------------------------------------------------------
-# Demo data for presentations (clearly marked, easy to remove)
-# ---------------------------------------------------------------
 DEMO_STORY = [
     "Pre-boards start next week and I can't stop worrying about maths.",
     "Couldn't sleep properly, my mind keeps racing about the exams.",
@@ -70,7 +67,7 @@ def load_demo():
     start = datetime.now().replace(minute=0, second=0, microsecond=0) - timedelta(days=len(DEMO_STORY) - 1)
     for day, text in enumerate(DEMO_STORY):
         when = (start + timedelta(days=day)).replace(hour=rng.randint(17, 22))
-        result = interpret(text)   # the same pipeline as a real check-in
+        result = interpret(text)
         storage.add_entry("Demo", text, result["emotions"], result["world"], primary=result["final"]["emotion"],
                           created_at=when.isoformat(timespec="seconds"), demo=True)
     for i, (tool, before, after) in enumerate(DEMO_SESSIONS):
@@ -98,9 +95,6 @@ def delete_entry(entry_id):
     st.session_state.flash.append("Entry deleted.")
 
 
-# ---------------------------------------------------------------
-# Charts (Altair, styled to match ORBIT)
-# ---------------------------------------------------------------
 def style(chart):
     from onboarding import accessibility_settings
     night = accessibility_settings().get("night_mode")
@@ -154,9 +148,6 @@ def weekday_chart(table):
     return style(chart.properties(height=200))
 
 
-# ---------------------------------------------------------------
-# Insights written from the data
-# ---------------------------------------------------------------
 def insights(table, sessions):
     lines = []
     top = table["family"].value_counts()
@@ -213,9 +204,6 @@ def galaxy_html(table):
     return f'<div class="galaxy">{"".join(stars)}</div>'
 
 
-# ---------------------------------------------------------------
-# The page
-# ---------------------------------------------------------------
 def journal_page():
     section_header(
         "Journal",

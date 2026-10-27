@@ -14,10 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 os.environ["ORBIT_DB"] = str(Path(tempfile.mkdtemp()) / "orbit_test.db")
 
-import pytest  # noqa: E402
-import streamlit as st  # noqa: E402
+import pytest
+import streamlit as st
 
-import storage  # noqa: E402
+import storage
 
 storage.init()
 

@@ -29,11 +29,8 @@ from hinglish import to_english
 from safety import check as safety_check
 from world_data import match_world
 
-UNSURE_BELOW = 0.5   # chosen from out-of-fold accuracy by confidence (docs/methodology.md)
+UNSURE_BELOW = 0.5
 
-# Vague-message guard. Even after temperature scaling, the classifier can be
-# very confident about short or vague messages it has never seen anything like
-# ("today was weird" -> anger 98%). For these ORBIT always asks first.
 VAGUE = re.compile(r"\b(idk|i don'?t know|dunno|weird|meh|whatever|okay|ok|fine|it is what it is|not sure|"
                    r"mixed feelings|kuch nahi|pata nahi|aise hi)\b", re.IGNORECASE)
 
@@ -43,8 +40,6 @@ def is_vague(text):
     return len(words) <= 3 or bool(VAGUE.search(text))
 
 
-# If the classifier picks a family but the base model gave every emotion in it
-# a tiny score, this emotion represents the family.
 REPRESENTATIVE = {"Joy": "joy", "Warmth": "caring", "Sadness": "sadness", "Fear": "nervousness",
                   "Anger": "annoyance", "Wonder": "curiosity", "Neutral": "neutral"}
 
@@ -93,7 +88,7 @@ def interpret(text):
         order = np.argsort(probs)[::-1]
         family_probs = [(orbit_head.FAMILIES[i], float(probs[i])) for i in order]
         source = "ORBIT classifier" + (" (personal)" if meta.get("corrections") else "")
-    else:  # fallback: v0.3 behaviour
+    else:
         family_probs = [(GROUP_OF[emotions[0][0]], float(emotions[0][1]))]
         source = "RoBERTa + dictionary"
     family, confidence = family_probs[0]
@@ -103,8 +98,8 @@ def interpret(text):
         "text": text,
         "model_text": model_text,
         "translated": translated,
-        "emotions": emotions,           # base model scores (shown as bars)
-        "raw_scores": raw_scores,       # base model scores for the ORIGINAL text (classifier input)
+        "emotions": emotions,
+        "raw_scores": raw_scores,
         "final": {"family": family, "confidence": confidence, "unsure": confidence < UNSURE_BELOW or vague,
                   "vague": vague, "alternatives": family_probs[:3]},
         "safety": safety_check(text) or safety_check(model_text, emotions),
@@ -118,13 +113,11 @@ def analyse(text, empty_message):
         st.warning(empty_message)
         return None
 
-    # The model reads words. Text with no letters at all (only numbers,
-    # symbols or emoji) would give a confident but meaningless result.
     if not any(character.isalpha() for character in text):
         st.warning("ORBIT reads words. Try describing how you feel in a sentence or two.")
         return None
 
-    import demo_mode   # imported here to avoid a circular import
+    import demo_mode
 
     if not demo_mode.enabled():
         try:
@@ -187,7 +180,7 @@ def record_checkin(result, source):
 def teach(result, corrected_family, source):
     """Teach Orbit: store the user's correction locally and update the result."""
     if not games_allowed(result):
-        return result   # crisis text is never stored, not even as a correction
+        return result
     storage.add_correction(result["text"], result["final"]["family"], corrected_family,
                            {"raw": result["raw_scores"], "dict": dict(result["emotions"])}, source)
     result["final"]["unsure"] = False

@@ -133,9 +133,6 @@ def setting_tiles():
               on_click=lambda: st.session_state.update(spark_tile_offset=(offset + 9) % len(places)))
 
 
-# ---------------------------------------------------------------
-# The three ideas
-# ---------------------------------------------------------------
 def replace_idea(index, new):
     st.session_state.spark_ideas[index] = new
 

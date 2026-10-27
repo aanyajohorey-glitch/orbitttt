@@ -36,7 +36,7 @@ VARIANTS = {
 def labels():
     try:
         return load_model()["labels"]
-    except Exception:          # no model (offline): the names are fixed, so use the saved list
+    except Exception:
         return GO_EMOTIONS_LABELS
 
 
