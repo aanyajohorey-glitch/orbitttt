@@ -11,6 +11,7 @@ from datetime import date
 
 import streamlit as st
 
+import fonts as fontlib
 import palette
 import storage
 from components import esc, note, section_header
@@ -141,10 +142,10 @@ def palette_section():
     tiles = palette.textures(result["arousal"], vintage)
     keywords = list(dict.fromkeys(keywords + tiles))
 
-    st.html("<style>@import url('https://fonts.googleapis.com/css2?family="
-            + fonts["heading"].replace(" ", "+") + "&family=" + fonts["body"].replace(" ", "+")
-            + "&display=swap');</style>")
+    st.html("<style>" + fontlib.google_fonts_css(*fontlib.families_in(fonts)) + "</style>")
     st.html(moodboard_html(result, fonts, tiles, keywords))
+    with st.expander("See these fonts, and more ideas for this mood"):
+        st.html(fontlib.gallery_html(fonts, "Every feeling has a universe"))
 
     cols = st.columns(6)
     for col, (label, action) in zip(cols, [("More muted", "muted"), ("Warmer", "warmer"), ("Cooler", "cooler"),

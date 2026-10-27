@@ -1,6 +1,6 @@
 """
 fonts.py
-Typography pairing from data/fonts.csv (32 open-licence Google Fonts, each
+Typography pairing from data/fonts.csv (77 open-licence Google Fonts, each
 tagged with mood numbers: vintage, bold, energy and warmth, from -1 to +1).
 
 Rule (explainable):
@@ -10,6 +10,8 @@ Rule (explainable):
    to a CALMER version of the vibe, and from a different category (a serif
    heading gets a sans body and the other way round) for contrast.
 3. Devanagari-friendly fonts are preferred when the idea was written in Hindi.
+4. "More font ideas": the next closest fonts, at most two from each category,
+   so the list shows real variety (serif, sans, script, display, mono).
 """
 from pathlib import Path
 
@@ -53,7 +55,45 @@ def pair(vintage, bold, energy, warmth=0.0, hindi=False):
     why = (f"{heading['family']} ({heading['category']}) is the heading font closest to your vibe "
            f"(vintage {vintage:+.1f}, bold {bold:+.1f}, energy {energy:+.1f}); {body['family']} "
            f"({body['category']}) is a calm, readable partner from a different family of letters.")
-    return {"heading": heading["family"], "body": body["family"], "feel": feel, "why": why}
+    more = alternatives(vintage, bold, energy, warmth, exclude={heading["family"], body["family"]}, hindi=hindi)
+    return {"heading": heading["family"], "body": body["family"], "feel": feel, "why": why, "more": more}
+
+
+def alternatives(vintage, bold, energy, warmth=0.0, exclude=(), size=8, hindi=False):
+    """Other fonts close to the vibe: [{"family", "category", "feel"}], up to 2 per category."""
+    table = load_fonts()
+    table = table[~table["family"].isin(set(exclude))].copy()
+    table["d"] = table.apply(_distance, axis=1, args=(vintage, bold, energy, warmth))
+    if not hindi:
+        table.loc[table["tag_list"].apply(lambda t: "devanagari" in t), "d"] += 0.6
+    chosen, per_category = [], {}
+    for _, row in table.sort_values("d").iterrows():
+        if per_category.get(row["category"], 0) >= 2:
+            continue
+        per_category[row["category"]] = per_category.get(row["category"], 0) + 1
+        chosen.append({"family": row["family"], "category": row["category"], "feel": " and ".join(row["tag_list"][:2])})
+        if len(chosen) == size:
+            break
+    return chosen
+
+
+def gallery_html(fonts_used, sample):
+    """Font cards, each written IN its own font: the chosen pair first, then more ideas."""
+    from html import escape
+    cards = [(fonts_used["heading"], "Heading", fonts_used.get("feel", "")), (fonts_used["body"], "Body text", "")]
+    cards += [(f["family"], f["category"].capitalize(), f["feel"]) for f in fonts_used.get("more", [])]
+    html = []
+    for family, role, feel in cards:
+        face = f"font-family:'{family}'"
+        html.append(f'<div class="font-card"><div class="font-aa" style="{face}">Aa</div>'
+                    f'<div class="font-sample" style="{face}">{escape(sample)}</div>'
+                    f'<div class="font-name" style="{face}">{escape(family)}</div>'
+                    f'<small>{escape(role)}{" · " + escape(feel) if feel else ""}</small></div>')
+    return '<div class="font-grid">' + "".join(html) + "</div>"
+
+
+def families_in(fonts_used):
+    return [fonts_used["heading"], fonts_used["body"]] + [f["family"] for f in fonts_used.get("more", [])]
 
 
 def google_fonts_css(*families):

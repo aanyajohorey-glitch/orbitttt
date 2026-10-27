@@ -32,7 +32,6 @@ from explain import highlight_html, importance_of
 from safety import check as safety_check
 from safety import safety_card_html
 from studio import moodboard_html
-from views import voice_input
 
 AUDIENCES = ["Friends", "Teenagers", "Kids", "Everyone", "A client"]
 START_FROM = ["A feeling", "A colour", "A song", "A word"]
@@ -186,12 +185,8 @@ def build_from_input():
 
 
 def entry_screen():
-    section_header("Create", "What are you making, or what's on your mind?",
-                   "Type or say an idea in English, Hinglish or Hindi. ORBIT turns it into a whole creative "
-                   "universe: concept, palette, type, moodboard, aesthetics, music and creators to discover.",
-                   first=True)
+    section_header("Create", "What are you making, or what's on your mind?", first=True)
     with st.container(key="glass-create-input"):
-        voice_input(target="create_text", key="create_voice")
         st.text_area("Your idea", key="create_text", height=150, label_visibility="collapsed",
                      placeholder="e.g. a short film about a rainy Sunday café in Mumbai, nostalgic and warm")
         st.pills("Medium (optional)", spark.MEDIUMS, key="create_medium")
@@ -404,7 +399,7 @@ def universe_screen():
     universe = data["universe"]
     vector, concept = universe["vector"], universe["concept"]
     fonts_used = universe["fonts"]
-    st.html("<style>" + fontlib.google_fonts_css(fonts_used["heading"], fonts_used["body"]) + "</style>")
+    st.html("<style>" + fontlib.google_fonts_css(*fontlib.families_in(fonts_used)) + "</style>")
 
     st.html(orbit_html(universe))
     with st.container(key="glass-cu-concept"):
@@ -477,6 +472,8 @@ def universe_screen():
                 f'{esc(concept["title"])}</div><p style="font-family:\'{fonts_used["body"]}\',sans-serif">'
                 f'{esc(fonts_used["heading"])} for headings and {esc(fonts_used["body"])} for text: '
                 f'{esc(fonts_used["feel"])}. Both are free Google Fonts.</p></div>')
+        st.html('<div class="field-label" style="margin-top:1rem">Your fonts, and more ideas for this vibe</div>'
+                + fontlib.gallery_html(fonts_used, concept["title"]))
 
     with st.container(key="glass-cu-aesthetics"):
         section("aesthetics", "Aesthetics to explore")
@@ -541,7 +538,7 @@ def ratings_panel(universe):
     from studio import save_stars
     sig = (universe["concept"]["title"] + state()["time"]).replace(" ", "_")
     with st.container(key="glass-cu-ratings"):
-        st.html('<div class="eyebrow">Rate this universe (helps the AI Lab)</div>')
+        st.html('<div class="eyebrow">Rate this universe (helps ORBIT improve)</div>')
         cols = st.columns(3)
         for col, (kind, question) in zip(cols, [("creative_palette", "Does the palette fit your idea?"),
                                                ("creative_cohesion", "Does it all feel like one world?"),
