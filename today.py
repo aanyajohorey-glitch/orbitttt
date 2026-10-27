@@ -2,7 +2,7 @@
 today.py
 The Feel tab -> Check-in: ORBIT's guided check-in, one calm step at a time.
 
-    1. Check in       - write (or speak) how you feel, and how you are right now (1-5)
+    1. Check in       - write how you feel, and how you are right now (1-5)
     2. What I noticed - the feeling ORBIT detected, how sure it is, and a way to correct it
     3. ORBIT's reply  - the companion reflects and validates
     4. Try this       - ONE small, suggested action (breathing, grounding, ...)
@@ -31,7 +31,7 @@ from nudges import nudge_card
 from safety import safety_card_html
 from teach_ui import clarify, confidence_html, teach_panel
 from views import (final_stats_html, greeting, hero_html, keep_talking, open_in_lab, other_emotions_html,
-                   refresh_home, save_home_name, understood_html, voice_input)
+                   refresh_home, save_home_name, understood_html)
 from world_data import INTENTS, get_world, prompt_for
 
 STEPS = ["Check in", "What I noticed", "ORBIT's reply", "Try this", "How now?", "Your planet"]
@@ -110,7 +110,6 @@ def today_page():
         if not name:
             st.text_input("What should ORBIT call you? (optional)", key="home_name", on_change=save_home_name,
                           max_chars=30, placeholder="A first name or a nickname")
-        voice_input(target="home_text", key="home_voice")
         st.text_area("Your feelings", key="home_text", height=130,
                      placeholder="e.g. Exams finished today. I feel relieved but strangely empty…")
         if demo_mode.enabled():

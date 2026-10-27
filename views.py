@@ -5,11 +5,10 @@ My Collection. The other pages have their own files:
 
     companion.py  Companion chat        calm_room.py  Calm Room
     journal.py    Journal               vending.py    Vending Machine (arcade)
-    ai_lab.py     AI Lab                care.py       Care (safety & privacy)
+    wrapped.py    Wrapped (My Galaxy)
 
 app.py decides which page function to run.
 """
-import hashlib
 import math
 from datetime import datetime
 
@@ -17,7 +16,6 @@ import streamlit as st
 
 import demo_mode
 import storage
-import voice
 from analysis import analyse, record_checkin
 from companion import companion_card_html, open_calm_room, reply, suggestion
 from components import (
@@ -138,14 +136,13 @@ def mood_lab():
         "Mood Lab",
         "Put a feeling into words",
         "A deeper look at your emotions: all the strongest feelings, the words that caused them, and the "
-        "world that matches best. Type, paste Hinglish, or record a voice note.",
+        "world that matches best. Type or paste Hinglish.",
         first=True,
     )
 
     left, right = st.columns([1.6, 1], gap="medium")
     with left:
         with st.container(key="glass-lab-input"):
-            voice_input()
             st.text_area(
                 "Mood description",
                 key="lab_text",
@@ -168,7 +165,7 @@ def mood_lab():
                 '<span class="badge">Model status · connected</span>'
                 '<div class="title-sm" style="margin-top:1rem">How the lab works</div>'
                 '<ol class="steps">'
-                "<li><span><b>Describe.</b> You write (or say) how you feel.</span></li>"
+                "<li><span><b>Describe.</b> You write how you feel.</span></li>"
                 "<li><span><b>Translate.</b> Hinglish and Hindi words are turned into English.</span></li>"
                 "<li><span><b>Detect.</b> A pre-trained model (RoBERTa, trained on GoEmotions) "
                 "scores 28 emotions.</span></li>"
@@ -180,28 +177,6 @@ def mood_lab():
     result = st.session_state.lab_result
     if result:
         show_lab_result(result)
-
-
-def voice_input(target="lab_text", key="lab_voice"):
-    """A voice-note recorder that fills the text box `target` with what was said."""
-    audio = st.audio_input("Or record a voice note", key=key)
-    if audio is None:
-        return
-    data = audio.getvalue()
-    digest = hashlib.md5(data).hexdigest()
-    if st.session_state.get(f"{key}_done") == digest:
-        return
-    if not voice.available():
-        note("Voice notes need a free speech-recognition model (faster-whisper). Ask to have it installed; "
-             "until then, please type instead.")
-        return
-    with st.spinner("Listening to your voice note…"):
-        text = voice.transcribe(data)
-    st.session_state[f"{key}_done"] = digest
-    if text:
-        st.session_state[target] = text  # fills the text box below
-    else:
-        st.warning("I couldn't hear any words in that recording. Please try again.")
 
 
 def emotion_bars_html(emotions):

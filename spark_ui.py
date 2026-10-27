@@ -15,7 +15,6 @@ import streamlit as st
 import spark
 from components import esc, note, section_header
 from studio import save_stars
-from views import voice_input
 
 STEPS = ["Medium", "Feeling", "Setting", "Era", "Contrast", "Texture", "One word"]
 KEYS = ["medium", "emotions", "setting", "era", "contrast", "texture", None]
@@ -103,7 +102,6 @@ def question(step):
         elif step == 3:
             setting_tiles()
         elif step == 7:
-            voice_input(target="spark_word", key="spark_voice")
             st.text_input("One word on your mind (optional)", key="spark_word", max_chars=30)
             st.pills("How are you feeling right now? (optional)", spark.FEELINGS_NOW, key="spark_feeling_now")
             st.button("Show me three ideas", key="spark_finish", type="primary", on_click=finish)
