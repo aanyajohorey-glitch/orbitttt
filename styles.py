@@ -920,6 +920,16 @@ button[data-variant="pills"][aria-checked="true"], button[data-variant="pills"][
 [data-testid="stDialog"] > div, [data-testid="stPopoverBody"], [data-testid="stExpander"] details {
   background: #1E1B2B !important; color: #EEEAF6; border-color: rgba(255, 255, 255, 0.12) !important; }
 .uorbit-ring { border-color: rgba(255, 255, 255, 0.2); }
+/* Talk to ORBIT: chat bubbles, the strip behind the message box, and the box itself */
+[data-testid="stChatMessage"] { background: rgba(34, 30, 48, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important; }
+[data-testid="stChatMessage"] p, [data-testid="stChatMessage"] li { color: #EEEAF6 !important; }
+[data-testid="stBottom"], [data-testid="stBottom"] > div, [data-testid="stBottomBlockContainer"] {
+  background: #15131D !important; }
+[data-testid="stChatInput"] textarea { background: #221E30 !important; color: #EEEAF6 !important; }
+[data-testid="stChatInputSubmitButton"] { background: rgba(168, 149, 210, 0.35) !important; color: #EEEAF6 !important; }
+.confidence.sure { background: rgba(152, 170, 140, 0.35); }
+.confidence.unsure { background: rgba(198, 149, 170, 0.35); }
 """
 READABLE_FONT_CSS = """
 .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp textarea, .stApp button,
