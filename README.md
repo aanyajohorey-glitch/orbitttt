@@ -62,8 +62,8 @@ and a **pre-trained transformer model** running offline.
 
 ## How ORBIT is organised
 
-Every visit opens on a **landing page**: a small universe with planets revolving around a glowing
-core, and a card that asks your **name and age** (saved only on this device). One line reminds you
+Every visit opens on a **landing page**: a calm ivory hero with softly floating pastel planets, the
+ORBIT wordmark, *"Every feeling has a universe."*, and a card that asks your **name and age** (saved only on this device). One line reminds you
 that ORBIT is an AI, not a therapist, with the helplines. **Start Exploring Your Universe** opens the
 app at the mode you used last. There are three tabs:
 
@@ -87,7 +87,7 @@ app at the mode you used last. There are three tabs:
 | | Arcade | A realistic vending machine; tokens are **earned by self-care**. |
 
 Also on every page: the **Settings** menu (top right) with high contrast, dark theme, larger
-text, the readability font, reduce motion, background music, who writes replies, demo mode, and
+text, the readability font, reduce motion, who writes replies, demo mode, and
 **download / import my data**; and **thumbs up/down** under replies and exercises. After a long session, or several low-mood
 check-ins in a week, ORBIT gently suggests **talking to a real person**.
 
@@ -96,10 +96,7 @@ star; stronger = bigger and brighter) and the words that drove the decision glow
 check-in's constellation becomes a planet in the galaxy. After a feeling is detected, the **whole app
 takes on that feeling's world** (colours from `worlds.csv`, smooth fade).
 
-**Background music:** a calm general soundscape plays from the moment you press Start (that tap is
-what browsers need before they allow sound). Once ORBIT knows your mood, or you build a creative
-universe, it changes to that world's soundscape. It pauses while a Soundspace track plays, and can be
-switched off in Settings.
+ORBIT plays no background music. Sound only plays when you start a soundscape in **Soundspace**.
 
 **Accessibility (Settings, top right):** reduce motion (also follows the device setting), larger text,
 high contrast, a dark theme and the Lexend readability font.
@@ -413,8 +410,8 @@ advice. **ORBIT will not monitor private browsing or private messages without th
 
 ```
 Mood-to-World/
-├── app.py            # Page settings, landing gate, 3 tabs, Settings menu, background music
-├── landing.py        # Landing page: revolving planets, name and age, Start Exploring
+├── app.py            # Page settings, landing gate, 3 tabs, Settings menu
+├── landing.py        # Landing page: ivory hero, pastel planets, name and age, Start Exploring
 ├── today.py          # Today: the guided check-in flow
 ├── onboarding.py     # Accessibility settings
 ├── settings_ui.py    # Settings menu: display, music, replies, demo mode, export/import
@@ -425,7 +422,7 @@ Mood-to-World/
 ├── nudges.py         # "Talk to a real person" nudges
 ├── feedback_ui.py    # Thumbs up/down and the satisfaction metric
 ├── constellation.py  # The emotion constellation (SVG) and constellation planets
-├── theme.py          # The app takes on the detected feeling's world; background music
+├── theme.py          # The app takes on the detected feeling's world
 ├── games.py + games/ # Stress-buster pop-up rules and 9 HTML/JS games
 ├── reach_out.py      # Reach Out Helper (template drafts the user sends themselves)
 ├── patterns.py       # Pattern Insights (rule-of-thumb thresholds at the top)

@@ -152,13 +152,12 @@ FEATURE_CSS = """
   background: radial-gradient(circle at 32% 28%, #ffffff, var(--c1) 55%, var(--c2));
   box-shadow: 0 0 60px -10px var(--c1), inset -8px -12px 24px rgba(52, 49, 59, 0.18); }
 .uorbit-core span { font-size: 1.05rem; line-height: 1.15; color: #34313B; }
-.uorbit-spin { position: absolute; inset: 0; animation: orbit-spin calc(90s * var(--orbit-speed, 1)) linear infinite; }
+.uorbit-spin { position: absolute; inset: 0; }
 .op-planet { position: absolute; left: 50%; top: 50%; width: 0; height: 0;
   transform: rotate(var(--a)) translateY(calc(var(--r) * -1)) rotate(calc(var(--a) * -1)); }
 .op-body { position: absolute; transform: translate(-50%, -50%); width: 118px; padding: 8px 6px; border-radius: 18px;
   display: grid; justify-items: center; gap: 2px; text-align: center; background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 12px 26px -16px rgba(52, 49, 59, 0.45);
-  animation: orbit-spin calc(90s * var(--orbit-speed, 1)) linear infinite reverse; }
+  border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 12px 26px -16px rgba(52, 49, 59, 0.45); }
 .op-body b { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .op-body small { font-size: 0.74rem; color: var(--charcoal); line-height: 1.2; max-height: 2.4em; overflow: hidden; }
 .op-swatch { width: 34px; height: 34px; border-radius: 50%; display: block; }
@@ -173,81 +172,79 @@ FEATURE_CSS = """
 [data-testid="stToolbarActions"], [data-testid="stMainMenu"], [data-testid="stAppDeployButton"],
 [data-testid="stDecoration"], #MainMenu, footer { display: none !important; }
 
-/* ---------- Landing page: a universe with revolving planets ---------- */
-.stApp:has(.lp-sky) { background: radial-gradient(1200px 700px at 50% 30%, #3A2E5C 0%, #1D1832 55%, #120F1F 100%) !important; }
-.lp-sky { position: relative; height: 560px; overflow: hidden; margin: -1rem -1rem 0; border-radius: 28px; }
-.lp-stars { position: absolute; inset: 0; opacity: 0.8; animation: lp-twinkle 6s ease-in-out infinite alternate;
-  background:
-    radial-gradient(1.5px 1.5px at 8% 12%, #fff, transparent), radial-gradient(1px 1px at 22% 68%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 37% 24%, #fff, transparent), radial-gradient(1px 1px at 51% 84%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 66% 18%, #fff, transparent), radial-gradient(1px 1px at 78% 58%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 90% 30%, #fff, transparent), radial-gradient(1px 1px at 14% 44%, #fff, transparent),
-    radial-gradient(1px 1px at 46% 52%, #fff, transparent), radial-gradient(1.5px 1.5px at 84% 86%, #fff, transparent),
-    radial-gradient(1px 1px at 30% 92%, #fff, transparent), radial-gradient(1px 1px at 60% 40%, #fff, transparent); }
-.lp-stars-2 { transform: scale(1.6) rotate(18deg); opacity: 0.45; animation-delay: -3s; }
-@keyframes lp-twinkle { from { opacity: 0.35; } to { opacity: 0.9; } }
-.lp-system { position: absolute; left: 50%; top: 42%; width: 0; height: 0; transform: scale(0.8); }
-.lp-orbit { position: absolute; left: calc(var(--s) / -2); top: calc(var(--s) / -2); width: var(--s); height: var(--s);
-  border-radius: 50%; border: 1px dashed rgba(255, 255, 255, 0.16);
-  animation: lp-spin var(--t) linear infinite; animation-delay: var(--d); }
-.lp-planet { position: absolute; left: 50%; top: calc(var(--p) / -2); width: var(--p); height: var(--p);
-  transform: translateX(-50%); border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, #ffffff 0%, var(--c1) 30%, var(--c2) 85%);
-  box-shadow: 0 0 22px -2px var(--c1), inset -6px -8px 14px rgba(0, 0, 0, 0.28); }
-.lp-ring { position: absolute; left: -45%; top: 38%; width: 190%; height: 24%; border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.75); transform: rotate(-18deg); }
-.lp-core { position: absolute; left: -70px; top: -70px; width: 140px; height: 140px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #FFFFFF, #E6DCF6 35%, #A895D2 75%, #6E5A8A);
-  box-shadow: 0 0 80px 10px rgba(201, 185, 232, 0.55), 0 0 160px 40px rgba(168, 149, 210, 0.25);
-  animation: lp-pulse 6s ease-in-out infinite; }
-@keyframes lp-spin { to { transform: rotate(360deg); } }
-@keyframes lp-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-.lp-title { position: absolute; left: 0; right: 0; bottom: 24px; text-align: center; }
-.lp-wordmark { font-family: var(--serif); font-size: clamp(3rem, 9vw, 5.6rem); letter-spacing: 0.4em; color: #FFFFFF;
-  text-indent: 0.4em; text-shadow: 0 0 30px rgba(201, 185, 232, 0.8); line-height: 1; }
-.lp-tagline { font-family: var(--serif); font-style: italic; font-size: 1.35rem; color: rgba(255, 255, 255, 0.82);
-  margin-top: 0.6rem; }
-.st-key-landing-form { max-width: 460px; margin: -10px auto 1rem; padding: 1.6rem 1.6rem 1.2rem; border-radius: 26px;
-  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.22);
-  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
-  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8), 0 0 50px -20px rgba(201, 185, 232, 0.7); }
-.lp-ask { font-family: var(--serif); font-size: 1.7rem; color: #FFFFFF; text-align: center; margin-bottom: 0.4rem; }
-.st-key-landing-form label, .st-key-landing-form label p { color: rgba(255, 255, 255, 0.78) !important;
-  letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.72rem !important; }
-.st-key-landing-form div:has(> input) { background: rgba(255, 255, 255, 0.10) !important;
-  border: 1px solid rgba(255, 255, 255, 0.30) !important; border-radius: 16px !important; }
-.st-key-landing-form div:has(> input):focus-within { border-color: #C9B9E8 !important;
-  box-shadow: 0 0 0 3px rgba(201, 185, 232, 0.35) !important; }
-.st-key-landing-form input { background: transparent !important; color: #FFFFFF !important;
-  -webkit-text-fill-color: #FFFFFF !important; font-size: 1.1rem !important; caret-color: #F6E1E9; }
+/* ---------- Landing page: ivory hero, pastel planets ---------- */
+.stApp:has(.lp-hero) { background:
+    radial-gradient(900px 520px at 85% 10%, rgba(201, 185, 232, 0.28), transparent 62%),
+    radial-gradient(760px 480px at 6% 92%, rgba(235, 203, 215, 0.30), transparent 60%),
+    radial-gradient(620px 420px at 50% 120%, rgba(199, 211, 192, 0.30), transparent 60%), #FBF6F1 !important; }
+.st-key-landing { max-width: 1080px; margin: 3vh auto 0; }
+.lp-hero { font-family: var(--sans); color: #34313B; }
+.lp-eyebrow { font-family: var(--sans); font-size: 0.74rem; font-weight: 600; letter-spacing: 0.22em;
+  text-transform: uppercase; color: #8A8494; }
+.lp-wordmark { font-family: var(--serif); font-weight: 500; font-size: clamp(3.4rem, 8vw, 6rem); line-height: 1;
+  letter-spacing: 0.28em; color: #34313B; margin: 0.9rem 0 0.5rem; }
+.lp-tagline { font-family: var(--serif); font-style: italic; font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+  color: #5B5566; line-height: 1.25; }
+.stApp .lp-sub { font-family: var(--sans); font-size: 1rem; line-height: 1.6; color: #6F6A78 !important; margin: 0.7rem 0 0; max-width: 30rem; }
+.st-key-landing-form { margin-top: 1.6rem; padding: 1.4rem 1.4rem 1.2rem; border-radius: 24px;
+  background: rgba(255, 255, 255, 0.72); border: 1px solid #EFE5DC;
+  box-shadow: 0 28px 56px -36px rgba(110, 90, 138, 0.40); }
+.st-key-landing-form label, .st-key-landing-form label p { font-family: var(--sans) !important; color: #6F6A78 !important;
+  font-size: 0.74rem !important; font-weight: 600 !important; letter-spacing: 0.14em; text-transform: uppercase; }
+.st-key-landing-form div:has(> input) { background: #FFFFFF !important; border: 1px solid #E9E0D8 !important;
+  border-radius: 14px !important; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.st-key-landing-form div:has(> input):focus-within { border-color: #A895D2 !important;
+  box-shadow: 0 0 0 4px rgba(201, 185, 232, 0.35) !important; }
+.st-key-landing-form input { font-family: var(--sans) !important; background: transparent !important;
+  color: #34313B !important; -webkit-text-fill-color: #34313B !important; font-size: 1.02rem !important; }
+.st-key-landing-form input::placeholder { color: #A7A0AE !important; -webkit-text-fill-color: #A7A0AE !important; }
 .st-key-landing-form button:not([data-testid="stBaseButton-primary"]) { background: transparent !important;
-  color: #FFFFFF !important; }
-.st-key-landing-form input::placeholder { color: rgba(255, 255, 255, 0.5) !important; }
-.st-key-landing-form [data-testid="stNumberInputStepDown"], .st-key-landing-form [data-testid="stNumberInputStepUp"] {
-  background: rgba(255, 255, 255, 0.12) !important; color: #FFFFFF !important; }
-.st-key-landing-form [data-testid="stBaseButton-primary"] { margin-top: 0.6rem; padding: 0.95rem 1rem !important;
-  border-radius: 999px !important; border: none !important;
-  background: linear-gradient(90deg, #F6E1E9, #C9B9E8 45%, #B9C8EA) !important;
-  box-shadow: 0 0 30px -4px rgba(201, 185, 232, 0.9) !important; }
-.st-key-landing-form [data-testid="stBaseButton-primary"] p { color: #1D1832 !important; font-weight: 700 !important;
-  font-size: 1.05rem !important; letter-spacing: 0.03em; }
-.lp-note { text-align: center; font-size: 0.76rem; color: rgba(255, 255, 255, 0.62); margin: 0.8rem 0 0; }
-@media (max-width: 640px) { .lp-sky { height: 480px; } .lp-system { transform: scale(0.62); } }
-@media (prefers-reduced-motion: reduce) { .lp-orbit, .lp-stars, .lp-core { animation: none !important; } }
+  color: #6F6A78 !important; }
+.st-key-landing-form [data-testid="stBaseButton-primary"] { margin-top: 0.5rem; padding: 0.9rem 1rem !important;
+  border-radius: 999px !important; border: none !important; background: #34313B !important;
+  box-shadow: 0 16px 30px -18px rgba(52, 49, 59, 0.7) !important; transition: background 0.2s ease, box-shadow 0.2s ease; }
+.st-key-landing-form [data-testid="stBaseButton-primary"]:hover { background: #463F55 !important;
+  box-shadow: 0 18px 34px -16px rgba(168, 149, 210, 0.9) !important; }
+.st-key-landing-form [data-testid="stBaseButton-primary"] p { font-family: var(--sans) !important; color: #FBF6F1 !important;
+  font-weight: 600 !important; font-size: 1rem !important; letter-spacing: 0.02em; }
+.stApp .lp-note { font-family: var(--sans); font-size: 0.78rem; line-height: 1.5; color: #7A7484 !important; margin: 0.9rem 0.3rem 0; }
+.lp-art { position: relative; height: 480px; max-width: 520px; margin: 0 auto; }
+.lp-path { position: absolute; border-radius: 50%; border: 1px dashed rgba(168, 149, 210, 0.38); }
+.lp-path-1 { left: 4%; top: 22%; width: 92%; height: 56%; transform: rotate(-14deg); }
+.lp-path-2 { left: 18%; top: 6%; width: 64%; height: 88%; transform: rotate(24deg); border-color: rgba(198, 149, 170, 0.30); }
+.lp-planet { position: absolute; border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, var(--c0) 0%, var(--c1) 48%, var(--c2) 100%);
+  box-shadow: 0 22px 44px -20px var(--c2), inset -10px -14px 26px rgba(52, 49, 59, 0.10);
+  animation: lp-float 10s ease-in-out infinite; }
+.lp-p-lavender { width: 210px; height: 210px; left: calc(50% - 105px); top: calc(50% - 105px); }
+.lp-p-blush { width: 92px; height: 92px; right: 6%; top: 9%; animation-duration: 12s; animation-delay: -4s; }
+.lp-p-sage { width: 72px; height: 72px; left: 7%; bottom: 13%; animation-duration: 14s; animation-delay: -7s; }
+.lp-p-dot { width: 28px; height: 28px; left: 28%; top: 13%; animation-duration: 9s; animation-delay: -2s; }
+.lp-ring { position: absolute; left: -30%; top: 40%; width: 160%; height: 22%; border-radius: 50%;
+  border: 2px solid rgba(168, 149, 210, 0.55); transform: rotate(-16deg); }
+.lp-spark { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #C9B9E8;
+  box-shadow: 0 0 10px 2px rgba(201, 185, 232, 0.8); animation: lp-twinkle 4.5s ease-in-out infinite; }
+@keyframes lp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes lp-twinkle { 0%, 100% { opacity: 0.25; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } }
+@media (max-width: 640px) {
+  .st-key-landing [data-testid="stColumn"]:last-child { order: -1; }
+  .lp-art { height: 280px; }
+  .lp-p-lavender { width: 130px; height: 130px; left: calc(50% - 65px); top: calc(50% - 65px); }
+  .lp-p-blush { width: 58px; height: 58px; } .lp-p-sage { width: 46px; height: 46px; }
+  .lp-hero { text-align: center; } .lp-sub { margin-left: auto; margin-right: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .lp-planet, .lp-spark { animation: none !important; } }
 
-/* ---------- Top bar with the Settings menu, and the hidden background music ---------- */
+/* ---------- Top bar with the Settings menu ---------- */
 .st-key-topbar-row .topbar { margin-bottom: 0; }
 .st-key-topbar-row [data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; align-items: center; }
 .st-key-topbar-row [data-testid="stColumn"]:first-child { flex: 1 1 0 !important; width: auto !important; min-width: 0 !important; }
 .st-key-topbar-row [data-testid="stColumn"]:last-child { flex: 0 0 auto !important; width: auto !important;
   min-width: 0 !important; display: flex; justify-content: flex-end; }
-.st-key-landing-form input::placeholder { -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important; }
 .st-key-topbar-row [data-testid="stPopover"] button { border-radius: 999px !important; }
 .set-head { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
   margin: 0.9rem 0 0.2rem; font-weight: 700; }
 .set-head:first-child { margin-top: 0; }
-.st-key-bg-music { position: fixed !important; width: 1px !important; height: 1px !important; overflow: hidden !important;
-  opacity: 0 !important; pointer-events: none !important; left: -9999px !important; }
 
 /* ---------- Wrapped ---------- */
 .wr-stat { font-family: var(--serif); font-size: 1.1rem; color: var(--muted); }

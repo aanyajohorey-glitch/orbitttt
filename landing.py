@@ -1,35 +1,41 @@
 """
 landing.py
-The first page: a small universe with planets revolving around a glowing core,
-a card that asks the visitor's name and age, and "Start Exploring Your Universe".
+The first page: a calm ivory hero with a small planetary illustration, the
+ORBIT wordmark, and a card that asks the visitor's name and age, then
+"Start Exploring Your Universe".
 
-The name and age are saved only on this device (in the settings table). Clicking
-the button also counts as the visitor's first tap, which lets the background
-music start (browsers block sound that starts before any tap).
+The name and age are saved only on this device (in the settings table).
 """
 import streamlit as st
 
 import storage
 
-ORBITS = [
-    (300, 28, 26, "#F6E1E9", "#C695AA", False),
-    (430, 46, 38, "#DCE5F7", "#7F93BF", True),
-    (560, 70, 30, "#E2EADC", "#98AA8C", False),
-    (690, 98, 46, "#F6E7CC", "#CDAA78", True),
+PLANETS = [
+    ("lp-p-lavender", "#F1EBFA", "#C9B9E8", "#A895D2", True),
+    ("lp-p-blush", "#FBEFF3", "#EBCBD7", "#C695AA", False),
+    ("lp-p-sage", "#EEF3EB", "#C7D3C0", "#98AA8C", False),
+    ("lp-p-dot", "#F6EFF7", "#E6DCF6", "#C9B9E8", False),
 ]
+SPARKLES = [(14, 18, 0), (82, 12, 1.2), (90, 58, 2.4), (8, 72, 0.8), (60, 88, 1.8), (36, 6, 3.0)]
 
 
 def universe_html():
-    rings = []
-    for i, (size, seconds, planet, light, dark, ring) in enumerate(ORBITS):
+    """The planetary illustration (plain divs, because st.html removes inline SVG)."""
+    planets = []
+    for name, light, mid, dark, ring in PLANETS:
         ring_html = '<i class="lp-ring"></i>' if ring else ""
-        rings.append(
-            f'<div class="lp-orbit" style="--s:{size}px;--t:{seconds}s;--d:-{seconds * (0.1 + i * 0.23):.1f}s">'
-            f'<div class="lp-planet" style="--p:{planet}px;--c1:{light};--c2:{dark}">{ring_html}</div></div>')
-    return ('<div class="lp-sky"><div class="lp-stars"></div><div class="lp-stars lp-stars-2"></div>'
-            '<div class="lp-system">' + "".join(rings) + '<div class="lp-core"></div></div>'
-            '<div class="lp-title"><div class="lp-wordmark">ORBIT</div>'
-            '<div class="lp-tagline">Every feeling has a universe.</div></div></div>')
+        planets.append(f'<div class="lp-planet {name}" style="--c0:{light};--c1:{mid};--c2:{dark}">{ring_html}</div>')
+    sparkles = "".join(f'<i class="lp-spark" style="left:{x}%;top:{y}%;animation-delay:{d}s"></i>'
+                       for x, y, d in SPARKLES)
+    return ('<div class="lp-art"><div class="lp-path lp-path-1"></div><div class="lp-path lp-path-2"></div>'
+            + "".join(planets) + sparkles + "</div>")
+
+
+def hero_html():
+    return ('<div class="lp-hero"><div class="lp-eyebrow">A creative companion for how you feel</div>'
+            '<div class="lp-wordmark">ORBIT</div>'
+            '<div class="lp-tagline">Every feeling has a universe.</div>'
+            '<p class="lp-sub">Turn your emotions into colours, sounds and worlds.</p></div>')
 
 
 def start():
@@ -46,15 +52,19 @@ def start():
 
 
 def landing_page():
-    st.html(universe_html())
     saved_age = storage.get_setting("age", "")
-    with st.container(key="landing-form"):
-        st.html('<div class="lp-ask">Who is exploring today?</div>')
-        st.text_input("Your name", key="landing_name", value=storage.get_setting("name", ""), max_chars=30,
-                      placeholder="Your name or a nickname")
-        st.number_input("Your age", key="landing_age", min_value=5, max_value=100, step=1,
-                        value=int(saved_age) if saved_age.isdigit() else None, placeholder="Your age")
-        st.button("Start Exploring Your Universe", key="landing_start", type="primary", on_click=start,
-                  width="stretch")
-        st.html('<p class="lp-note">ORBIT is an AI companion, not a therapist. If you are ever in danger, call '
-                "112 or Tele-MANAS on 14416.</p>")
+    with st.container(key="landing"):
+        words, art = st.columns([1.05, 1], gap="large", vertical_alignment="center")
+        with art:
+            st.html(universe_html())
+        with words:
+            st.html(hero_html())
+            with st.container(key="landing-form"):
+                st.text_input("Your name", key="landing_name", value=storage.get_setting("name", ""), max_chars=30,
+                              placeholder="Your name or a nickname")
+                st.number_input("Your age", key="landing_age", min_value=5, max_value=100, step=1,
+                                value=int(saved_age) if saved_age.isdigit() else None, placeholder="Your age")
+                st.button("Start Exploring Your Universe", key="landing_start", type="primary", on_click=start,
+                          width="stretch")
+            st.html('<p class="lp-note">ORBIT is an AI companion, not a therapist. If you are ever in danger, '
+                    "call 112 or Tele-MANAS on 14416.</p>")
