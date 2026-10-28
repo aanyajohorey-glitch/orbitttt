@@ -1,7 +1,7 @@
 """
 settings_ui.py
 The Settings menu in the top right corner: display (high contrast, dark theme,
-larger text, readability font, reduced motion), background music, how replies
+larger text, readability font, reduced motion), how replies
 are written, demo mode, and your data (download and import).
 """
 from datetime import date
@@ -25,10 +25,6 @@ DISPLAY_LABELS = {
     "readable_font": "Readability font",
     "reduced_motion": "Reduce motion",
 }
-
-
-def music_on():
-    return storage.get_setting("bg_music", "1") == "1"
 
 
 def save_reply_mode():
@@ -64,11 +60,6 @@ def settings_menu():
             if key in A11Y_OPTIONS:
                 st.toggle(DISPLAY_LABELS[key], value=current[key], key=f"set_{key}", on_change=save_toggle,
                           args=(f"a11y_{key}", f"set_{key}"))
-
-        heading("Sound")
-        st.toggle("Background music", value=music_on(), key="set_bg_music", on_change=save_toggle,
-                  args=("bg_music", "set_bg_music"),
-                  help="A calm general soundscape, which changes to match your mood once ORBIT knows it.")
 
         heading("Companion replies")
         st.selectbox("Who writes ORBIT's replies?", list(REPLY_MODES), format_func=REPLY_MODES.get,

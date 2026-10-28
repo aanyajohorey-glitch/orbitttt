@@ -14,23 +14,14 @@ The theme is NOT applied when:
 - the message was a crisis (the app stays calm and neutral; help comes first)
 - "High contrast" is on (readability matters more than mood colours)
 Reduce motion switches the fade and floating off (see styles.REDUCED_MOTION_CSS).
-
-Background music: a calm general soundscape plays until ORBIT knows your mood,
-then the soundscape of your world. It can be switched off in Settings. The
-"Start Exploring Your Universe" tap counts as the first tap browsers need
-before they allow sound.
 """
 import hashlib
 
 import streamlit as st
 
-from soundscapes import soundscape
-from world_data import SOUNDSPACES, get_world
+from world_data import get_world
 
 SPEED = {"slow": 1.5, "medium": 1.0, "lively": 0.65}
-SOUND_FOR_SPACE = {"Dream Pop Haze": "dream", "Neo-classical Rain": "rain", "Indie Folk Morning": "sunset",
-                   "City Pop Sunset": "sunset", "Late-night Jazz": "focus", "Cinematic Electronica": "waves",
-                   "Soft Ambient": "night"}
 
 
 def set_world(result):
@@ -67,8 +58,7 @@ def set_vibe_world(universe):
     world = {"name": universe["concept"]["title"], "mood": "your creative universe",
              "palette": [colours["Primary"], colours["Harmony A"], colours["Harmony B"]],
              "planet_light": colours["Harmony A"], "planet_dark": colours["Primary"], "ring": False,
-             "motion": "lively" if arousal > 0.35 else "slow" if arousal < -0.2 else "medium",
-             "sound": "sunset" if arousal > 0.35 else "rain" if arousal < -0.2 else "dream"}
+             "motion": "lively" if arousal > 0.35 else "slow" if arousal < -0.2 else "medium"}
     st.session_state.setdefault("vibe_worlds", {})[name] = world
     if name != st.session_state.get("world_theme"):
         st.session_state.world_from = st.session_state.get("world_theme")
@@ -127,21 +117,6 @@ def theme_css(settings):
     return "\n".join(css)
 
 
-@st.cache_data(show_spinner=False)
-def world_sound(kind):
-    """The soundscape is made once and then remembered (it takes a moment to build)."""
-    return soundscape(kind)
-
-
-def sound_kind(world):
-    if world.get("sound"):
-        return world["sound"]
-    for space in SOUNDSPACES:
-        if space["pairs_with"] == world["name"]:
-            return SOUND_FOR_SPACE[space["name"]]
-    return "sunset"
-
-
 def world_bar():
     """The world you're in and a way back. Shown only after a feeling has been detected."""
     world = active_world()
@@ -151,17 +126,3 @@ def world_bar():
     left.html(f'<div class="world-chip"><span style="--c:{world["planet_dark"]}"></span>'
               f'You are in <b>{world["name"]}</b> · {world["mood"]}</div>')
     middle.button("Back to ORBIT's colours", key="world_reset", type="tertiary", on_click=reset_world)
-
-
-GENERAL_SOUND = "dream"
-
-
-def background_music(enabled):
-    """Hidden looping music: general until a mood is known, then the mood's world.
-    Silent while a Soundspace soundscape is playing, so two sounds never overlap."""
-    if not enabled or st.session_state.get("now_playing"):
-        return
-    world = active_world()
-    kind = sound_kind(world) if world is not None else GENERAL_SOUND
-    with st.container(key="bg-music"):
-        st.audio(world_sound(kind), format="audio/wav", loop=True, autoplay=True)

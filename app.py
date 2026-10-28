@@ -110,7 +110,6 @@ if st.session_state.page not in PAGES:
 current_tab = PAGES[st.session_state.page][0]
 st.session_state[f"last_{current_tab}"] = st.session_state.page
 
-theme.background_music(settings_ui.music_on())
 
 with st.container(key="topbar-row"):
     brand, menu = st.columns([5, 1], vertical_alignment="center")

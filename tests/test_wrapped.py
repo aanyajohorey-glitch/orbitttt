@@ -1,5 +1,5 @@
 """
-Tests for the landing page, Settings menu, background music and My Galaxy -> Wrapped.
+Tests for the landing page, Settings menu, no background music, and My Galaxy -> Wrapped.
 """
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -87,10 +87,9 @@ def test_no_about_tab_and_no_panic_button():
     assert "tab_About" not in keys and not any("panic" in (k or "") for k in keys)
 
 
-def test_background_music_follows_the_setting():
+def test_no_background_music_anywhere():
     storage.delete_everything()
-    at = app_on("Create")
-    assert at.get("audio")
-    storage.set_setting("bg_music", "0")
-    at = app_on("Create")
-    assert not at.get("audio")
+    for page in ("Create", "Home", "Wrapped"):
+        at = app_on(page)
+        assert not at.exception and not at.get("audio")
+    assert not any(t.key == "set_bg_music" for t in at.toggle)
