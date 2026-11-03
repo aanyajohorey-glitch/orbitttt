@@ -9,3 +9,6 @@ font = "sans serif"
 
 [client]
 toolbarMode = "minimal"               # hide developer menu items
+
+[server]
+fileWatcherType = "none"
