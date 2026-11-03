@@ -23,7 +23,7 @@ It can, and I measured that honestly. Crisis recall was 98% on development phras
 33% on fresh holdout rounds, because fixed rules can't foresee every wording. So the crisis check is
 one layer, not the only one: helplines (Tele-MANAS 14416, 112) are always reachable and on the
 landing page, concern-level messages get a gentle note, repeated low moods trigger
-a "talk to someone" suggestion, and there is a Safety Plan. ORBIT says clearly that it is not a crisis
+a "talk to someone" suggestion. ORBIT says clearly that it is not a crisis
 service.
 
 **4. Where does the data come from?**

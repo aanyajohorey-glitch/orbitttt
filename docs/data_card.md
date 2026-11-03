@@ -1,7 +1,7 @@
 # Data card: ORBIT
 
 Every dataset ORBIT uses, where it came from, how it was labelled, and its limits.
-Nothing here contains personal data. Private user data (journal, ratings, letters, safety plan) stays
+Nothing here contains personal data. Private user data (journal, ratings) stays
 in `data/orbit.db`, which is git-ignored and never uploaded.
 
 ## Emotion data

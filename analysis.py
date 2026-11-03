@@ -1,6 +1,6 @@
 """
 analysis.py
-ORBIT's full AI pipeline, shared by Home, Mood Lab and the Companion:
+ORBIT's full AI pipeline, used by the check-in:
 
     1. Check     - is there any text with real words?
     2. Detect    - RoBERTa scores 28 emotions              (emotion_model.py)

@@ -43,7 +43,7 @@ it can write warmer replies using Anthropic's Claude.
 - Add the key in **App settings → Secrets** (format in `.streamlit/secrets.toml.example`).
   Never put a key in the code or in GitHub.
 - **Users must opt in** (in Settings, top right). Without consent, nothing is sent.
-- When it's on, the user's message (and the last few chat messages) **is sent to Anthropic**
+- When it's on, the user's check-in message **is sent to Anthropic**
   to write the reply. That's a real privacy trade-off, and the app says so.
 - Default model: `claude-opus-5-5`. Set `ORBIT_CLOUD_MODEL = "claude-haiku-5-5"` for a cheaper,
   faster model. The request asks for low effort and short replies, and turns on server-side

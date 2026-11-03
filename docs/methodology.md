@@ -6,7 +6,7 @@ results were known, so the evaluation stays honest.
 ## 1. Problem scoping
 Teenagers often find it hard to name and handle feelings, especially around
 exams. ORBIT helps them **name** a feeling (emotion detection), **feel heard**
-(companion), **cope** (Calm Room) and **notice patterns** (Journal). It is not a
+(ORBIT's reply), **cope** (a small exercise or a stress-buster game) and **notice patterns** (Patterns and Wrapped). It is not a
 therapist and does not diagnose.
 
 ## 2. Data

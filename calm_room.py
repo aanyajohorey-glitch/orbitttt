@@ -1,6 +1,6 @@
 """
 calm_room.py
-The Calm Room: four evidence-based coping tools.
+The small coping exercises used in step 4 of the check-in ("One small thing to try").
 
   Breathing        - paced breathing with a glowing planet (box, 4-7-8, calm)
   Grounding        - the 5-4-3-2-1 senses exercise for anxiety and anger
@@ -8,20 +8,14 @@ The Calm Room: four evidence-based coping tools.
                      ORBIT spots thinking traps and uses the emotion model to
                      show how the feeling changes after reframing
   Gratitude Jar    - noticing three good things
-
-Every session asks "How do you feel?" before and after. Those answers are
-saved (on this computer only) and become the impact study on the AI Lab page.
 """
 import re
 
 import streamlit as st
 
 import demo_mode
-import storage
-from analysis import earn_token, flash
-from components import esc, note, section_header
+from components import esc
 from emotion_model import detect_emotions
-from feedback_ui import thumbs
 from hinglish import to_english
 
 TOOLS = ["Breathing", "Grounding", "Thought Reframe", "Gratitude Jar"]
@@ -118,50 +112,6 @@ def heaviness(text):
     scores = dict(detect_emotions(to_english(text)[0]))
     label = max(NEGATIVE, key=lambda e: scores[e])
     return label, scores[label]
-
-
-def finish_session(tool):
-    before = st.session_state.get("calm_before", 3)
-    after = st.session_state.get("calm_after", 3)
-    storage.add_wellbeing(tool, before, after)
-    change = after - before
-    message = (f"Your mood moved from {MOOD_SCALE[before]} to {MOOD_SCALE[after]}." if change
-               else f"You stayed at {MOOD_SCALE[after]}. Showing up still counts.")
-    flash(f"{tool} saved. {message}")
-    earn_token("for looking after yourself")
-    st.session_state.calm_done = tool
-
-
-def mood_slider(label, key):
-    st.select_slider(label, options=list(MOOD_SCALE), value=st.session_state.get(key, 3),
-                     format_func=MOOD_SCALE.get, key=key)
-
-
-def calm_room_page():
-    section_header(
-        "Calm Room",
-        "A quiet place to breathe",
-        "Small, evidence-based exercises for big feelings. Pick one, take your time, and notice how you feel "
-        "before and after.",
-        first=True,
-    )
-    if "calm_tool" not in st.session_state or st.session_state.calm_tool not in TOOLS:
-        st.session_state.calm_tool = "Breathing"
-    tool = st.pills("Choose an exercise", TOOLS, key="calm_tool") or "Breathing"
-    st.html(f'<p class="body" style="margin:.2rem 0 1rem">{esc(TOOL_INFO[tool])}</p>')
-
-    with st.container(key="glass-calm-before"):
-        mood_slider("How do you feel right now?", "calm_before")
-
-    with st.container(key="glass-calm-tool"):
-        render_tool(tool)
-        thumbs("tool", tool, key=f"fb_calm_{tool}", label="Was this exercise helpful?")
-
-    with st.container(key="glass-calm-after"):
-        mood_slider("And how do you feel now?", "calm_after")
-        st.button("Save this session", key="calm_finish", type="primary", on_click=finish_session, args=(tool,))
-    if st.session_state.get("calm_done") == tool:
-        note("Session saved to your private wellbeing log.")
 
 
 def render_tool(tool):

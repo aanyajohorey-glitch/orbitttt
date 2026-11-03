@@ -8,8 +8,8 @@ My Galaxy -> Patterns: what your check-ins show over 7 days, 14 days, 30 days or
     bright days vs low days, and the weekdays / times of day when low moods cluster
 
 Wording is always "a pattern we noticed": ORBIT never diagnoses.
-If low moods are frequent, suggestions come in layers: (1) tools and games,
-(2) the Reach Out Helper, (3) if it lasts about two weeks, a gentle suggestion
+If low moods are frequent, suggestions come in layers: (1) a game or a check-in,
+(2) telling someone you trust, (3) if it lasts about two weeks, a gentle suggestion
 to talk to a trusted adult or counsellor, with Tele-MANAS.
 """
 from datetime import datetime, timedelta
@@ -145,7 +145,7 @@ def patterns_page():
         with st.container(key="glass-pattern-empty"):
             st.html(f'<div class="title-sm">Not enough data yet</div><p class="body">Patterns over {esc(label)} need '
                     f"check-ins on at least {MIN_DAYS[days]} different days (so far: {have}). Keep checking in on the "
-                    "Feel tab, or load the demo journal in My Galaxy to see how this page works.</p>")
+                    "Feel tab.</p>")
         return
     if table["demo"].any():
         note("This period includes <b>demo entries</b>, so the patterns below are partly made up for presentations.")
@@ -193,12 +193,12 @@ def patterns_page():
             st.html('<div class="eyebrow">Some things that might help</div><p class="body">Low days have come up '
                     "quite often in this period. That happens to everyone sometimes. Here are some options, from "
                     "small to bigger:</p>")
-            a, b, c = st.columns(3)
-            a.button("1 · A calming tool", key="pat_calm", on_click=go_to, args=("Calm Room",), width="stretch")
-            b.button("1 · A stress-buster game", key="pat_games", on_click=go_to, args=("Stress busters",),
+            a, b = st.columns(2)
+            a.button("1 · A stress-buster game", key="pat_games", on_click=go_to, args=("Stress busters",),
                      width="stretch")
-            c.button("2 · Tell someone (Reach Out)", key="pat_reach", on_click=go_to, args=("Reach Out",),
-                     width="stretch")
+            b.button("1 · A short check-in", key="pat_checkin", on_click=go_to, args=("Home",), width="stretch")
+            st.html('<p class="body" style="margin-top:.8rem"><b>2 ·</b> It can help to tell someone you trust, '
+                    "like a friend, a parent or a teacher, how you have been feeling.</p>")
             if layer >= 3:
                 st.html('<p class="body" style="margin-top:.8rem"><b>3 ·</b> Because this has lasted about two weeks, '
                         "it could really help to talk to a trusted adult or a school counsellor. You can also call "

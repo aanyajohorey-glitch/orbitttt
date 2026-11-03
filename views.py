@@ -1,11 +1,10 @@
 """
 views.py
-The main pages of ORBIT: Home, Mood Lab, ORBIT Universe, Soundspace and
-My Collection. The other pages have their own files:
+Shared pieces for the check-in, and the Saved worlds, Soundspace and
+Collection pages. The other pages have their own files:
 
-    companion.py  Companion chat        calm_room.py  Calm Room
-    journal.py    Journal               vending.py    Vending Machine (arcade)
-    wrapped.py    Wrapped (My Galaxy)
+    today.py      Check-in              vending.py    Vending Machine (arcade)
+    wrapped.py    Wrapped (My Galaxy)   patterns.py   Patterns
 
 app.py decides which page function to run.
 """
@@ -14,21 +13,16 @@ from datetime import datetime
 
 import streamlit as st
 
-import demo_mode
 import storage
-from analysis import analyse, record_checkin
-from companion import companion_card_html, open_calm_room, reply, suggestion
+from companion import reply
 from components import (
     esc, field_html, go_to, note, planet_html, remove_world, save_world, section_header, swatches_html,
     tags_html, world_card_html, world_dialog, world_planet,
 )
 from emotion_model import describe_intensity
-from explain import highlight_html, top_words, word_importance
-from safety import safety_card_html
 from soundscapes import soundscape
-from teach_ui import clarify, confidence_html, teach_panel
 from theme import set_world
-from world_data import INTENTS, SOUND_MOODS, SOUNDSPACES, load_worlds, prompt_for
+from world_data import SOUND_MOODS, SOUNDSPACES, load_worlds
 
 
 def hero_html():
@@ -64,32 +58,12 @@ def save_home_name():
     storage.set_setting("name", st.session_state.home_name.strip())
 
 
-def keep_talking(result):
-    """Continue the conversation from Home in the Companion chat."""
-    st.session_state.chat = [
-        {"role": "user", "content": result["text"], "result": result},
-        {"role": "assistant", "content": result["reply"], "style": result["style"], "result": result},
-    ]
-    st.session_state.chat_token_given = True
-    go_to("Companion")
-
-
 def other_emotions_html(emotions, primary=None, limit=3, minimum=0.05):
     """Tags for the next strongest emotions, e.g. 'Nervousness · 16%'."""
     others = [(e, s) for e, s in emotions if e != primary and s >= minimum][:limit]
     if not others:
         return '<span class="body">Nothing else stands out.</span>'
     return tags_html([f"{emotion.capitalize()} · {round(score * 100)}%" for emotion, score in others])
-
-
-def open_in_lab(result):
-    """Show the same analysis in the Mood Lab, with all the details."""
-    st.session_state.lab_text = result["text"]
-    st.session_state.lab_result = {key: result[key] for key in
-                                   ("text", "model_text", "translated", "emotions", "raw_scores", "final",
-                                    "world", "matched", "safety")}
-    st.session_state.lab_explain = None
-    go_to("Mood Lab")
 
 
 def refresh_home(result):
@@ -123,154 +97,6 @@ def understood_html(result):
         return ""
     return (f'<p class="understood">ORBIT translated your Hinglish/Hindi and understood it as: '
             f'<i>“{esc(result["model_text"])}”</i></p>')
-
-
-def mood_lab():
-    section_header(
-        "Mood Lab",
-        "Put a feeling into words",
-        "A deeper look at your emotions: all the strongest feelings, the words that caused them, and the "
-        "world that matches best. Type or paste Hinglish.",
-        first=True,
-    )
-
-    left, right = st.columns([1.6, 1], gap="medium")
-    with left:
-        with st.container(key="glass-lab-input"):
-            st.text_area(
-                "Mood description",
-                key="lab_text",
-                height=180,
-                placeholder="e.g. I'm excited about the trip but nervous about meeting new people…",
-            )
-            if demo_mode.enabled():
-                demo_mode.sample_buttons("lab_text")
-            if st.button("Analyse my mood", type="primary", key="analyse"):
-                result = analyse(st.session_state.lab_text.strip(), empty_message="Describe your mood first.")
-                if result:
-                    set_world(result)
-                st.session_state.lab_result = result
-                st.session_state.lab_explain = None
-                if result:
-                    record_checkin(result, "Mood Lab")
-    with right:
-        with st.container(key="glass-lab-steps"):
-            st.html(
-                '<span class="badge">Model status · connected</span>'
-                '<div class="title-sm" style="margin-top:1rem">How the lab works</div>'
-                '<ol class="steps">'
-                "<li><span><b>Describe.</b> You write how you feel.</span></li>"
-                "<li><span><b>Translate.</b> Hinglish and Hindi words are turned into English.</span></li>"
-                "<li><span><b>Detect.</b> A pre-trained model (RoBERTa, trained on GoEmotions) "
-                "scores 28 emotions.</span></li>"
-                "<li><span><b>Explain.</b> ORBIT shows which of your words mattered most.</span></li>"
-                "<li><span><b>Match.</b> The closest world from worlds.csv is suggested.</span></li>"
-                "</ol>"
-            )
-
-    result = st.session_state.lab_result
-    if result:
-        show_lab_result(result)
-
-
-def emotion_bars_html(emotions):
-    """Horizontal bars for the strongest emotions."""
-    rows = ""
-    for emotion, score in emotions:
-        percent = round(score * 100)
-        rows += (
-            f'<div class="emo-row"><span>{esc(emotion.capitalize())}</span>'
-            f'<div class="emo-track"><i style="width:{max(percent, 1)}%"></i></div>'
-            f'<span class="emo-pct">{percent}%</span></div>'
-        )
-    return rows
-
-
-def run_explanation():
-    result = st.session_state.lab_result
-    emotion = result["final"]["emotion"]
-    st.session_state.lab_explain = (emotion, word_importance(result["model_text"], emotion))
-
-
-def show_lab_result(result):
-    """The model's real result: emotions, intensity and the suggested world."""
-    text = result["text"]
-    emotions = result["emotions"]
-    primary = result["final"]["emotion"]
-    secondary = [e for e, score in emotions if e != primary and score >= 0.1]
-    short_text = text if len(text) <= 280 else text[:280] + "…"
-
-    if result.get("safety"):
-        st.html(safety_card_html(result["safety"]))
-
-    with st.container(key="glass-lab-result"):
-        st.html(
-            '<div class="reveal">'
-            f'<span class="badge">Analysed on this device · {esc(result["final"]["source"])}</span> '
-            + confidence_html(result)
-            + '<div class="field-label" style="margin-top:1.2rem">What the lab received</div>'
-            f'<div class="quote">{esc(short_text)}</div>'
-            + understood_html(result)
-            + final_stats_html(result)
-            + field_html("Also present", esc(", ".join(secondary) if secondary else "Nothing else stands out"))
-            + '<div class="field-label" style="margin-top:1.6rem">The base model\'s five strongest scores</div>'
-            + emotion_bars_html(emotions[:5])
-            + "</div>"
-        )
-        if result.get("safety") != "crisis":
-            clarify(result, key="lab_clarify")
-            teach_panel(result, key="lab_teach")
-        note(
-            "The bars are the pre-trained RoBERTa model's own scores (each from 0 to 100%, so they don't add "
-            "up to 100). ORBIT's trained classifier then decides the main feeling, which can differ: for "
-            "example, a racing heart before a presentation scores high on excitement, but usually means nerves."
-        )
-
-    if result.get("safety") == "crisis":
-        return
-
-    with st.container(key="glass-lab-why"):
-        st.html('<div class="eyebrow">Explainable AI</div>'
-                f'<div class="title-sm">Why does ORBIT think this is {esc(primary)}?</div>')
-        explained = st.session_state.get("lab_explain")
-        if explained and explained[0] == primary:
-            words = top_words(explained[1])
-            st.html(highlight_html(explained[1])
-                    + '<p class="body">'
-                    + (f"The words that pushed the model most towards <b>{esc(primary)}</b>: "
-                       + ", ".join(f"<b>“{esc(w)}”</b>" for w in words) + "." if words
-                       else "No single word stood out: the feeling comes from the sentence as a whole.")
-                    + " ORBIT found this by removing one word at a time and measuring how much the score "
-                    "dropped.</p>")
-        elif demo_mode.enabled():
-            st.html('<p class="body">Word-by-word explanations need the emotion model, which is not available in '
-                    "offline demo mode.</p>")
-        else:
-            st.html('<p class="body">See which of your words made the AI decide. It takes a few seconds.</p>')
-            st.button("Explain this result", key="lab_why", on_click=run_explanation)
-
-    world = next(w for w in load_worlds() if w["name"] == result["world"])
-    with st.container(key="glass-lab-world"):
-        left, right = st.columns([1, 2.2], vertical_alignment="center")
-        with left:
-            st.html(f'<div class="result-planet reveal" style="min-height:190px">{world_planet(world, 130)}</div>')
-        with right:
-            st.html(
-                '<div class="reveal">'
-                '<div class="eyebrow">Suggested world</div>'
-                f'<div class="display" style="font-size:2.2rem;margin-top:.3rem">{esc(world["name"])}</div>'
-                f'<p class="body">{esc(world["mood"])}. {esc(world["description"])}</p>'
-                + field_html("Matched on", tags_html(result["matched"]))
-                + field_html("Prompt · Explore", f'<div class="prompt">{esc(world["prompt_explore"])}</div>')
-                + "</div>"
-            )
-            st.button(
-                "Save to collection",
-                key="save_lab_world",
-                type="primary",
-                on_click=save_world,
-                args=(world["name"], "Mood Lab", "Explore", world["prompt_explore"], text[:160]),
-            )
 
 
 def orbit_map_html(items):

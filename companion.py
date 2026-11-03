@@ -1,6 +1,6 @@
 """
 companion.py
-ORBIT's companion: replies that make the user feel heard.
+ORBIT's companion replies, shown in the check-in: replies that make the user feel heard.
 
 How a reply is written (the same steps a good listener uses):
   1. Reflect   - name the feeling in plain words ("you sound proud but nervous")
@@ -23,18 +23,10 @@ import random
 import zlib
 from datetime import datetime, timedelta
 
-import streamlit as st
-
 import llm
-from theme import set_world
 import storage
-from feedback_ui import thumbs
-from nudges import nudge_card
-from analysis import analyse, earn_token, games_allowed, may_store
-from components import esc, go_to, section_header, note, tags_html
+from components import esc
 from emotion_model import FEELING_WORDS, GROUP_OF
-from safety import safety_card_html
-from teach_ui import clarify, confidence_html, teach_panel
 
 
 OPENERS = {
@@ -214,11 +206,6 @@ def companion_card_html(text, style):
     )
 
 
-def open_calm_room(tool):
-    st.session_state.calm_tool = tool
-    go_to("Calm Room")
-
-
 STARTERS = [
     "Exams are next week and I can't stop worrying.",
     "Today was actually really good!",
@@ -227,107 +214,3 @@ STARTERS = [
 ]
 
 
-def queue_message(text):
-    st.session_state.chat_pending = text
-
-
-def new_conversation():
-    st.session_state.chat = []
-    st.session_state.chat_token_given = False
-
-
-def emotion_chips_html(result):
-    final = result["final"]
-    chips = [f"{final['family']} · {final['emotion']}"]
-    chips += [f"{label} {score:.0%}" for label, score in result["emotions"][:3] if score >= 0.05]
-    extra = f'<span class="chat-understood">understood as: “{esc(result["model_text"])}”</span>' \
-        if result["translated"] else ""
-    return f'<div class="chat-chips">{confidence_html(result)}{tags_html(chips)}{extra}</div>'
-
-
-def refresh_reply(result):
-    """After the user teaches ORBIT, rewrite the reply to that message."""
-    name = storage.get_setting("name", "")
-    for message in st.session_state.chat:
-        if message["role"] == "assistant" and message["result"] is result:
-            message["content"], message["style"] = reply(result, (), name)
-
-
-def handle_message(text):
-    name = storage.get_setting("name", "")
-    result = analyse(text.strip(), empty_message="Write a few words first.")
-    if result:
-        set_world(result)
-    if not result:
-        return
-    chat = st.session_state.chat
-    chat.append({"role": "user", "content": text.strip(), "result": result})
-    answer, style = reply(result, [m for m in chat if m["role"] in ("user", "assistant")], name)
-    chat.append({"role": "assistant", "content": answer, "style": style, "result": result})
-    if may_store(result):
-        storage.add_entry("Companion", result["text"], result["emotions"], result["world"],
-                          primary=result["final"]["emotion"])
-    if games_allowed(result) and not st.session_state.chat_token_given:
-        st.session_state.chat_token_given = True
-        earn_token("thanks for talking")
-
-
-def companion_page():
-    name = storage.get_setting("name", "")
-    section_header(
-        "Companion",
-        "Someone to talk to",
-        "Tell ORBIT what's on your mind. It listens for the feelings in your words, reflects them back "
-        "and helps you take a small next step.",
-        first=True,
-    )
-    style = llm.mode_label()
-    note(
-        f"ORBIT is an AI, not a person, and not a replacement for a counsellor. Replies: <b>{esc(style)}</b> "
-        "(change this in Settings, top right). If you are ever in danger, call Tele-MANAS on 14416 or 112."
-    )
-    nudge_card()
-
-    typed = st.chat_input("Tell ORBIT how you're feeling…", key="chat_input")
-    pending = st.session_state.pop("chat_pending", None)
-    if typed or pending:
-        handle_message(typed or pending)
-
-    chat = st.session_state.chat
-    with st.container(key="chat-area"):
-        with st.chat_message("assistant", avatar=":material/blur_on:"):
-            greeting = f"Hi {name}. " if name else "Hi. "
-            st.markdown(greeting + "I'm ORBIT, an AI companion. I'm not a person, but I'm here to listen. "
-                        "How are you feeling right now?")
-        for index, message in enumerate(chat):
-            avatar = ":material/person:" if message["role"] == "user" else ":material/blur_on:"
-            with st.chat_message(message["role"], avatar=avatar):
-                st.markdown(esc(message["content"]))
-                if message["role"] == "user":
-                    st.html(emotion_chips_html(message["result"]))
-                else:
-                    if message["result"]["safety"]:
-                        st.html(safety_card_html(message["result"]["safety"]))
-                    st.html(f'<span class="mode-badge">Reply style: {esc(message["style"])}</span>')
-                    if message["result"]["safety"] != "crisis":
-                        thumbs("reply", message["style"], key=f"fb_chat_{index}")
-
-    if not chat:
-        st.html('<div class="field-label" style="margin-top:1rem">Not sure how to start? Try one:</div>')
-        columns = st.columns(len(STARTERS))
-        for column, starter in zip(columns, STARTERS):
-            column.button(starter, key=f"starter_{starter}", on_click=queue_message, args=(starter,),
-                          width="stretch")
-        return
-
-    last = chat[-1]["result"]
-    clarify(last, key=f"chat_{len(chat)}", on_update=refresh_reply)
-    teach_panel(last, key=f"chat_{len(chat)}", on_update=refresh_reply)
-    if last["safety"] != "crisis":
-        tool, line = suggestion(last)
-        st.html(f'<p class="body" style="margin:.6rem 0 .4rem">{esc(line)}</p>')
-    left, right, _ = st.columns([1.3, 1.1, 2])
-    if last["safety"] != "crisis":
-        left.button(f"Open {tool}", key="chat_tool", type="primary", on_click=open_calm_room, args=(tool,),
-                    width="stretch")
-    right.button("New conversation", key="chat_new", on_click=new_conversation, width="stretch")

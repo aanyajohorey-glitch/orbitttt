@@ -6,12 +6,12 @@ This is the main file of the app. Streamlit reads it from top to bottom and
 turns it into a web page. To run it, type in the terminal:
     streamlit run app.py
 
-Every visit opens on the landing page (landing.py): a small universe of
-revolving planets that asks your name and age. After "Start Exploring Your
+Every visit opens on the landing page (landing.py): an ivory hero with
+floating planets that asks your name and age. After "Start Exploring Your
 Universe" the app has 3 tabs:
     Create     -> Creator Mode (create_ui.py, spark_ui.py) and the Mood Studio (studio.py)
-    Feel       -> check-in (today.py), chat (companion.py), Calm Room, stress busters, Reach Out, Mood Lab, ...
-    My Galaxy  -> journal and galaxy (journal.py), Patterns, Wrapped (wrapped.py), saved worlds, collection
+    Feel       -> check-in (today.py), stress busters, Soundspace, Arcade
+    My Galaxy  -> Wrapped (wrapped.py), Patterns, saved worlds, collection
 Settings live in the menu in the top right corner (settings_ui.py).
 
 The AI parts live in analysis.py, emotion_model.py, orbit_head.py, hinglish.py,
@@ -22,17 +22,12 @@ import time
 import streamlit as st
 
 import calm_room
-import companion
 import create_ui
 import demo_mode
 import games
-import journal
 import landing
-import letters
 import onboarding
 import patterns
-import reach_out
-import safety_plan
 import settings_ui
 import storage
 import studio
@@ -52,8 +47,6 @@ DEFAULTS = {
     "page": "Home",
     "home_result": None,
     "today_done": False,
-    "lab_result": None,
-    "lab_explain": None,
     "chat": [],
     "chat_token_given": False,
     "tokens": 3,
@@ -79,16 +72,9 @@ PAGES = {
     "Create": ("Create", "Creative universe", create_ui.create_page),
     "Mood Studio": ("Create", "Quick palette & music", studio.studio_page),
     "Home": ("Feel", "Check-in", today.today_page),
-    "Companion": ("Feel", "Talk to ORBIT", companion.companion_page),
-    "Calm Room": ("Feel", "Calm Room", calm_room.calm_room_page),
     "Stress busters": ("Feel", "Stress busters", games.games_page),
-    "Reach Out": ("Feel", "Reach Out", reach_out.reach_out_page),
-    "Letters": ("Feel", "Letters", letters.letters_page),
-    "Safety plan": ("Feel", "Safety plan", safety_plan.safety_plan_page),
-    "Mood Lab": ("Feel", "Mood Lab", views.mood_lab),
     "Soundspace": ("Feel", "Soundspace", views.soundspace),
     "Vending Machine": ("Feel", "Arcade", vending.vending_machine),
-    "Journal": ("My Galaxy", "Galaxy & journal", journal.journal_page),
     "Wrapped": ("My Galaxy", "Wrapped", wrapped.wrapped_page),
     "Patterns": ("My Galaxy", "Patterns", patterns.patterns_page),
     "ORBIT": ("My Galaxy", "Saved worlds", views.universe),

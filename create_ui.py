@@ -276,7 +276,7 @@ def offer_card(offer):
                 "the way. That's very normal in creative work. Want to step away for a few minutes? Your project "
                 "will be right here when you come back.</p>")
         cols = st.columns(4 if offer["block"] else 3)
-        cols[0].button("2-minute breather", key="br_breathe", on_click=take_break, args=("game", "orb_flow"),
+        cols[0].button("2-minute breather", key="br_breathe", on_click=take_break, args=("game", "mandala"),
                        width="stretch")
         cols[1].button(f"Play {games.GAMES[offer['game']][0]}", key="br_game", on_click=take_break,
                        args=("game", offer["game"]), width="stretch")

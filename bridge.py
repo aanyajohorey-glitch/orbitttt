@@ -28,7 +28,7 @@ BLOCKS = {
     "Fear of judgment": {
         "words": ["judge", "judged", "what will people think", "laugh at", "embarrass", "embarrassing", "cringe",
                   "criticise", "criticize", "nobody will like", "they'll hate", "people will hate"],
-        "game": "pop_worry",
+        "game": "planet_builder",
         "exercise": ("An audience of one. For 5 minutes, make something only for yourself that nobody will ever "
                      "see. Then write down the one person whose opinion you actually care about, and what they would "
                      "most likely say. It's usually kinder than the crowd in your head."),
@@ -36,7 +36,7 @@ BLOCKS = {
     "Burnout": {
         "words": ["tired", "exhausted", "burnt out", "burned out", "burnout", "drained", "no energy",
                   "can't anymore", "cant anymore", "too much work", "overworked", "so much work"],
-        "game": "zen_sand",
+        "game": "planet_builder",
         "exercise": ("Fill the well. For 5 minutes, don't make anything. Look at one thing you love (a song, a "
                      "painting, a view) and just notice it. Then write one sentence about why it works. Rest and "
                      "input are part of making."),
@@ -44,7 +44,7 @@ BLOCKS = {
     "Comparison": {
         "words": ["everyone else", "better than me", "compare", "comparing", "instagram", "not as good as",
                   "others are", "jealous", "they're so good", "their work"],
-        "game": "constellation",
+        "game": "tiny_wins",
         "exercise": ("Learn like a student. List three things you admire in their work. Then spend 5 minutes "
                      "trying ONE of them your way, mixed with something only you know about: your street, your "
                      "family, your language."),
@@ -81,7 +81,7 @@ def offer_for(text):
     block, stressed = detect(text)
     if not block and not stressed:
         return None
-    game = BLOCKS[block]["game"] if block else "orb_flow"
+    game = BLOCKS[block]["game"] if block else "mandala"
     return {"block": block, "stressed": stressed, "game": game}
 
 

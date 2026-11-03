@@ -1,19 +1,14 @@
-"""Pattern Insights, letters, the safety plan, the bridges between modes, and the vibe theme."""
-import json
+"""Pattern Insights, the bridges between modes, and the vibe theme."""
 import re
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
 import pytest
 import streamlit as st
-from streamlit.testing.v1 import AppTest
 
 import bridge
-import letters
 import patterns
-import safety_plan
-import storage
 import styles
 import theme
 import vibe
@@ -61,57 +56,6 @@ def test_low_moods_cluster_by_weekday_and_part_of_day():
     assert weekdays and parts[0][0] == "Evening"
 
 
-@pytest.fixture
-def app():
-    storage.delete_everything()
-    storage.set_setting("onboarded", "1")
-    at = AppTest.from_file(APP, default_timeout=120)
-    at.session_state.started = True
-    at.run()
-    return at
-
-
-def test_unsent_letter_is_not_saved_unless_chosen(app):
-    app.session_state.page = "Letters"
-    app.run()
-    app.text_area(key="unsent_text").input("Dear exams, you were awful").run()
-    app.button(key="letter_burn").click().run()
-    assert storage.list_notes("unsent_letter") == []
-    assert any("ritual-paper" in h.proto.body for h in app.get("html"))
-
-
-def test_crisis_words_in_a_letter_show_help_and_nothing_is_kept(app):
-    app.session_state.page = "Letters"
-    app.run()
-    app.checkbox(key="unsent_keep").check()
-    app.text_area(key="unsent_text").input("i want to kill myself").run()
-    app.button(key="letter_float").click().run()
-    assert any("14416" in h.proto.body for h in app.get("html"))
-    assert storage.list_notes() == []
-
-
-def test_future_letter_stays_sealed_for_30_days():
-    item = {"title": (date.today() + timedelta(days=30)).isoformat()}
-    assert not letters.is_open(item)
-    assert letters.is_open(item, today=date.today() + timedelta(days=30))
-
-
-def test_safety_plan_is_local_exported_and_wiped(session, tmp_path, monkeypatch):
-    import orbit_head
-    monkeypatch.setattr(orbit_head, "LOCAL_PERSONAL_MODEL", tmp_path / "p.npz")
-    storage.set_setting("safety_plan", json.dumps({"warning_signs": "I stop replying"}))
-    assert safety_plan.load_plan()["warning_signs"] == "I stop replying"
-    assert "I stop replying" in storage.export_data().decode("utf-8")
-    storage.add_note("future_letter", "2099-01-01", json.dumps({"letter": "hi", "feeling": "Calm"}))
-    storage.panic_wipe()
-    assert safety_plan.load_plan() == {} and storage.list_notes() == []
-
-
-def test_safety_plan_text_always_lists_helplines():
-    text = safety_plan.plan_text({})
-    assert "14416" in text and "112" in text
-
-
 @pytest.mark.parametrize("text,block", [
     ("I'm stuck and have no idea what to make", "No direction"),
     ("it has to be perfect", "Perfectionism"),
@@ -125,7 +69,7 @@ def test_creative_blocks_are_recognised(text, block):
 
 def test_stress_without_a_block_offers_a_breather():
     assert bridge.offer_for("deadline tomorrow and I'm stressed") == {"block": None, "stressed": True,
-                                                                        "game": "orb_flow"}
+                                                                        "game": "mandala"}
 
 
 @pytest.mark.parametrize("text", ["a poster about rain", "I lost my cat in the story", "a perfectly ordinary day"])

@@ -8,7 +8,7 @@ How it works (a "state machine", like the chip inside a real one):
     vending (capsule falls)  -->  tray  --push flap-->  open (see your pack)
 
 - Each capsule costs 1 arcade token. Tokens are EARNED by looking after
-  yourself: a check-in on Home / Mood Lab / Companion or a Calm Room session.
+  yourself: each finished check-in.
 - Bought slots show SOLD OUT until the machine is restocked.
 - Sounds (coin, beep, motor, chime) are made with maths in soundscapes.py.
 """
@@ -226,7 +226,7 @@ def vending_machine():
         "Aesthetic Vending Machine",
         "Insert a token. Punch a code. Catch a world.",
         "Every capsule hides a world, a creative prompt and a small challenge. Tokens are earned by looking "
-        "after yourself: each check-in or Calm Room session adds one.",
+        "after yourself: each check-in adds one.",
         first=True,
     )
     play_sound()
@@ -264,10 +264,9 @@ def vending_machine():
     if st.session_state.vm_state == "open" and st.session_state.vm_pack:
         show_pack(st.session_state.vm_pack, st.session_state.vm_slot)
     elif st.session_state.tokens <= 0 and not st.session_state.vm_credit and st.session_state.vm_state == "idle":
-        note("Out of tokens? Check in on Home, talk to the Companion or try a Calm Room exercise to earn more.")
-        left, right, _ = st.columns([1, 1, 2])
+        note("Out of tokens? A check-in earns you more.")
+        left, _ = st.columns([1, 3])
         left.button("Check in", key="vm_earn_home", on_click=go_to, args=("Home",), width="stretch")
-        right.button("Calm Room", key="vm_earn_calm", on_click=go_to, args=("Calm Room",), width="stretch")
 
 
 def show_pack(pack, slot):

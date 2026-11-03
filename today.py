@@ -7,7 +7,7 @@ The Feel tab -> Check-in: ORBIT's guided check-in, one calm step at a time.
     3. ORBIT's reply  - the companion reflects and validates
     4. Try this       - ONE small, suggested action (breathing, grounding, ...)
     5. How now?       - mood after (1-5), saved for the impact study
-    6. Your planet    - the check-in joins your galaxy, with its aesthetic world
+    6. Your planet    - the check-in's planet and its aesthetic world
 
 Crisis messages stop after step 3: only help is shown (no tools, worlds or games).
 """
@@ -26,12 +26,11 @@ from components import esc, field_html, go_to, note, save_world, swatches_html, 
 from explain import highlight_html, importance_of, top_words
 from feedback_ui import thumbs
 from games import game_card, maybe_offer
-from reach_out import offer_card
 from nudges import nudge_card
 from safety import safety_card_html
 from teach_ui import clarify, confidence_html, teach_panel
-from views import (final_stats_html, greeting, hero_html, keep_talking, open_in_lab, other_emotions_html,
-                   refresh_home, save_home_name, understood_html)
+from views import (final_stats_html, greeting, hero_html, other_emotions_html, refresh_home, save_home_name,
+                   understood_html)
 from world_data import INTENTS, get_world, prompt_for
 
 STEPS = ["Check in", "What I noticed", "ORBIT's reply", "Try this", "How now?", "Your planet"]
@@ -58,11 +57,6 @@ def new_checkin():
     for key in ("home_result", "today_done", "today_planet"):
         st.session_state[key] = None if key == "home_result" else False
     st.session_state.home_text = ""
-
-
-def open_tools(tool):
-    st.session_state.calm_tool = tool
-    go_to("Calm Room")
 
 
 def finish_today(tool):
@@ -142,7 +136,6 @@ def today_page():
         st.html(safety_card_html("crisis"))
         with st.container(key="glass-companion"):
             st.html(companion_card_html(result["reply"], result["style"]))
-            st.button("Talk to ORBIT", key="home_talk", on_click=keep_talking, args=(result,))
         st.button("Start a new check-in", key="today_new", on_click=new_checkin)
         return
 
@@ -159,31 +152,22 @@ def today_page():
                     + field_html("Also feeling", other_emotions_html(result["emotions"], result["final"]["emotion"])))
         why_heatmap(result)
         clarify(result, key="home_clarify", on_update=refresh_home)
-        left, right = st.columns([1, 1])
-        with left:
-            teach_panel(result, key="home_teach", on_update=refresh_home)
-        right.button("See the full analysis", key="home_to_lab", on_click=open_in_lab, args=(result,),
-                     type="tertiary")
+        teach_panel(result, key="home_teach", on_update=refresh_home)
     if result["safety"] == "concern":
         st.html(safety_card_html("concern"))
 
     with st.container(key="glass-companion"):
         step_title(3, "ORBIT's reply")
         st.html(companion_card_html(result["reply"], result["style"]))
-        left, right = st.columns([1, 1.4], vertical_alignment="center")
-        left.button("Keep talking", key="home_talk", on_click=keep_talking, args=(result,), width="stretch")
-        with right:
-            thumbs("reply", result["style"], key="fb_today_reply")
+        thumbs("reply", result["style"], key="fb_today_reply")
     nudge_card(result)
     maybe_offer(result)
     game_card(result)
-    offer_card(result)
 
     tool, line = suggestion(result)
     with st.container(key="glass-try"):
         step_title(4, f"One small thing to try · {tool}", esc(line))
         calm_room.render_tool(tool)
-        st.button("Choose a different tool", key="home_tool", type="tertiary", on_click=open_tools, args=(tool,))
 
     with st.container(key="glass-after"):
         step_title(5, "How do you feel now?")
@@ -213,7 +197,7 @@ def show_planet(result):
     world = get_world(result["world"])
     prompt = prompt_for(world, result["intent"])
     with st.container(key="glass-planet"):
-        step_title(6, "Your new planet joined your galaxy")
+        step_title(6, "Your new planet")
         left, right = st.columns([1, 1.8], vertical_alignment="center")
         with left:
             st.html('<div class="result-planet planet-arrive">'
@@ -228,10 +212,9 @@ def show_planet(result):
                 + field_html(f'Your prompt · {esc(result["intent"])}', f'<div class="prompt">{esc(prompt)}</div>')
                 + field_html("Palette", swatches_html(world["palette"]))
             )
-            a, b, c = st.columns(3)
+            a, c = st.columns(2)
             a.button("Save world", key="save_home_result", type="primary", on_click=save_world,
                      args=(world["name"], "Today", result["intent"], prompt, result["text"][:160]), width="stretch")
-            b.button("See my galaxy", key="today_galaxy", on_click=go_to, args=("Journal",), width="stretch")
             st.button("Turn this feeling into something", key="today_create", type="secondary",
                       on_click=feeling_to_create, args=(result,), width="stretch",
                       help="Opens Create with a palette, moodboard and playlist made from this feeling.")

@@ -31,23 +31,18 @@ DISTRESS = {"nervousness", "fear", "sadness", "anger", "annoyance", "disappointm
 REPEATED_LOW_MOODS = 3
 
 GAMES = {
-    "pop_worry": ("Pop the Worry", "Anxious thoughts", "pop_the_worry.html", "2-3"),
-    "orb_flow": ("Orb Flow", "Feeling anxious or overwhelmed", "orb_flow.html", "3-5"),
-    "zen_sand": ("Zen Sand Garden", "Feeling sad or tired", "zen_sand.html", "2-5"),
-    "constellation": ("Constellation Connect", "Feeling restless", "constellation_connect.html", "2-4"),
     "planet_builder": ("Planet Builder", "Feeling sad or low", "planet_builder.html", "2-4"),
     "tiny_wins": ("Tiny Wins Quest", "Low energy", "tiny_wins.html", "2-5"),
     "crack_glass": ("Crack the Glass", "Feeling angry", "crack_the_glass.html", "2-3"),
     "mandala": ("Mandala Colouring", "Feeling stressed", "mandala.html", "3-5"),
-    "rhythm": ("Rhythm Pulse", "Feeling tense", "rhythm_pulse.html", "2-3"),
 }
 FOR_EMOTION = {
-    "nervousness": ["pop_worry", "orb_flow", "rhythm"],
-    "fear": ["orb_flow", "pop_worry", "constellation"],
-    "sadness": ["zen_sand", "planet_builder", "tiny_wins"],
+    "nervousness": ["mandala", "tiny_wins"],
+    "fear": ["mandala", "planet_builder"],
+    "sadness": ["planet_builder", "tiny_wins"],
     "disappointment": ["planet_builder", "tiny_wins", "mandala"],
-    "anger": ["crack_glass", "rhythm"],
-    "annoyance": ["crack_glass", "rhythm", "mandala"],
+    "anger": ["crack_glass", "mandala"],
+    "annoyance": ["crack_glass", "mandala"],
 }
 
 
@@ -78,7 +73,7 @@ def offer_reason(result):
 
 
 def pick_game(emotion):
-    choices = FOR_EMOTION.get(emotion, ["orb_flow"])
+    choices = FOR_EMOTION.get(emotion, ["mandala"])
     return random.choice(choices)
 
 
@@ -168,7 +163,7 @@ def game_card(result):
 def games_page():
     from components import note, section_header
     section_header("Stress busters", "Small games for big feelings",
-                   "Nine gentle games, 2-5 minutes each. No scores, no streaks, no pressure.", first=True)
+                   "Four gentle games, 2-5 minutes each. No scores, no streaks, no pressure.", first=True)
     keys = list(GAMES)
     choice = st.pills("Choose a game", keys, format_func=lambda k: GAMES[k][0], key="games_pick") or keys[0]
     title, helps, _, minutes = GAMES[choice]

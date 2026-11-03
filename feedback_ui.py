@@ -31,7 +31,7 @@ def thumbs(kind, target, key, label="Was this helpful?"):
         st.feedback("thumbs", key=key, on_change=_save, args=(kind, target, key))
 
 
-THUMB_KINDS = {"reply": "Reply", "tool": "Tool", "reach_out": "Reach Out draft"}
+THUMB_KINDS = {"reply": "Reply", "tool": "Tool"}
 
 
 def satisfaction(ratings):

@@ -93,3 +93,29 @@ def test_no_background_music_anywhere():
         at = app_on(page)
         assert not at.exception and not at.get("audio")
     assert not any(t.key == "set_bg_music" for t in at.toggle)
+
+
+REMOVED_PAGES = ["Companion", "Calm Room", "Reach Out", "Letters", "Safety plan", "Mood Lab", "Journal"]
+
+
+def test_removed_pages_are_gone_from_every_tab():
+    storage.delete_everything()
+    for page in ("Home", "Wrapped", "Create"):
+        at = app_on(page)
+        keys = {b.key for b in at.button}
+        assert not any(f"nav_{p}" in keys for p in REMOVED_PAGES)
+    import games
+    assert set(games.GAMES) == {"planet_builder", "tiny_wins", "crack_glass", "mandala"}
+
+
+def test_a_check_in_runs_without_links_to_removed_pages():
+    storage.delete_everything()
+    storage.set_setting("demo_mode", "1")
+    at = app_on("Home")
+    at.text_area(key="home_text").input("I am so stressed about my exams tomorrow").run()
+    at.button(key="find_orbit").click().run()
+    assert not at.exception and at.session_state.home_result
+    keys = {b.key for b in at.button}
+    assert not keys & {"home_talk", "home_to_lab", "home_tool", "today_galaxy"}
+    at.button(key="today_finish").click().run()
+    assert not at.exception and at.button(key="save_home_result")

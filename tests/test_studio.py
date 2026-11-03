@@ -1,15 +1,13 @@
-"""Reach Out Helper, Mood Studio palettes and music discovery."""
+"""Mood Studio palettes and music discovery."""
 import itertools
 from pathlib import Path
 from statistics import mean
 
 import pytest
-import streamlit as st
 from streamlit.testing.v1 import AppTest
 
 import music
 import palette
-import reach_out
 import storage
 
 APP = str(Path(__file__).resolve().parents[1] / "app.py")
@@ -36,7 +34,7 @@ def bodies(at):
     return [h.proto.body for h in at.get("html")]
 
 
-@pytest.mark.parametrize("page", ["Reach Out", "Mood Studio"])
+@pytest.mark.parametrize("page", ["Mood Studio"])
 def test_a_crisis_check_in_shows_only_the_safety_response(app, page):
     app.session_state.home_result = CRISIS
     app.session_state.page = page
@@ -54,39 +52,12 @@ def test_crisis_words_in_a_vibe_show_only_the_safety_response(app):
     assert not app.slider and not any("mb-hero" in b and "<style" not in b for b in bodies(app))
 
 
-def test_crisis_words_in_reach_out_context_draft_nothing_and_save_nothing(app):
-    app.session_state.page = "Reach Out"
-    app.run()
-    app.radio(key="ro_level").set_value("more").run()
-    app.text_input(key="ro_context").input("i want to end my life").run()
-    assert any("14416" in b for b in bodies(app)) and not app.text_area
-    assert storage.list_notes() == []
-
-
 def test_music_page_is_blocked_in_a_crisis_too(app):
     app.session_state.home_result = CRISIS
     app.session_state.page = "Mood Studio"
     app.session_state.studio_part = "Music discovery"
     app.run()
     assert not any("track-num" in b and "<style" not in b for b in bodies(app))
-
-
-def test_no_reach_out_offer_in_a_crisis(session):
-    reach_out.offer_card(CRISIS)
-
-
-@pytest.mark.parametrize("language,who,level",
-                         list(itertools.product(reach_out.LANGUAGES, reach_out.WHO, reach_out.LEVELS)))
-def test_three_complete_drafts_for_every_choice(language, who, level):
-    drafts = reach_out.drafts(who, level, "Fear", language, "")
-    assert len(drafts) == 3
-    assert all("{" not in d and len(d) < 240 for d in drafts)
-
-
-def test_language_matches_the_user():
-    assert reach_out.detect_language("मुझे डर लग रहा है") == "Hindi"
-    assert reach_out.detect_language("yaar mujhe bahut gussa aa raha hai") == "Hinglish"
-    assert reach_out.detect_language("I feel low today") == "English"
 
 
 GRID = [i / 2 for i in range(-2, 3)]
