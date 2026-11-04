@@ -20,6 +20,7 @@ import streamlit as st
 import brief
 import bridge
 import creative
+import creative_match
 import fonts as fontlib
 import games
 import music
@@ -336,15 +337,24 @@ def how_it_was_made(universe):
     rows = "".join(f'<div class="check-row"><span>{esc(k)}</span><span>{vector[key]:+.2f}</span><b>{esc(v)}</b></div>'
                    for (k, v), key in zip(words.items(), ["valence", "arousal", "brightness", "warmth", "era",
                                                           "texture", "bold"]))
+    found = vector.get("match")
+    hue_source = ("the matched style's colour gives hue " if found
+                  else "the feeling's angle on the valence-energy circle gives hue ")
+    matching = (f'<p class="body"><b>Creative Feature Matching:</b> {esc(creative_match.summary(found))}. '
+                "Each aesthetic, font, song and creator got an idea-match score (named by the style +1.0, shared "
+                "tags +0.6 x share, matching genre +0.4, avoided tag -0.5), and final score = 60% idea match + 40% "
+                "the vibe score below. Only clear matches (0.3 or more) competed for the places.</p>"
+                if found else "")
     st.html('<p class="body"><b>The Vibe Vector</b>: every output below is generated from these numbers.</p>'
-            + rows + f'<p class="body" style="margin-top:.6rem">Understood words: '
-            f'{esc(", ".join(vector["themes"]) or "none")}. Emotions: '
+            + rows + '<p class="body" style="margin-top:.6rem">Understood words: '
+            + esc(", ".join(vector["themes"]) or "none") + ". Emotions: "
             + esc(", ".join(f"{l} {s:.0%}" for l, s in vector["emotions"][:4])) + ".</p>"
-            f'<p class="body"><b>Palette:</b> the feeling\'s angle on the valence-energy circle gives hue '
+            + f'<p class="body"><b>Palette:</b> {hue_source}'
             f'{result["hue"]}°, energy and strength give saturation {result["saturation"]}, light gives lightness '
             f'{result["lightness"]}; harmony rule <b>{result["rule"]}</b>; ink darkened until WCAG AA passes.</p>'
             f'<p class="body"><b>Typography:</b> {esc(universe["fonts"]["why"])}</p>'
-            '<p class="body"><b>Aesthetics, music and creators:</b> cosine similarity between the Vibe Vector and '
+            + matching
+            + '<p class="body"><b>Aesthetics, music and creators:</b> cosine similarity between the Vibe Vector and '
             "each item's numbers plus shared tags, then Maximal Marginal Relevance so the list stays varied. The "
             f'discovery dial ({universe["discovery"]:.1f}) moves from familiar to unfamiliar.</p>')
     importance = importance_of(vector["result"]) if vector.get("result") and vector["result"].get("final") else None
@@ -388,7 +398,10 @@ def universe_screen():
                 + (f" · {vector['direction']}" if vector.get("direction") else ""))
         st.html(f'<div class="cu-title" style="font-family:\'{fonts_used["heading"]}\',serif">{esc(concept["title"])}</div>'
                 f'<p class="cu-vision" style="font-family:\'{fonts_used["body"]}\',sans-serif">{esc(concept["vision"])}</p>'
-                + ('<span class="badge">Polished with AI · checked</span>' if concept.get("polished") else ""))
+                + ('<span class="badge">Polished with AI · checked</span>' if concept.get("polished") else "")
+                + (f'<p class="body cu-read"><b>ORBIT read your idea as:</b> '
+                   f'{esc(" + ".join(s["name"] for s in vector["match"]["styles"]))}</p>'
+                   if vector.get("match") else ""))
         a, b, c = st.columns(3)
         a.button("New idea", key="cu_new", on_click=new_idea, width="stretch")
         import llm

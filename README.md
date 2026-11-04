@@ -23,7 +23,7 @@ and a **pre-trained transformer model** running offline.
 
 > Create (Creator Mode) and Feel (wellbeing) modes, joined by two bridges.
 > ORBIT has its own trained classifier, confidence handling, "Teach Orbit", a tested safety net that
-> runs first in both modes, 458 automated tests and CI.
+> runs first in both modes, 436 automated tests and CI.
 >
 > Documentation: [methodology](docs/methodology.md) · [safety report](docs/safety_report.md) ·
 > [model card](docs/model_card.md) · [data card](docs/data_card.md) · [viva Q&A](docs/viva_qa.md) ·
@@ -153,6 +153,17 @@ actually make this?"** and **"Does it match your answers?"**, reported per direc
 **Limits.** The word tables, font moods, aesthetics, creators and seeds were labelled by one student, so
 they encode one person's taste; colour meaning differs between cultures; the template grammar can sound
 formulaic; matching a creator by numbers is a starting point for research, not a judgement of their work.
+
+### The ORBIT Creative Feature Matching Algorithm
+
+Our own component that makes Create Mode follow the **creative direction** of an idea, not only its
+emotion. For "Dark Romance" it finds the style Dark Romance (from a table of 31 styles in
+`data/creative_profiles.csv`), then scores every aesthetic, font, song and creator against that style:
++1.0 if the style names it, +0.6 × shared tags, +0.4 for a matching music genre, −0.5 for a tag the
+style avoids. **Final score = 60% idea match + 40% ORBIT's existing score.** Phrases are matched first, so
+"dark" inside "dark romance" doesn't pull in horror. The style also sets the palette's hue and gives
+fitting fonts a head start. Ideas that name no style work exactly as before. Before/after results for
+seven ideas and a step-by-step explanation are in [docs/creative_intelligence.md](docs/creative_intelligence.md).
 
 ## The bridges between the two modes
 
@@ -399,6 +410,7 @@ Mood-to-World/
 ├── spark_ui.py       # Spark path screens
 ├── vibe.py           # The Vibe Vector, refine chips, sliders, three directions
 ├── creative.py       # Creative Universe generation (concept, aesthetics, creators, music, moodboard)
+├── creative_match.py # Creative Feature Matching: idea keywords -> styles -> scores for every resource
 ├── spark.py          # Spark idea grammar, remix and lock
 ├── brief.py          # One-page creative brief PDF (Pillow)
 ├── fonts.py          # Typography pairing from fonts.csv
@@ -428,7 +440,7 @@ Mood-to-World/
 ├── styles.py         # All the visual design (CSS)
 ├── world_data.py     # Loads worlds.csv, matches emotions to worlds, Soundspace data
 ├── requirements.txt / requirements-dev.txt
-├── tests/            # 450 pytest tests (safety, translation, analysis, games, Mood Studio, Creator Mode, bridges)
+├── tests/            # 436 pytest tests (safety, translation, analysis, games, Mood Studio, Creator Mode, Creative Feature Matching, bridges)
 ├── .github/workflows/tests.yml   # runs the tests on GitHub on every push
 ├── docs/
 │   ├── methodology.md            # data, modelling, pre-registered rules, results
@@ -449,6 +461,7 @@ Mood-to-World/
     ├── music_catalog.csv         # 271 hand-labelled tracks (no lyrics)
     ├── music_labelling_template.csv  # for classmates to add and tag tracks
     ├── fonts.csv                 # 77 Google Fonts tagged by mood
+    ├── creative_profiles.csv     # 31 creative styles for Creative Feature Matching
     ├── aesthetics.csv            # 66 art and design movements
     ├── creators.csv              # 98 creators and artists (53 from India)
     ├── idea_seeds.csv            # Spark: settings, contrast pairs, textures, story structures

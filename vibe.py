@@ -13,13 +13,20 @@ creators) is generated from this same vector, so the results fit together.
     texture     -1 smooth/glossy ... +1 rough/hand-made
     bold        -1 soft ... +1 bold
     themes      the words ORBIT understood (e.g. rain, cafe, nostalgic)
+    match       the creative styles found in the idea (creative_match.py), or None
 
 Words come from small, readable tables, so each number can be explained.
+When the idea names a creative style (Dark Romance, Cottagecore, ...), each
+number the style sets is averaged 50/50 with the number worked out above.
 """
 import copy
 import re
 
+import creative_match
 from palette import EMOTION_VA, VIBE_WORDS
+
+STYLE_NUMBERS = {"valence": "mood", "arousal": "energy", "brightness": "light", "warmth": "warmth", "era": "era",
+                 "texture": "texture", "bold": "bold"}
 
 ERA_WORDS = {"ancient": -1.0, "myth": -0.9, "mythology": -0.9, "mughal": -0.9, "medieval": -0.9, "victorian": -0.8,
              "vintage": -0.7, "old": -0.5, "retro": -0.4, "70s": -0.5, "80s": -0.3, "90s": -0.2, "y2k": 0.0,
@@ -106,7 +113,7 @@ def build(text, emotions, medium=None, audience=None, start_from=None, importanc
         return clamp((1 - word_weight) * emotion_value + word_weight * word_value)
 
     valence, arousal = mix(ev, words["valence"]), mix(ea, words["arousal"])
-    return {
+    vector = {
         "text": text, "medium": medium, "audience": audience, "start_from": start_from,
         "emotions": [(label, round(float(s), 3)) for label, s in emotions[:8]],
         "valence": round(valence, 3), "arousal": round(arousal, 3),
@@ -119,6 +126,21 @@ def build(text, emotions, medium=None, audience=None, start_from=None, importanc
         "importance": importance,
         "tweaks": {},
     }
+    return with_style(vector, creative_match.match(" ".join(dict.fromkeys([text, match_text or ""]))), themes)
+
+
+def with_style(vector, found, themes):
+    """Attach the creative styles found in the idea and let them shape the numbers (50/50)."""
+    vector["match"] = found
+    if not found:
+        return vector
+    for key, field in STYLE_NUMBERS.items():
+        value = creative_match.blended(found, field)
+        if value is not None:
+            vector[key] = round(clamp(0.5 * vector[key] + 0.5 * value), 3)
+    style_words = creative_match.merged(found, "atmosphere")
+    vector["themes"] = list(dict.fromkeys((themes or []) + style_words))
+    return vector
 
 
 CHIPS = {

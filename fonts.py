@@ -12,11 +12,18 @@ Rule (explainable):
 3. Devanagari-friendly fonts are preferred when the idea was written in Hindi.
 4. "More font ideas": the next closest fonts, at most two from each category,
    so the list shows real variety (serif, sans, script, display, mono).
+5. Creative styles: when the idea names a style (creative_match.py), a font whose
+   tags fit the style gets a head start: its distance is reduced by
+   HEAD_START x its idea match (half of that for body text, which must stay readable).
 """
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+
+import creative_match
+
+HEAD_START = 3.0
 
 FONTS = Path(__file__).parent / "data" / "fonts.csv"
 
@@ -33,13 +40,21 @@ def _distance(row, vintage, bold, energy, warmth):
             + 0.5 * (row["warmth"] - warmth) ** 2)
 
 
-def pair(vintage, bold, energy, warmth=0.0, hindi=False):
-    """Returns {"heading", "body", "feel", "why"}."""
+def idea_head_start(table, found, share=1.0):
+    """How much closer each font counts as, from its tags and the idea's styles (0 when there is no style)."""
+    if not found:
+        return 0.0
+    return table["tag_list"].apply(lambda tags: share * HEAD_START * creative_match.item_score(found, "font", tags=tags)[0])
+
+
+def pair(vintage, bold, energy, warmth=0.0, hindi=False, found=None):
+    """Returns {"heading", "body", "feel", "why", "more"}. found: the idea's creative styles (or None)."""
     table = load_fonts()
     headings = table[table["use"].isin(["heading", "both"])].copy()
     headings["d"] = headings.apply(_distance, axis=1, args=(vintage, bold, energy, warmth))
     devanagari = headings["tag_list"].apply(lambda t: "devanagari" in t)
     headings.loc[devanagari, "d"] += -0.6 if hindi else 0.6
+    headings["d"] -= idea_head_start(headings, found)
     heading = headings.sort_values("d").iloc[0]
 
     bodies = table[table["use"].isin(["body", "both"]) & (table["family"] != heading["family"])].copy()
@@ -49,23 +64,29 @@ def pair(vintage, bold, energy, warmth=0.0, hindi=False):
     bodies.loc[bodies["category"].isin(["mono", "script"]), "d"] += 0.6
     if hindi:
         bodies.loc[bodies["tag_list"].apply(lambda t: "devanagari" in t), "d"] -= 0.6
+    bodies["d"] -= idea_head_start(bodies, found, share=0.5)
     body = bodies.sort_values("d").iloc[0]
 
     feel = " and ".join(heading["tag_list"][:2])
     why = (f"{heading['family']} ({heading['category']}) is the heading font closest to your vibe "
            f"(vintage {vintage:+.1f}, bold {bold:+.1f}, energy {energy:+.1f}); {body['family']} "
            f"({body['category']}) is a calm, readable partner from a different family of letters.")
-    more = alternatives(vintage, bold, energy, warmth, exclude={heading["family"], body["family"]}, hindi=hindi)
+    fits = creative_match.item_score(found, "font", tags=heading["tag_list"])[1] if found else []
+    if fits:
+        why += f" It also fits your idea's style: {', '.join(fits[:3])}."
+    more = alternatives(vintage, bold, energy, warmth, exclude={heading["family"], body["family"]}, hindi=hindi,
+                        found=found)
     return {"heading": heading["family"], "body": body["family"], "feel": feel, "why": why, "more": more}
 
 
-def alternatives(vintage, bold, energy, warmth=0.0, exclude=(), size=8, hindi=False):
+def alternatives(vintage, bold, energy, warmth=0.0, exclude=(), size=8, hindi=False, found=None):
     """Other fonts close to the vibe: [{"family", "category", "feel"}], up to 2 per category."""
     table = load_fonts()
     table = table[~table["family"].isin(set(exclude))].copy()
     table["d"] = table.apply(_distance, axis=1, args=(vintage, bold, energy, warmth))
     if not hindi:
         table.loc[table["tag_list"].apply(lambda t: "devanagari" in t), "d"] += 0.6
+    table["d"] -= idea_head_start(table, found)
     chosen, per_category = [], {}
     for _, row in table.sort_values("d").iterrows():
         if per_category.get(row["category"], 0) >= 2:

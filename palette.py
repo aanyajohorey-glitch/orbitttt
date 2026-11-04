@@ -180,21 +180,28 @@ def colour_name(colour):
 
 
 def make_palette(valence, arousal, warm=0.0, energy=0.0, bold=0.0, vintage=0.0, tweaks=None, harmony=None,
-                 brightness=0.0):
+                 brightness=0.0, style_hue=None, style_saturation=None, style_lightness=None):
     """Build the 5-colour palette. All inputs roughly -1..+1.
 
     energy: the calm-energetic slider; brightness: -1 dark ... +1 bright (Creator Mode); tweaks: the refine buttons
     (muted, warmth, contrast, playful). Returns a dict with colours, rule and contrast checks.
+    style_hue / style_saturation / style_lightness: from a creative style the idea named (creative_match.py).
+    The style's hue replaces the feeling's hue; its saturation and lightness are averaged 50/50.
     """
     tweaks = tweaks or {}
     arousal_used = clamp(arousal + 0.6 * energy, -1, 1)
-    hue = shift_hue(feeling_hue(valence, arousal_used), clamp(warm + tweaks.get("warmth", 0.0), -1, 1))
+    base_hue = feeling_hue(valence, arousal_used) if style_hue is None else style_hue
+    hue = shift_hue(base_hue, clamp(warm + tweaks.get("warmth", 0.0), -1, 1) * (1 if style_hue is None else 0.3))
     strength = min(1.0, math.hypot(valence, arousal_used))
     saturation = 0.24 + 0.18 * strength + 0.16 * (arousal_used + 1) / 2 + 0.18 * bold - 0.14 * max(0.0, vintage)
     saturation *= tweaks.get("muted", 1.0)
+    if style_saturation is not None:
+        saturation = 0.5 * saturation + 0.5 * style_saturation
     saturation = clamp(saturation + (0.1 if tweaks.get("playful") else 0.0), 0.08, 0.85)
     lightness = clamp(0.66 + 0.06 * valence + 0.08 * brightness - 0.08 * bold - 0.05 * tweaks.get("contrast", 0.0),
                       0.35, 0.82)
+    if style_lightness is not None:
+        lightness = clamp(0.5 * lightness + 0.5 * style_lightness, 0.35, 0.82)
     rule = harmony or choose_harmony(arousal_used, tweaks.get("playful", False))
     first, second = HARMONY[rule]
 

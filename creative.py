@@ -14,6 +14,11 @@ Ranking (aesthetics, creators, music): cosine similarity between the vector and
 each item's numbers, plus shared tags, then Maximal Marginal Relevance for
 variety (ranking.py). The DISCOVERY dial moves from familiar to unfamiliar.
 Everything is deterministic: the same vector always gives the same universe.
+
+When the idea names a creative style (the ORBIT Creative Feature Matching
+Algorithm, creative_match.py), every aesthetic, creator and song also gets an
+idea match score, and final score = 60% idea match + 40% the score above. The
+style's colour sets the palette's hue and its font tags guide the typography.
 """
 import copy
 import hashlib
@@ -23,6 +28,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+import creative_match
 import fonts
 import music
 import palette
@@ -67,14 +73,22 @@ def rank_aesthetics(vector, discovery=0.5, size=3):
     for row in load_aesthetics().to_dict("records"):
         item = [row["valence"], row["arousal"], row["brightness"] * 2 - 1, row["warmth"], row["era"], row["texture"]]
         relevance = 0.75 * cosine([1] + target, [1] + item) + 0.25 * overlap(vector["themes"], row["tag_list"])
-        rows.append({**row, "relevance": relevance, "close": closest_dimensions(target, item)})
+        fits, idea = [], 0.0
+        if vector.get("match"):
+            idea, fits = creative_match.item_score(vector["match"], "aesthetic", name=row["name"], tags=row["tag_list"])
+            relevance = creative_match.final_score(relevance, idea)
+        rows.append({**row, "relevance": relevance, "close": closest_dimensions(target, item), "fits": fits,
+                     "idea": idea})
 
     def similar(a, b):
         return 0.5 * (a["origin"] == b["origin"]) + 0.5 * bool(set(a["tag_list"]) & set(b["tag_list"]))
+    if vector.get("match"):
+        rows = creative_match.fitting_first(rows, size)
     chosen = mmr(sorted(rows, key=lambda r: -r["relevance"])[:25], similar, size, discovery_trade_off(discovery))
     for row in chosen:
-        row["why"] = (f"Close to your vibe on {' and '.join(row['close'])}. Look for: "
-                      f"{', '.join(row['cue_list'][:3])}.")
+        start = (f"Fits your idea: {', '.join(row['fits'][:3])}" if row["fits"]
+                 else f"Close to your vibe on {' and '.join(row['close'])}")
+        row["why"] = f"{start}. Look for: {', '.join(row['cue_list'][:3])}."
     return chosen
 
 
@@ -87,13 +101,19 @@ def rank_creators(vector, discovery=0.5, size=6):
         popularity = (row["mainstream_level"] - 1) / 4
         relevance = (0.7 * cosine([1] + target, [1] + item) + 0.3 * overlap(themes, row["tag_list"])
                      + 0.15 * (1 - 2 * discovery) * popularity)
-        shared = [t for t in row["tag_list"] if t in themes]
-        rows.append({**row, "relevance": relevance, "shared": shared,
+        shared, idea = [t for t in row["tag_list"] if t in themes], 0.0
+        if vector.get("match"):
+            idea, fits = creative_match.item_score(vector["match"], "creator", tags=row["tag_list"])
+            relevance = creative_match.final_score(relevance, idea)
+            shared = list(dict.fromkeys(fits + shared))
+        rows.append({**row, "relevance": relevance, "shared": shared, "idea": idea,
                      "close": closest_dimensions(target, item)})
 
     def similar(a, b):
         return (0.4 * (a["field"] == b["field"]) + 0.3 * (("India" in a["region"]) == ("India" in b["region"]))
                 + 0.3 * (a["language"] == b["language"] and a["language"] != ""))
+    if vector.get("match"):
+        rows = creative_match.fitting_first(rows, size)
     pool = sorted(rows, key=lambda r: -r["relevance"])[:40]
     chosen = mmr(pool, similar, size, discovery_trade_off(discovery), unique="name")
     if not any("India" in c["region"] for c in chosen):
@@ -227,7 +247,8 @@ THEME_TO_MUSIC = {"rain": "rain", "rainy": "rain", "monsoon": "rain", "night": "
 
 def music_tags(vector):
     """Tags from the vibe's words, plus a few from its numbers (era, energy, texture)."""
-    tags = [THEME_TO_MUSIC[t] for t in vector["themes"] if t in THEME_TO_MUSIC]
+    tags = creative_match.merged(vector.get("match"), "music_tags", limit=4)
+    tags += [THEME_TO_MUSIC[t] for t in vector["themes"] if t in THEME_TO_MUSIC]
     if vector["era"] < -0.3:
         tags.append("nostalgic")
     if vector["arousal"] < -0.2:
@@ -252,16 +273,21 @@ def universe(vector, discovery=None, locks=(), previous=None):
         return name in locks and name in previous
 
     hindi = any("ऀ" <= ch <= "ॿ" for ch in vector["text"])
+    found = vector.get("match")
     out["palette"] = previous["palette"] if keep("palette") else palette.make_palette(
         vector["valence"], vector["arousal"], warm=vector["warmth"], bold=vector["bold"], vintage=-vector["era"],
-        tweaks=vector.get("tweaks"), harmony=vector.get("harmony"), brightness=vector["brightness"])
+        tweaks=vector.get("tweaks"), brightness=vector["brightness"],
+        harmony=vector.get("harmony") or (creative_match.merged(found, "harmony") or [None])[0],
+        style_hue=creative_match.first_value(found, "hue"),
+        style_saturation=creative_match.blended(found, "saturation"),
+        style_lightness=creative_match.blended(found, "lightness"))
     out["fonts"] = previous["fonts"] if keep("fonts") else fonts.pair(
-        -vector["era"], vector["bold"], vector["arousal"], vector["warmth"], hindi=hindi)
+        -vector["era"], vector["bold"], vector["arousal"], vector["warmth"], hindi=hindi, found=found)
     out["aesthetics"] = previous["aesthetics"] if keep("aesthetics") else rank_aesthetics(vector, discovery)
     out["moodboard"] = previous["moodboard"] if keep("moodboard") else moodboard(vector, out["aesthetics"])
     out["music"] = previous["music"] if keep("music") else music.recommend_target(
         3 + 2 * vector["valence"], 3 + 2 * vector["arousal"], music_tags(vector),
-        intent="project", discovery=discovery, size=8)
+        intent="project", discovery=discovery, size=8, found=found)
     out["creators"] = previous["creators"] if keep("creators") else rank_creators(vector, discovery)
     out["concept"] = previous["concept"] if keep("concept") else concept(
         vector, out["palette"]["colours"], out["aesthetics"], out["fonts"])

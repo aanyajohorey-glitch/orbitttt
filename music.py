@@ -19,6 +19,9 @@ The method
    at a time, each time balancing "relevant" against "too similar to what's
    already picked" (same artist, same genre, same language). The more you
    explore, the more diversity counts. One track per artist at most.
+5. Creative styles (Create Mode only): when the idea names a style
+   (creative_match.py), relevance = 60% idea match (tags and genre) + 40% the
+   cosine relevance above, and tracks with a tag the style avoids drop down.
 """
 from pathlib import Path
 from urllib.parse import quote, quote_plus
@@ -26,6 +29,7 @@ from urllib.parse import quote, quote_plus
 import pandas as pd
 import streamlit as st
 
+import creative_match
 from emotion_model import GROUP_OF
 from palette import EMOTION_VA
 from ranking import cosine, discovery_trade_off, mmr
@@ -99,8 +103,10 @@ def recommend(emotions, intent="match", discovery=0.5, size=PLAYLIST_SIZE, table
     return playlist
 
 
-def recommend_target(mood, energy, tags, intent="match", discovery=0.5, size=PLAYLIST_SIZE, table=None):
-    """The same method from a ready-made target (Creator Mode uses its Vibe Vector)."""
+def recommend_target(mood, energy, tags, intent="match", discovery=0.5, size=PLAYLIST_SIZE, table=None,
+                     found=None):
+    """The same method from a ready-made target (Creator Mode uses its Vibe Vector).
+    found: the idea's creative styles (creative_match.py), or None."""
     table = load_catalog() if table is None else table
     vocabulary = all_tags(table)
     goal = vector(mood, energy, tags, vocabulary)
@@ -109,12 +115,21 @@ def recommend_target(mood, energy, tags, intent="match", discovery=0.5, size=PLA
         similarity = cosine(goal, vector(track["valence"], track["energy"], track["tag_list"], vocabulary))
         popularity = (track["mainstream_level"] - 1) / 4
         relevance = similarity + 0.15 * (1 - 2 * discovery) * popularity
-        candidates.append({**track, "similarity": similarity, "relevance": relevance})
+        fits, idea = [], 0.0
+        if found:
+            idea, fits = creative_match.item_score(found, "music", tags=track["tag_list"], genre=track["genre"])
+            relevance = creative_match.final_score(relevance, idea)
+        candidates.append({**track, "similarity": similarity, "relevance": relevance, "idea_fits": fits,
+                           "idea": idea})
+    if found:
+        candidates = creative_match.fitting_first(candidates, size)
     candidates.sort(key=lambda t: -t["relevance"])
     pool = candidates[:60]
     chosen = mmr(pool, track_similarity, size, discovery_trade_off(discovery), unique="artist")
     for track in chosen:
         track["reason"] = reason(track, intent, tags, chosen)
+        if track.get("idea_fits"):
+            track["reason"] = f"Fits your idea's style ({', '.join(track['idea_fits'][:3])}). " + track["reason"]
     return chosen
 
 
