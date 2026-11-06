@@ -1,21 +1,3 @@
-"""
-fonts.py
-Typography pairing from data/fonts.csv (77 open-licence Google Fonts, each
-tagged with mood numbers: vintage, bold, energy and warmth, from -1 to +1).
-
-Rule (explainable):
-1. The heading font is the heading-capable font closest to the vibe
-   (smallest distance on vintage, bold, energy and warmth).
-2. The body font must be easy to read, so it is chosen from body fonts, closest
-   to a CALMER version of the vibe, and from a different category (a serif
-   heading gets a sans body and the other way round) for contrast.
-3. Devanagari-friendly fonts are preferred when the idea was written in Hindi.
-4. "More font ideas": the next closest fonts, at most two from each category,
-   so the list shows real variety (serif, sans, script, display, mono).
-5. Creative styles: when the idea names a style (creative_match.py), a font whose
-   tags fit the style gets a head start: its distance is reduced by
-   HEAD_START x its idea match (half of that for body text, which must stay readable).
-"""
 from pathlib import Path
 
 import pandas as pd
