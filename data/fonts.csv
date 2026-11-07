@@ -76,3 +76,23 @@ Gloria Hallelujah,script,heading,-0.1,-0.2,0.5,0.5,comic|handwritten|playful|doo
 VT323,mono,heading,0.2,0.0,0.3,-0.3,terminal|pixel|retro|code
 Old Standard TT,serif,both,0.9,-0.2,-0.4,0.1,historic|scholarly|vintage|newspaper
 Chivo,sans,both,-0.3,0.4,0.3,0.0,grotesque|news|bold|clean
+UnifrakturMaguntia,display,heading,1.0,0.7,0.1,-0.1,blackletter|gothic|historic|dramatic
+Pirata One,display,heading,0.9,0.6,0.3,0.0,blackletter|gothic|dramatic|medieval
+Grenze Gotisch,display,heading,0.9,0.5,0.2,0.0,blackletter|medieval|historic|dramatic
+Uncial Antiqua,display,heading,0.9,0.3,0.0,0.3,medieval|celtic|historic|epic
+MedievalSharp,display,heading,0.9,0.4,0.2,0.2,medieval|epic|fairytale|historic
+Almendra,serif,heading,0.8,0.0,0.0,0.4,medieval|fairytale|calligraphic|romantic
+IM Fell English,serif,both,0.9,-0.2,-0.3,0.3,victorian|literary|historic|bookish
+Cormorant,serif,both,0.6,-0.3,-0.4,0.2,elegant|romantic|literary|delicate
+Cinzel Decorative,display,heading,0.9,0.4,0.0,0.1,roman|epic|luxury|elegant
+Marcellus,serif,heading,0.6,0.0,-0.2,0.1,roman|elegant|classic|luxury
+Italiana,serif,heading,0.4,-0.4,-0.2,0.0,elegant|fashion|thin|luxury
+Pinyon Script,script,heading,0.8,-0.3,0.0,0.6,romantic|wedding|elegant|victorian
+Tangerine,script,heading,0.8,-0.5,0.0,0.5,romantic|delicate|elegant|wedding
+Mrs Saint Delafield,script,heading,0.7,-0.3,0.1,0.6,romantic|handwritten|elegant|delicate
+Rye,display,heading,0.8,0.8,0.4,0.4,western|vintage|poster|bold
+Limelight,display,heading,0.7,0.6,0.3,0.1,art-deco|film|luxury|retro
+Poiret One,display,heading,0.6,-0.4,0.0,0.0,art-deco|thin|elegant|fashion
+Fondamento,script,heading,0.8,-0.1,0.1,0.4,calligraphic|medieval|historic|handwritten
+Petit Formal Script,script,heading,0.7,-0.2,0.0,0.5,victorian|elegant|romantic|wedding
+Spectral SC,serif,heading,0.6,0.0,-0.2,0.1,victorian|literary|classic|elegant

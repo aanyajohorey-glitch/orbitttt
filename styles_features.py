@@ -263,4 +263,26 @@ FEATURE_CSS = """
   overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .font-name { font-size: 1rem; font-weight: 600; color: var(--charcoal); }
 .font-card small { color: var(--muted); font-size: 0.75rem; }
+
+/* ---------- Create: Creative Brief, image moodboard, patterns, colour story ---------- */
+.cu-brief { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0.55rem 1rem;
+  margin-top: 0.9rem; padding: 0.9rem 1rem; border-radius: 16px; background: var(--glass); border: 1px solid var(--line); }
+.cu-brief div { display: flex; flex-direction: column; gap: 0.1rem; }
+.cu-brief b { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.cu-brief span { font-size: 0.92rem; color: var(--charcoal); line-height: 1.35; }
+.cu-imageboard { columns: 3 200px; column-gap: 0.7rem; }
+.cu-img { break-inside: avoid; margin: 0 0 0.7rem; border-radius: 14px; overflow: hidden; background: var(--glass);
+  border: 1px solid var(--line); }
+.cu-img img { display: block; width: 100%; height: auto; }
+.cu-img figcaption { font-size: 0.68rem; line-height: 1.35; padding: 0.4rem 0.6rem; color: var(--muted); }
+.cu-img figcaption a { color: inherit; text-decoration: underline; }
+.cu-patterns { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.6rem; margin-top: 0.4rem; }
+.cu-pattern { display: flex; flex-direction: column; gap: 0.3rem; }
+.cu-pattern i { display: block; height: 78px; border-radius: 12px; border: 1px solid var(--line); }
+.cu-pattern span { font-size: 0.78rem; color: var(--charcoal); text-transform: capitalize; }
+.cu-story { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.3rem; }
+.cu-story-chip { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; padding: 0.2rem 0.6rem 0.2rem 0.25rem;
+  border-radius: 999px; border: 1px solid var(--line); color: var(--charcoal); }
+.cu-story-chip i { width: 18px; height: 18px; border-radius: 50%; display: inline-block; }
+.cu-sources { font-size: 0.74rem !important; color: var(--muted) !important; margin-top: 0.6rem; }
 """

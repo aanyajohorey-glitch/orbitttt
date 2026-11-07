@@ -40,7 +40,9 @@ GENRE_POINTS = 0.4
 AVOID_POINTS = -0.5
 FIT_THRESHOLD = 0.3
 LIST_FIELDS = ["phrases", "words", "related", "atmosphere", "colours", "aesthetics", "tags", "font_tags",
-               "music_tags", "music_genres", "avoid", "harmony"]
+               "music_tags", "music_genres", "avoid", "harmony", "anchors", "patterns", "image_queries",
+               "image_avoid", "lastfm_tags"]
+TEXT_FIELDS = ["genre", "emotion", "typography", "music_character"]
 NUMBER_FIELDS = ["hue", "saturation", "lightness", "mood", "energy", "light", "warmth", "era", "texture", "bold"]
 
 
@@ -53,6 +55,10 @@ def load_profiles():
         style = {"name": row["name"]}
         for field in LIST_FIELDS:
             style[field] = [part.strip() for part in str(row[field]).split("|") if part.strip()]
+        for field in TEXT_FIELDS:
+            style[field] = str(row.get(field, "")).strip()
+        style["anchors"] = [(part.split(":")[0].strip(), part.split(":")[1].strip().upper())
+                            for part in style["anchors"] if ":" in part]
         for field in NUMBER_FIELDS:
             style[field] = float(row[field]) if str(row[field]).strip() != "" else None
         styles[row["name"]] = style
@@ -200,3 +206,53 @@ def summary(result):
         parts.append(f"{style['name']} (found {', '.join(found)}, {points} points): "
                      f"{', '.join(style['atmosphere'])}; colours {', '.join(style['colours'][:3])}")
     return " + ".join(parts)
+
+
+def brief(found):
+    """ORBIT's Creative Brief: the matched styles turned into a structured description, used by every
+    later step (palette, patterns, image searches, music tags, fonts). None when no style was found."""
+    styles = styles_in(found)
+    if not styles:
+        return None
+    def text(field):
+        return "; ".join(dict.fromkeys(style[field] for style, _ in styles if style[field]))
+    return {
+        "styles": [style["name"] for style, _ in styles],
+        "genre": text("genre"),
+        "aesthetic": ", ".join(merged(found, "aesthetics", limit=4)),
+        "atmosphere": ", ".join(merged(found, "atmosphere", limit=5)),
+        "emotion": text("emotion"),
+        "colours": [name for name, _ in anchors(found)],
+        "patterns": merged(found, "patterns", limit=4),
+        "typography": text("typography"),
+        "music": text("music_character"),
+        "image_queries": merged(found, "image_queries", limit=4),
+        "avoid": merged(found, "image_avoid") + merged(found, "avoid"),
+        "lastfm_tags": merged(found, "lastfm_tags", limit=3),
+    }
+
+
+def anchors(found):
+    """The colour anchors (name, hex). One style: its own list. Two styles: taken in turns
+    (first style, second style, first, second, ...) so both are visible in the palette."""
+    lists = [style["anchors"] for style, _ in styles_in(found)]
+    order = []
+    for i in range(max((len(a) for a in lists), default=0)):
+        for colours in lists:
+            if i < len(colours):
+                order.append(colours[i])
+    seen, result = set(), []
+    for name, hex_ in order:
+        if hex_ not in seen:
+            seen.add(hex_)
+            result.append((name, hex_))
+    return result
+
+
+def image_keywords(found):
+    """Words an image's title or tags should contain to count as on-brief."""
+    words = []
+    for field in ("image_queries", "atmosphere", "tags", "colours", "patterns"):
+        for phrase in merged(found, field):
+            words += [w for w in words_of(phrase) if len(w) > 3]
+    return list(dict.fromkeys(words))

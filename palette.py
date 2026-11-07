@@ -231,6 +231,71 @@ def make_palette(valence, arousal, warm=0.0, energy=0.0, bold=0.0, vintage=0.0, 
     }
 
 
+def hls(colour):
+    r, g, b = (c / 255 for c in hex_to_rgb(colour))
+    return colorsys.rgb_to_hls(r, g, b)
+
+
+def from_hls(h, l, s):
+    r, g, b = colorsys.hls_to_rgb(h % 1.0, clamp(l), clamp(s))
+    return "#{:02X}{:02X}{:02X}".format(round(r * 255), round(g * 255), round(b * 255))
+
+
+def anchor_palette(anchors, dark, warm_shift=0.0, light_shift=0.0, bold_shift=0.0, tweaks=None, valence=0.0,
+                   arousal=0.0):
+    """Creator Mode palette from a creative style's own named colours (data/creative_profiles.csv).
+
+    1. Background and text: a dark style (dark=True) uses its darkest colour as the background and its
+       lightest as the text; a light style does the opposite.
+    2. The remaining colours, in the order the style lists them, become Primary, Harmony A (secondary)
+       and Harmony B (accent).
+    3. Small nudges from the Vibe Vector and the refine buttons: warm_shift turns hues a little warmer or
+       cooler, light_shift makes colours lighter or darker, bold_shift and the "Muted" button change
+       saturation. The style's character stays the same.
+    4. The text colour is pushed lighter or darker until text on the background passes WCAG AA (4.5:1).
+    """
+    tweaks = tweaks or {}
+    ordered = sorted(anchors, key=lambda pair: hls(pair[1])[1])
+    darkest, lightest = ordered[0], ordered[-1]
+    background, ink = (darkest, lightest) if dark else (lightest, darkest)
+    rest = [pair for pair in anchors if pair not in (background, ink)]
+    while len(rest) < 3:
+        rest.append(rest[-1] if rest else ink)
+    warm = clamp(warm_shift + tweaks.get("warmth", 0.0), -1, 1)
+    saturation_factor = tweaks.get("muted", 1.0) * (1 + 0.2 * clamp(bold_shift, -1, 1)) * (
+        1 + 0.1 * tweaks.get("contrast", 0.0))
+
+    def nudge(colour, keep_light=False):
+        h, l, s = hls(colour)
+        target = shift_hue(h * 360, warm) if abs(warm) > 0.05 else h * 360
+        hue = h * 360 + ((target - h * 360 + 180) % 360 - 180) * 0.45
+        if not keep_light:
+            l = clamp(l + 0.1 * clamp(light_shift, -1, 1), 0.1, 0.92)
+        return from_hls(hue / 360, l, s * saturation_factor)
+
+    primary, harmony_a, harmony_b = (nudge(hex_) for _, hex_ in rest[:3])
+    background_hex = nudge(background[1], keep_light=True)
+    ink_hex = ink[1]
+    h, l, s = hls(ink_hex)
+    while contrast(ink_hex, background_hex) < 4.5 and 0.0 < l < 1.0:
+        l = l + 0.03 if dark else l - 0.03
+        ink_hex = from_hls(h, clamp(l), s)
+    names = dict(anchors)
+    colours = [("Primary", primary, rest[0][0]), ("Harmony A", harmony_a, rest[1][0]),
+               ("Harmony B", harmony_b, rest[2][0]), ("Background", background_hex, background[0]),
+               ("Ink (text)", ink_hex, ink[0])]
+    story = [{"name": name, "hex": nudge(hex_, keep_light=name in (background[0], ink[0]))}
+             for name, hex_ in anchors]
+    ph, pl, ps = hls(primary)
+    return {
+        "colours": [{"role": role, "hex": hex_, "name": name} for role, hex_, name in colours],
+        "rule": "style colour story", "hue": round(ph * 360), "saturation": round(ps, 2),
+        "lightness": round(pl, 2), "valence": round(valence, 2), "arousal": round(arousal, 2),
+        "checks": contrast_checks({role: hex_ for role, hex_, _ in colours}),
+        "story": story, "dark": dark, "named": len(names),
+    }
+
+
 def contrast_checks(colours):
     """Which text/background pairs pass WCAG (AA: 4.5 for normal text, 3 for large text)."""
     pairs = [("Ink on Background", colours["Ink (text)"], colours["Background"], 4.5),

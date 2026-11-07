@@ -70,6 +70,14 @@ def settings_menu():
                       value=llm.cloud_consent(), on_change=save_toggle, args=("cloud_ai_consent", "set_cloud"))
         st.caption("Crisis messages are never sent to any AI: they always get the fixed safety reply with helplines.")
 
+        heading("Create Mode")
+        st.toggle("Online images, music and fonts", key="set_online",
+                  value=storage.get_setting("online_sources", "1") == "1", on_change=save_toggle,
+                  args=("online_sources", "set_online"),
+                  help="Moodboard images from Unsplash, Openverse and Pixabay, extra songs from Last.fm and "
+                       "MusicBrainz, and extra fonts from Google Fonts. Only ORBIT's own search words are sent, "
+                       "never what you type.")
+
         heading("Extras")
         st.toggle("Suggest a game when I'm stressed or low", key="set_games",
                   value=storage.get_setting("games_opt_out", "0") != "1", on_change=save_games)

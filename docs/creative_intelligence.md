@@ -30,7 +30,7 @@ results. The new algorithm fixes this by understanding **creative styles**, not 
 
 ## 3. The knowledge table
 
-`data/creative_profiles.csv` has 31 styles, written for ORBIT (you can open it in Excel). Each row
+`data/creative_profiles.csv` has 41 styles (31 at first), written for ORBIT (you can open it in Excel). Each row
 describes one style:
 
 | Column | Dark Romance (example) |
@@ -131,7 +131,7 @@ the real emotion model, because the existing 40% part still depends on the feeli
 
 ## 8. What makes it our own component
 
-- The **style table** (31 styles, their keywords, colours, tags and "avoid" lists) was written for ORBIT
+- The **style table** (41 styles, their keywords, colours, tags and "avoid" lists) was written for ORBIT
   and linked to ORBIT's own aesthetics, fonts, music and creator data.
 - The **scoring rules** (phrase 3 / word 2 / related 1; +1.0 / +0.6 / +0.4 / −0.5; 60/40 blend; 0.3 bar)
   were designed and tuned for this project and tested on seven ideas.
@@ -140,7 +140,7 @@ the real emotion model, because the existing 40% part still depends on the feeli
 
 ## 9. Limits (honest)
 
-- It only knows the 31 styles in the table. New styles must be added as new rows.
+- It only knows the 41 styles in the table. New styles must be added as new rows.
 - Keywords must be spelled as in the table (simple plurals like "dreams" are understood).
 - The numbers (60/40, 0.3, +1.0, ...) are design choices, not learned from data. A small user study
   (rating fit 1-5 before and after) would show how much it really helps.
@@ -156,3 +156,132 @@ the real emotion model, because the existing 40% part still depends on the feeli
 | `palette.py`, `fonts.py`, `music.py` | style colour, font head start, music idea score |
 | `create_ui.py` | "ORBIT read your idea as ..." and the explanation in *How this was made* |
 | `tests/test_creative_match.py` | 17 tests, including the seven ideas |
+
+---
+
+# Part 2: The Creative Brief, colour stories, patterns and free online sources
+
+## 11. The whole workflow
+
+```
+Idea → crisis check (unchanged: a crisis idea gets only helplines, nothing is generated or sent)
+  1. ORBIT Creative Brief Builder (our own, no AI service)   → genre, aesthetic, atmosphere, emotion,
+                                                               colours, patterns, typography, music
+  2. ORBIT colour story palette (no API)                     → Primary, Secondary, Accent, Background, Text
+  3. Search free sources with the brief's own phrases         → Unsplash, Openverse, Pixabay (images)
+                                                               Last.fm + MusicBrainz (songs)
+                                                               Google Fonts (fonts)
+  4. ORBIT scores every result (simple points, below)
+  5. Filter: low scores, "avoid" words, repeats, one per photographer or artist
+  6. Show the creative world, with credits and licences
+```
+
+We decided **not** to use Gemini: its terms do not allow apps used by people under 18, and ORBIT is
+for school students. So the "understanding" step is ORBIT's own Creative Brief Builder.
+
+## 12. The Creative Brief Builder
+
+The style table now has **41 styles** (for example Dark Romance, Gothic Romance, Dark Fantasy, Gothic
+Architecture, Fairycore, Royalcore, Witchy, Autumn Cosy, Old Hollywood, Lo-fi, Coastal). Each row also
+holds the brief: genre, emotional direction, typography personality, music character, 6-7 **named
+colours**, 3-4 **patterns**, 3-4 **image search phrases**, words to **avoid** in images, and **Last.fm
+tags**. Phrases are matched first, so "Gothic Romance", "Dark Romance", "Dark Fantasy", "Gothic
+Architecture" and plain "Gothic" are all different styles.
+
+## 13. Colour stories (the palette fix)
+
+Before, every palette came from one hue and the main colour was forced to stay light, so Dark Romance
+got rose, orchid and coral. Now each style has a named colour story, e.g. Dark Romance:
+Deep Burgundy, Wine Red, Muted Rose, Dusty Mauve, Deep Plum, Antique Ivory, Charcoal.
+
+1. **Dark style** (its light number is below -0.25): the **darkest** colour is the background and the
+   **lightest** is the text. A light style does the opposite.
+2. The other colours, in the order the style lists them, become **Primary, Secondary, Accent**.
+   With two styles, colours are taken in turns, so both styles show.
+3. Small nudges keep the refine buttons working: warmer or cooler hues, lighter or darker, more or less
+   saturated. The style's character stays.
+4. The text colour is moved until **text on the background passes WCAG AA (4.5 : 1)**.
+
+## 14. Patterns and textures
+
+Each style lists its own patterns (Dark Romance: damask, rose motif, velvet, candle glow; Cottagecore:
+gingham, wildflower sprigs, embroidery, linen; Cyberpunk: neon grid, circuit lines, scanlines). ORBIT
+draws them in the palette's own colours (`pattern_swatches.py`, 61 patterns). Ideas with no style keep
+the old textures.
+
+## 15. Moodboard images: the scoring
+
+The brief's search phrases (e.g. "red roses candlelight", "burgundy velvet") are sent to Unsplash,
+Openverse and Pixabay. Every image gets:
+
+| Rule | Points |
+|---|---|
+| Brief words found in its title and tags | +0.6 × (words found ÷ 3, at most 1) |
+| Its main colour is close to the palette (Unsplash gives this) | +0.3 × closeness (half marks if unknown) |
+| It came from an on-brief search | +0.1 |
+| It contains a word the style avoids, or a vehicle, logo, screenshot or 3D avatar | −0.5 |
+
+Kept if the score is **0.5 or more**. Then: at most **one image per photographer**, at most **3 per
+search**, no repeated titles, and the searches take turns so the board is varied. Every image shows its
+photographer, source and licence, and links to its page.
+
+## 16. Music and fonts from online sources
+
+**Songs.** ORBIT's own 271-song playlist stays first. Below it, *More to discover* comes from Last.fm
+songs with the brief's tags (e.g. "romantic", "dark pop"). Each gets:
++0.6 × (brief tags it appears under ÷ tags searched), +0.4 if MusicBrainz confirms the song and one of
+its genre tags fits the style, −0.5 for avoided words. Kept at 0.3 or more, one per artist, and never a
+repeat of ORBIT's own playlist.
+
+**Fonts.** ORBIT's list grew from 77 to **97** tagged fonts (blackletter, medieval, Victorian, formal
+scripts). Google Fonts adds popular families in the categories the style needs (serif, display,
+handwriting, ...): score = 0.6 × category fit + 0.4 × popularity.
+
+## 17. Free use, limits and what happens when a service is unavailable
+
+| Source | Key | Free limit | ORBIT's rule |
+|---|---|---|---|
+| Unsplash | free Access Key | 50 requests/hour (demo) | budget 40/hour, credit photographer + Unsplash, images shown from Unsplash's links |
+| Pixabay | free key | 100 requests/minute | searches kept 24 hours (Pixabay asks for this), shown only as search results |
+| Openverse | none (optional free registration) | 20/minute, 200/day without a key | licence and credit on every image, photographs only |
+| Last.fm | free key | "reasonable use", non-commercial | budget 60/minute, credit Last.fm |
+| MusicBrainz | none | 1 request/second | waits 1.1 s between checks, named User-Agent |
+| Google Fonts | free key | normal Google Cloud quota, no billing | the list is kept for 24 hours |
+
+- Every search is remembered for 24 hours, so repeating an idea costs nothing.
+- If a key is missing, a limit is reached or a service is down, that source is skipped and a small line
+  says so ("Unsplash: not set up"). If no image source works, the moodboard falls back to ORBIT's own
+  tiles; music always has ORBIT's playlist; fonts always have ORBIT's list. Create Mode never crashes.
+- **Privacy:** only ORBIT's own search phrases are sent, never what the user typed. Nothing is sent after
+  a crisis check, in offline demo mode, or when *Settings → Online images, music and fonts* is off.
+- **Safety:** Unsplash content filter "high", Pixabay safe search, Openverse "mature" off.
+
+## 18. Before and after (8 test ideas)
+
+| Idea | Palette before | Palette now | Patterns now | Heading font now |
+|---|---|---|---|---|
+| Dark Romance | Soft Rose, Soft Orchid, Soft Coral | Deep Burgundy, Wine Red, Muted Rose on Charcoal | damask, rose motif, velvet, candle glow | Spectral SC |
+| Dark Academia | Soft Coral, Soft Rose, Soft Honey | Oxblood, Walnut Brown, Forest Green on Ink Black | tweed, old paper, leather, ink blots | Crimson Pro |
+| Dark Fantasy | Soft Mint, Soft Berry (read as plain "Fantasy") | Deep Forest, Obsidian, Ember Red on Shadow | celtic knots, runes, stone texture | Grenze Gotisch |
+| Cottagecore | Soft Sage, Pale Lime | Sage Green, Wildflower Pink, Honey on Cream Linen | gingham, wildflower sprigs, embroidery, linen | Dancing Script |
+| Cyberpunk | Vivid Orchid, Soft Honey, Soft Mint | Neon Magenta, Electric Cyan, Acid Yellow on Night Black | neon grid, circuit lines, scanlines, glitch bands | Orbitron |
+| Dreamy Nostalgia | Dusty Lavender, Pale Lavender | Lavender Haze, Faded Orange, Baby Blue on Cloud White | clouds, watercolour wash, film grain | Cormorant |
+| Minimalist Luxury | Soft Apricot, Soft Rose | Stone Grey, Champagne Gold, Warm Taupe on Ivory | fine grid, linen, marble | Raleway |
+| Ethereal Fantasy | Soft Periwinkle, Pale Sky | Pearl Lilac, Emerald, Moon Silver on Pearl White | clouds, pearls, watercolour wash | Marcellus |
+
+Before, every idea had the same three textures (soft grain, linen, film grain) and the moodboard had no
+images. Now the textures follow the style and the moodboard shows real, credited images. Image and
+online-song quality depends on which keys are set up (see `.streamlit/secrets.toml.example`).
+
+## 19. Where the new code is
+
+| File | What it does |
+|---|---|
+| `data/creative_profiles.csv` | 41 styles with their full brief (colours, patterns, searches, tags) |
+| `creative_match.py` | `brief()`, `anchors()`, `image_keywords()` added to the matching algorithm |
+| `palette.py` | `anchor_palette()`: the colour story palette |
+| `pattern_swatches.py` | 61 patterns drawn in the palette's colours |
+| `online_sources.py` | the six free services, budgets, 24-hour memory, scoring and filtering |
+| `create_ui.py` | the Creative Brief card, image moodboard, colour story, "More to discover", sources line |
+| `tests/test_online_sources.py` | tests with saved sample answers (no internet, no quota used) |
+

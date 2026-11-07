@@ -105,7 +105,9 @@ def test_each_idea_gets_recommendations_in_its_creative_direction(idea):
     names = [a["name"] for a in universe["aesthetics"]]
     assert expected["aesthetic"] in names
     assert all(a["fits"] for a in universe["aesthetics"])
-    assert hue_distance(universe["palette"]["hue"], expected["hue"]) <= 20
+    palette_names = {c["name"] for c in universe["palette"]["colours"]}
+    style_names = {name for name, _ in cm.anchors(vector["match"])}
+    assert universe["palette"]["rule"] == "style colour story" and palette_names <= style_names
     heading = fonts.load_fonts().set_index("family").loc[universe["fonts"]["heading"], "tag_list"]
     assert set(heading) & expected["font_tags"]
     assert sum(bool(t.get("idea_fits")) for t in universe["music"]) >= 6

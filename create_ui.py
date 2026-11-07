@@ -209,6 +209,8 @@ def spark_start():
 
 def finish_questions(skip=False):
     pending = st.session_state.create_pending
+    if not pending:
+        return
     vector = pending["vector"]
     s = st.session_state
     if not skip:
@@ -343,7 +345,12 @@ def how_it_was_made(universe):
     matching = (f'<p class="body"><b>Creative Feature Matching:</b> {esc(creative_match.summary(found))}. '
                 "Each aesthetic, font, song and creator got an idea-match score (named by the style +1.0, shared "
                 "tags +0.6 x share, matching genre +0.4, avoided tag -0.5), and final score = 60% idea match + 40% "
-                "the vibe score below. Only clear matches (0.3 or more) competed for the places.</p>"
+                "the vibe score below. Only clear matches (0.3 or more) competed for the places. The palette "
+                "uses the style's own colour story: the darkest colour becomes the background for dark styles. "
+                "Moodboard images: +0.6 x brief words found (up to 3), +0.3 x colour closeness, +0.1 on-brief "
+                "search, -0.5 avoided word; kept at 0.5 or more, one per photographer, at most 3 per search. "
+                "Extra songs: +0.6 x Last.fm tags matched, +0.4 if MusicBrainz confirms a fitting genre, -0.5 "
+                "avoided word; no repeats of ORBIT's own playlist.</p>"
                 if found else "")
     st.html('<p class="body"><b>The Vibe Vector</b>: every output below is generated from these numbers.</p>'
             + rows + '<p class="body" style="margin-top:.6rem">Understood words: '
@@ -385,11 +392,88 @@ def orbit_html(universe):
             f'<span style="font-family:\'{fonts_used["heading"]}\',serif">{esc(concept["title"])}</span></div></div>')
 
 
+SOURCE_NAMES = {"unsplash": "Unsplash", "openverse": "Openverse", "pixabay": "Pixabay", "lastfm": "Last.fm",
+                "musicbrainz": "MusicBrainz", "googlefonts": "Google Fonts", "images": "Images"}
+STATUS_WORDS = {"used": "used", "no key": "not set up", "limit reached": "resting (free limit reached)",
+                "unavailable": "unavailable right now", "key not accepted": "key not accepted"}
+
+
+def brief_html(brief):
+    """ORBIT's Creative Brief as a small grid of labelled facts."""
+    rows = [("Genre", brief["genre"]), ("Aesthetic", brief["aesthetic"]), ("Atmosphere", brief["atmosphere"]),
+            ("Emotional direction", brief["emotion"]), ("Colours", ", ".join(brief["colours"][:6])),
+            ("Patterns and textures", ", ".join(brief["patterns"])), ("Typography", brief["typography"]),
+            ("Music", brief["music"])]
+    cells = "".join(f'<div><b>{esc(label)}</b><span>{esc(value)}</span></div>' for label, value in rows if value)
+    return f'<div class="cu-brief">{cells}</div>'
+
+
+def image_board_html(images):
+    """The moodboard: each image links to its page and keeps its credit and licence."""
+    figures = []
+    for image in images:
+        author = (f'<a href="{esc(image["author_link"])}" target="_blank" rel="noopener">{esc(image["author"])}</a>'
+                  if image.get("author_link") else esc(image["author"]))
+        licence = (f'<a href="{esc(image["licence_link"])}" target="_blank" rel="noopener">{esc(image["licence"])}</a>'
+                   if image.get("licence_link") else esc(image["licence"]))
+        source = ('<a href="https://unsplash.com/?utm_source=orbit_creative_studio&amp;utm_medium=referral" '
+                  'target="_blank" rel="noopener">Unsplash</a>' if image["source"] == "Unsplash" else esc(image["source"]))
+        figures.append(
+            f'<figure class="cu-img"><a href="{esc(image["link"])}" target="_blank" rel="noopener">'
+            f'<img src="{esc(image["thumb"])}" alt="{esc(image["title"] or image["query"])}" loading="lazy"></a>'
+            f'<figcaption>{author} · {source} · {licence}</figcaption></figure>')
+    return '<div class="cu-imageboard">' + "".join(figures) + "</div>"
+
+
+def pattern_strip_html(names, palette_result):
+    from studio import PATTERN_CSS
+    c = {x["role"]: x["hex"] for x in palette_result["colours"]}
+    fill = {"a": c["Primary"], "b": c["Harmony A"], "c": c["Harmony B"], "bg": c["Background"], "ink": c["Ink (text)"]}
+    tiles = "".join(
+        f'<div class="cu-pattern"><i style="background:{PATTERN_CSS.get(n, PATTERN_CSS["soft grain"]).format(**fill)}">'
+        f'</i><span>{esc(n)}</span></div>' for n in names)
+    return f'<div class="cu-patterns">{tiles}</div>'
+
+
+def story_html(palette_result):
+    """The style's full colour story, not only the five working colours."""
+    if not palette_result.get("story"):
+        return ""
+    chips = "".join(f'<span class="cu-story-chip"><i style="background:{c["hex"]}"></i>{esc(c["name"])}</span>'
+                    for c in palette_result["story"])
+    return f'<div class="field-label" style="margin-top:.8rem">Full colour story</div><div class="cu-story">{chips}</div>'
+
+
+def sources_html(status, kinds):
+    parts = [f'{SOURCE_NAMES.get(name, name)}: {STATUS_WORDS.get(value, value)}'
+             for name, value in status.items() if name in kinds]
+    return f'<p class="body cu-sources">Online sources · {esc(" · ".join(parts))}</p>' if parts else ""
+
+
+def discover_rows(tracks):
+    rows = []
+    for track in tracks:
+        _, youtube = music.links(track)
+        if track.get("verified"):
+            checked = (f'Checked on <a href="{esc(track["musicbrainz_link"])}" target="_blank" rel="noopener">'
+                       f'MusicBrainz</a>' + (f' · {esc(track["year"])}' if track.get("year") else ""))
+        else:
+            checked = "From Last.fm"
+        fits = f' · fits: {esc(", ".join(track["fits"][:3]))}' if track.get("fits") else ""
+        rows.append(f'<div class="track"><span class="track-num">+</span><div><b>{esc(track["title"])}</b> · '
+                    f'{esc(track["artist"])}<small>{checked} · Last.fm tag: {esc(", ".join(track["tags"]))}{fits}</small>'
+                    f'</div><div class="track-links"><a href="{esc(track["lastfm_link"])}" target="_blank" '
+                    f'rel="noopener">Last.fm</a><a href="{youtube}" target="_blank" rel="noopener">YouTube</a></div></div>')
+    return "".join(rows)
+
+
 def universe_screen():
     data = state()
     universe = data["universe"]
     vector, concept = universe["vector"], universe["concept"]
-    fonts_used = universe["fonts"]
+    online = universe.get("online") or {"images": [], "tracks": [], "fonts": [], "status": {}}
+    fonts_used = {**universe["fonts"], "more": universe["fonts"].get("more", []) + [
+        {"family": f["family"], "category": f["category"] + " · Google Fonts", "feel": ""} for f in online["fonts"]]}
     st.html("<style>" + fontlib.google_fonts_css(*fontlib.families_in(fonts_used)) + "</style>")
 
     st.html(orbit_html(universe))
@@ -401,7 +485,8 @@ def universe_screen():
                 + ('<span class="badge">Polished with AI · checked</span>' if concept.get("polished") else "")
                 + (f'<p class="body cu-read"><b>ORBIT read your idea as:</b> '
                    f'{esc(" + ".join(s["name"] for s in vector["match"]["styles"]))}</p>'
-                   if vector.get("match") else ""))
+                   if vector.get("match") else "")
+                + (brief_html(universe["brief"]) if universe.get("brief") else ""))
         a, b, c = st.columns(3)
         a.button("New idea", key="cu_new", on_click=new_idea, width="stretch")
         import llm
@@ -453,9 +538,16 @@ def universe_screen():
     with st.container(key="glass-cu-palette"):
         section("palette", "Palette and moodboard")
         tiles = universe["moodboard"]["textures"]
-        st.html(moodboard_html(universe["palette"], fonts_used, tiles, universe["moodboard"]["keywords"]))
+        if online["images"]:
+            st.html(image_board_html(online["images"])
+                    + '<div class="field-label" style="margin-top:.9rem">Patterns and textures</div>'
+                    + pattern_strip_html(tiles, universe["palette"]))
+        else:
+            st.html(moodboard_html(universe["palette"], fonts_used, tiles, universe["moodboard"]["keywords"]))
         st.html(f'<p class="body" style="margin-top:.6rem">Lighting: <b>{esc(universe["moodboard"]["lighting"])}</b>. '
-                f'Textures: {esc(", ".join(tiles))}.</p>' + palette_rows(universe["palette"]))
+                f'Textures: {esc(", ".join(tiles))}.</p>' + palette_rows(universe["palette"])
+                + story_html(universe["palette"])
+                + sources_html(online["status"], {"unsplash", "openverse", "pixabay", "images"}))
         lock_line = st.columns([5, 1])[1]
         with lock_line:
             lock_toggle("moodboard")
@@ -486,6 +578,12 @@ def universe_screen():
                         f'<a href="{spotify}" target="_blank" rel="noopener">Spotify</a>'
                         f'<a href="{youtube}" target="_blank" rel="noopener">YouTube</a></div></div>')
         st.html("".join(rows))
+        if online["tracks"]:
+            st.html('<div class="field-label" style="margin-top:1rem">More to discover · songs tagged on Last.fm, '
+                    "chosen and checked by ORBIT</div>" + discover_rows(online["tracks"]))
+        music_sources = sources_html(online["status"], {"lastfm", "musicbrainz"})
+        if music_sources:
+            st.html(music_sources)
 
     with st.container(key="glass-cu-creators"):
         section("creators", "Creators and artists to discover")

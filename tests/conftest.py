@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 os.environ["ORBIT_DB"] = str(Path(tempfile.mkdtemp()) / "orbit_test.db")
+os.environ["ORBIT_OFFLINE"] = "1"
 
 import pytest
 import streamlit as st

@@ -23,7 +23,7 @@ and a **pre-trained transformer model** running offline.
 
 > Create (Creator Mode) and Feel (wellbeing) modes, joined by two bridges.
 > ORBIT has its own trained classifier, confidence handling, "Teach Orbit", a tested safety net that
-> runs first in both modes, 436 automated tests and CI.
+> runs first in both modes, 445 automated tests and CI.
 >
 > Documentation: [methodology](docs/methodology.md) · [safety report](docs/safety_report.md) ·
 > [model card](docs/model_card.md) · [data card](docs/data_card.md) · [viva Q&A](docs/viva_qa.md) ·
@@ -121,7 +121,7 @@ translation. **Every output is generated from this one vector**, which is why th
 |---|---|
 | Concept | Title + one-paragraph vision from a template grammar. Optional **AI polish** (cloud or local, only if set up) with the template as fallback and the same output checks as replies. |
 | Palette | 5 colours with names, roles, hex codes and a WCAG contrast check (`palette.py`): valence and arousal → hue, saturation and lightness, plus a harmony rule. |
-| Typography | Closest heading font in `data/fonts.csv` (77 Google Fonts tagged by mood), plus a readable body font from a different family; Devanagari fonts for Hindi ideas. Every font is **shown in its own typeface**, with eight more font ideas for the vibe (at most two per category, for variety). |
+| Typography | Closest heading font in `data/fonts.csv` (97 Google Fonts tagged by mood), plus a readable body font from a different family; Devanagari fonts for Hindi ideas. Every font is **shown in its own typeface**, with eight more font ideas for the vibe (at most two per category, for variety). |
 | Moodboard | Generated gradients, patterns, lighting and keyword tiles; no images. |
 | Aesthetics | The 3 closest of 66 movements in `data/aesthetics.csv` (Bauhaus to Madhubani to Solarpunk). |
 | Music | 8 tracks from `data/music_catalog.csv` with Spotify/YouTube search links. |
@@ -157,13 +157,25 @@ formulaic; matching a creator by numbers is a starting point for research, not a
 ### The ORBIT Creative Feature Matching Algorithm
 
 Our own component that makes Create Mode follow the **creative direction** of an idea, not only its
-emotion. For "Dark Romance" it finds the style Dark Romance (from a table of 31 styles in
+emotion. For "Dark Romance" it finds the style Dark Romance (from a table of 41 styles in
 `data/creative_profiles.csv`), then scores every aesthetic, font, song and creator against that style:
 +1.0 if the style names it, +0.6 × shared tags, +0.4 for a matching music genre, −0.5 for a tag the
 style avoids. **Final score = 60% idea match + 40% ORBIT's existing score.** Phrases are matched first, so
 "dark" inside "dark romance" doesn't pull in horror. The style also sets the palette's hue and gives
 fitting fonts a head start. Ideas that name no style work exactly as before. Before/after results for
 seven ideas and a step-by-step explanation are in [docs/creative_intelligence.md](docs/creative_intelligence.md).
+
+### Creative Brief, colour stories and free online sources
+
+ORBIT's own **Creative Brief Builder** turns the matched style (41 styles, including Dark Romance, Gothic
+Romance and Dark Fantasy) into a brief: genre, atmosphere, emotional direction, named colours, patterns,
+typography and music. Palettes now use each style's **colour story** (dark styles get dark backgrounds
+and light text, checked for WCAG contrast), patterns follow the style, and the moodboard shows **real,
+credited images** from Unsplash, Openverse and Pixabay, scored and filtered by ORBIT. Last.fm and
+MusicBrainz add checked songs under ORBIT's own playlist, and Google Fonts adds fonts in the right
+categories. All sources are free and optional; keys go in Streamlit Secrets (see
+`.streamlit/secrets.toml.example`), and Create Mode works without any of them. Only ORBIT's own search
+phrases are ever sent. Details: [docs/creative_intelligence.md](docs/creative_intelligence.md), Part 2.
 
 ## The bridges between the two modes
 
@@ -411,6 +423,8 @@ Mood-to-World/
 ├── vibe.py           # The Vibe Vector, refine chips, sliders, three directions
 ├── creative.py       # Creative Universe generation (concept, aesthetics, creators, music, moodboard)
 ├── creative_match.py # Creative Feature Matching: idea keywords -> styles -> scores for every resource
+├── online_sources.py # Free images, songs and fonts (Unsplash, Openverse, Pixabay, Last.fm, MusicBrainz, Google Fonts)
+├── pattern_swatches.py # 61 style patterns drawn in the palette's colours
 ├── spark.py          # Spark idea grammar, remix and lock
 ├── brief.py          # One-page creative brief PDF (Pillow)
 ├── fonts.py          # Typography pairing from fonts.csv
@@ -440,7 +454,7 @@ Mood-to-World/
 ├── styles.py         # All the visual design (CSS)
 ├── world_data.py     # Loads worlds.csv, matches emotions to worlds, Soundspace data
 ├── requirements.txt / requirements-dev.txt
-├── tests/            # 436 pytest tests (safety, translation, analysis, games, Mood Studio, Creator Mode, Creative Feature Matching, bridges)
+├── tests/            # 445 pytest tests (safety, translation, analysis, games, Mood Studio, Creator Mode, Creative Feature Matching, online sources, bridges)
 ├── .github/workflows/tests.yml   # runs the tests on GitHub on every push
 ├── docs/
 │   ├── methodology.md            # data, modelling, pre-registered rules, results
@@ -460,8 +474,8 @@ Mood-to-World/
     ├── safety_tests.csv          # 93 safety phrases with dev/holdout rounds
     ├── music_catalog.csv         # 271 hand-labelled tracks (no lyrics)
     ├── music_labelling_template.csv  # for classmates to add and tag tracks
-    ├── fonts.csv                 # 77 Google Fonts tagged by mood
-    ├── creative_profiles.csv     # 31 creative styles for Creative Feature Matching
+    ├── fonts.csv                 # 97 Google Fonts tagged by mood
+    ├── creative_profiles.csv     # 41 creative styles with their Creative Brief
     ├── aesthetics.csv            # 66 art and design movements
     ├── creators.csv              # 98 creators and artists (53 from India)
     ├── idea_seeds.csv            # Spark: settings, contrast pairs, textures, story structures

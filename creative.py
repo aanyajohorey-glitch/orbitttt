@@ -146,7 +146,8 @@ def lighting(vector):
 
 
 def moodboard(vector, aesthetics):
-    textures = palette.textures(vector["arousal"], -vector["era"])
+    textures = (creative_match.merged(vector.get("match"), "patterns", limit=4)
+                or palette.textures(vector["arousal"], -vector["era"]))
     cues = [cue for a in aesthetics[:2] for cue in a["cue_list"][:2]]
     keywords = list(dict.fromkeys(vector["themes"][:4] + cues))
     return {"textures": textures, "lighting": lighting(vector), "keywords": keywords[:8]}
@@ -263,6 +264,25 @@ def music_tags(vector):
     return list(dict.fromkeys(tags))[:5]
 
 
+DARK_BELOW = -0.25
+
+
+def style_palette(vector, found):
+    """The palette from the matched style's own colour story (None when the idea names no style).
+    Dark styles (light below -0.25 after blending) get a dark background and light text."""
+    anchors = creative_match.anchors(found)
+    if len(anchors) < 4:
+        return None
+
+    def shift(key, field):
+        base = creative_match.blended(found, field)
+        return vector[key] - base if base is not None else 0.3 * vector[key]
+    return palette.anchor_palette(anchors, dark=vector["brightness"] < DARK_BELOW,
+                                  warm_shift=shift("warmth", "warmth"), light_shift=shift("brightness", "light"),
+                                  bold_shift=shift("bold", "bold"), tweaks=vector.get("tweaks"),
+                                  valence=vector["valence"], arousal=vector["arousal"])
+
+
 def universe(vector, discovery=None, locks=(), previous=None):
     """Generate every element from the vector. Locked elements keep their previous version."""
     discovery = vector.get("discovery", 0.5) if discovery is None else discovery
@@ -274,7 +294,8 @@ def universe(vector, discovery=None, locks=(), previous=None):
 
     hindi = any("ऀ" <= ch <= "ॿ" for ch in vector["text"])
     found = vector.get("match")
-    out["palette"] = previous["palette"] if keep("palette") else palette.make_palette(
+    out["palette"] = previous["palette"] if keep("palette") else style_palette(vector, found)
+    out["palette"] = out["palette"] or palette.make_palette(
         vector["valence"], vector["arousal"], warm=vector["warmth"], bold=vector["bold"], vintage=-vector["era"],
         tweaks=vector.get("tweaks"), brightness=vector["brightness"],
         harmony=vector.get("harmony") or (creative_match.merged(found, "harmony") or [None])[0],
@@ -291,6 +312,26 @@ def universe(vector, discovery=None, locks=(), previous=None):
     out["creators"] = previous["creators"] if keep("creators") else rank_creators(vector, discovery)
     out["concept"] = previous["concept"] if keep("concept") else concept(
         vector, out["palette"]["colours"], out["aesthetics"], out["fonts"])
+    out["brief"] = creative_match.brief(found)
+    out["online"] = online(out, found, previous, keep)
     out["vector"] = copy.deepcopy(vector)
     out["discovery"] = discovery
     return out
+
+
+def online(out, found, previous, keep):
+    """Images, extra songs and extra fonts from free online sources (online_sources.py), scored by
+    ORBIT. Empty when the idea names no style or online sources are off. Locked parts keep theirs."""
+    import online_sources
+    empty = {"images": [], "tracks": [], "fonts": [], "status": {}, "checked": 0}
+    if not out["brief"] or not online_sources.enabled():
+        return empty
+    old = previous.get("online") or empty
+    if keep("moodboard") and keep("music") and keep("fonts") and previous.get("online"):
+        return old
+    fresh = online_sources.gather(out["brief"], found, out["palette"], out["music"],
+                                  list(fonts.load_fonts()["family"]))
+    for part, lock in (("images", "moodboard"), ("tracks", "music"), ("fonts", "fonts")):
+        if keep(lock) and previous.get("online"):
+            fresh[part] = old[part]
+    return fresh

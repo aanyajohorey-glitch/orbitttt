@@ -13,6 +13,7 @@ import streamlit as st
 
 import fonts as fontlib
 import palette
+import pattern_swatches
 import storage
 from components import esc, note, section_header
 from safety import check as safety_check
@@ -39,6 +40,7 @@ PATTERN_CSS = {
     "frosted glass": "linear-gradient(135deg, #ffffffaa, #ffffff22), linear-gradient(135deg, {a}, {b})",
     "clean gradient": "linear-gradient(135deg, {a}, {c})",
 }
+PATTERN_CSS.update(pattern_swatches.PATTERNS)
 
 
 def blocked(text=""):
@@ -71,7 +73,7 @@ def moodboard_html(result, fonts, tiles, keywords):
     c = {x["role"]: x["hex"] for x in result["colours"]}
     fill = {"a": c["Primary"], "b": c["Harmony A"], "c": c["Harmony B"], "bg": c["Background"], "ink": c["Ink (text)"]}
     pattern_tiles = "".join(
-        f'<div class="mb-tile mb-pattern" style="background:{PATTERN_CSS[name].format(**fill)}">'
+        f'<div class="mb-tile mb-pattern" style="background:{PATTERN_CSS.get(name, PATTERN_CSS["soft grain"]).format(**fill)}">'
         f'<span>{esc(name)}</span></div>' for name in tiles)
     def label_colour(background):
         ink = c["Ink (text)"]
