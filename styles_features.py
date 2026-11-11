@@ -285,8 +285,4 @@ FEATURE_CSS = """
   border-radius: 999px; border: 1px solid var(--line); color: var(--charcoal); }
 .cu-story-chip i { width: 18px; height: 18px; border-radius: 50%; display: inline-block; }
 .cu-sources { font-size: 0.74rem !important; color: var(--muted) !important; margin-top: 0.6rem; }
-
-/* ---------- Soundspace: real songs in each vibe card ---------- */
-.sound-songs .track { grid-template-columns: minmax(0, 1fr); gap: 0.35rem; padding: 0.55rem 0; }
-[class*="st-key-glass-card-sound"] > [data-testid="stElementContainer"]:last-child { margin-top: 0; }
 """

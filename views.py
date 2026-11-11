@@ -1,7 +1,6 @@
 """
 views.py
-Shared pieces for the check-in, and the Saved worlds, Soundspace and
-Collection pages. The other pages have their own files:
+Shared pieces for the check-in, and the Saved worlds and Collection pages. The other pages have their own files:
 
     today.py      Check-in              vending.py    Vending Machine (arcade)
     wrapped.py    Wrapped (My Galaxy)   patterns.py   Patterns
@@ -16,12 +15,12 @@ import streamlit as st
 import storage
 from companion import reply
 from components import (
-    esc, field_html, go_to, note, planet_html, remove_world, save_world, section_header, swatches_html,
-    tags_html, world_card_html, world_dialog, world_planet,
+    esc, go_to, note, planet_html, remove_world, save_world, section_header, swatches_html, tags_html,
+    world_card_html, world_dialog, world_planet,
 )
 from emotion_model import describe_intensity
 from theme import set_world
-from world_data import SOUND_MOODS, SOUNDSPACES, load_worlds
+from world_data import load_worlds
 
 
 def hero_html():
@@ -169,77 +168,6 @@ def saved_cards(items):
                 st.html(world_card_html(world, index * 1.3, subtitle=f'{item["intent"]} · {item["source"]}'))
                 if st.button("Open world", key=f"open_universe_{item['id']}", width="stretch"):
                     world_dialog(item)
-
-
-VIBE_SONGS = {
-    "Dream Pop Haze": (3.6, 2.4, ["dreamy", "calm", "night"]),
-    "Neo-classical Rain": (2.8, 1.6, ["calm", "instrumental", "rain", "classical"]),
-    "Indie Folk Morning": (4.0, 2.6, ["acoustic", "folk", "morning", "hopeful"]),
-    "City Pop Sunset": (4.0, 3.4, ["nostalgic", "summer", "dance"]),
-    "Late-night Jazz": (3.0, 2.0, ["night", "chill", "calm"]),
-    "Cinematic Electronica": (3.2, 3.4, ["instrumental", "journey", "focus"]),
-    "Soft Ambient": (3.0, 1.3, ["calm", "instrumental", "focus"]),
-}
-
-
-def vibe_songs(name, size=4):
-    """Real songs for a Soundspace vibe, from ORBIT's own 271-song catalogue (music.py)."""
-    import music
-    mood, energy, tags = VIBE_SONGS[name]
-    return music.recommend_target(mood, energy, tags, intent="match", discovery=0.3, size=size)
-
-
-def songs_html(tracks):
-    import music
-    rows = []
-    for track in tracks:
-        spotify, youtube = music.links(track)
-        rows.append(f'<div class="track"><div><b>{esc(track["title"])}</b> · {esc(track["artist"])}'
-                    f'<small>{esc(track["language"])} · {esc(track["genre"])}</small></div>'
-                    f'<div class="track-links"><a href="{spotify}" target="_blank" rel="noopener">Spotify</a>'
-                    f'<a href="{youtube}" target="_blank" rel="noopener">YouTube</a></div></div>')
-    return '<div class="sound-songs">' + "".join(rows) + "</div>"
-
-
-def wave_html(colour):
-    """A small decorative sound wave."""
-    heights = [10, 18, 26, 14, 22, 30, 16, 24, 12, 20, 28, 14]
-    bars = "".join(
-        f'<span style="height:{h}px;animation-delay:-{i * 0.21:.2f}s"></span>' for i, h in enumerate(heights)
-    )
-    return f'<div class="wave" style="--c:{colour}">{bars}</div>'
-
-
-def soundspace():
-    section_header(
-        "Soundspace",
-        "Music for the world you're in",
-        "Listening vibes that match each world, each with real songs to play in Spotify or YouTube.",
-        first=True,
-    )
-    note("Songs come from ORBIT's own hand-picked catalogue. The links open a search in Spotify or YouTube: "
-         "ORBIT doesn't stream music itself.")
-
-    st.html('<div style="height:.6rem"></div>')
-    mood = st.pills("Filter by mood", SOUND_MOODS, key="sound_mood")
-
-    vibes = [v for v in SOUNDSPACES if mood is None or mood in v["moods"]]
-    columns = st.columns(3)
-    for index, vibe in enumerate(vibes):
-        with columns[index % 3]:
-            with st.container(key=f"glass-card-sound-{index}"):
-                st.html(
-                    wave_html(vibe["colour"])
-                    + f'<div class="eyebrow">{esc(vibe["genres"])}</div>'
-                    + f'<div class="title-sm">{esc(vibe["name"])}</div>'
-                    + tags_html(vibe["moods"])
-                    + '<div class="meta-grid">'
-                    + field_html("Tempo", esc(vibe["tempo"]))
-                    + field_html("Pairs with", esc(vibe["pairs_with"]))
-                    + "</div>"
-                    + field_html("Best for", esc(vibe["best_for"]))
-                    + field_html("Songs", songs_html(vibe_songs(vibe["name"])))
-                )
 
 
 def collection():

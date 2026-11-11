@@ -1,7 +1,7 @@
 """
 world_data.py
-All the sample content ORBIT uses: aesthetic worlds, creative intents,
-Soundspace vibes and vending-machine constraints.
+All the sample content ORBIT uses: aesthetic worlds, creative intents
+and vending-machine constraints.
 
 The worlds are stored in data/worlds.csv and loaded with pandas. The
 emotion model's results are matched to these worlds by match_world().
@@ -89,70 +89,4 @@ CONSTRAINTS = [
     "Keep all of the text in lowercase.",
 ]
 
-SOUND_MOODS = ["Calm", "Reflective", "Hopeful", "Nostalgic", "Focused", "Restless"]
 
-SOUNDSPACES = [
-    {
-        "name": "Dream Pop Haze",
-        "genres": "Dream pop · Shoegaze",
-        "moods": ["Calm", "Reflective"],
-        "tempo": "Slow to mid",
-        "best_for": "Drawing, daydreaming",
-        "pairs_with": "Lavender Haze",
-        "colour": "#C9B9E8",
-    },
-    {
-        "name": "Neo-classical Rain",
-        "genres": "Modern piano · Strings",
-        "moods": ["Reflective", "Calm"],
-        "tempo": "Slow",
-        "best_for": "Journaling, reading",
-        "pairs_with": "Blue Hour Tide",
-        "colour": "#B9C8EA",
-    },
-    {
-        "name": "Indie Folk Morning",
-        "genres": "Indie folk · Acoustic",
-        "moods": ["Hopeful", "Calm"],
-        "tempo": "Mid",
-        "best_for": "Morning routines, sketching outside",
-        "pairs_with": "Sage Morning",
-        "colour": "#C7D3C0",
-    },
-    {
-        "name": "City Pop Sunset",
-        "genres": "City pop · Vintage soul",
-        "moods": ["Nostalgic", "Hopeful"],
-        "tempo": "Mid to upbeat",
-        "best_for": "Scrapbooking, editing photos",
-        "pairs_with": "Blush Static",
-        "colour": "#EBCBD7",
-    },
-    {
-        "name": "Late-night Jazz",
-        "genres": "Jazz · Lo-fi hip hop",
-        "moods": ["Focused", "Calm"],
-        "tempo": "Slow to mid",
-        "best_for": "Studying, writing",
-        "pairs_with": "Midnight Library",
-        "colour": "#8E85A3",
-    },
-    {
-        "name": "Cinematic Electronica",
-        "genres": "Ambient electronica · Film score",
-        "moods": ["Restless", "Focused"],
-        "tempo": "Building",
-        "best_for": "Bold artwork, working through big feelings",
-        "pairs_with": "Velvet Thunder",
-        "colour": "#9C88BC",
-    },
-    {
-        "name": "Soft Ambient",
-        "genres": "Ambient · Drone",
-        "moods": ["Calm", "Reflective", "Nostalgic"],
-        "tempo": "Very slow",
-        "best_for": "Winding down, resting",
-        "pairs_with": "Paper Moon",
-        "colour": "#C9C2B6",
-    },
-]

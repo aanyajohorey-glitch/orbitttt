@@ -10,7 +10,7 @@ Every visit opens on the landing page (landing.py): an ivory hero with
 floating planets that asks your name and age. After "Start Exploring Your
 Universe" the app has 3 tabs:
     Create     -> Creator Mode (create_ui.py, spark_ui.py) and the Mood Studio (studio.py)
-    Feel       -> check-in (today.py), stress busters, Soundspace, Arcade
+    Feel       -> check-in (today.py), stress busters, Arcade
     My Galaxy  -> Wrapped (wrapped.py), Patterns, saved worlds, collection
 Settings live in the menu in the top right corner (settings_ui.py).
 
@@ -73,7 +73,6 @@ PAGES = {
     "Mood Studio": ("Create", "Quick palette & music", studio.studio_page),
     "Home": ("Feel", "Check-in", today.today_page),
     "Stress busters": ("Feel", "Stress busters", games.games_page),
-    "Soundspace": ("Feel", "Soundspace", views.soundspace),
     "Vending Machine": ("Feel", "Arcade", vending.vending_machine),
     "Wrapped": ("My Galaxy", "Wrapped", wrapped.wrapped_page),
     "Patterns": ("My Galaxy", "Patterns", patterns.patterns_page),

@@ -427,13 +427,6 @@ button[data-variant="pills"] * { color: inherit !important; }
 .capsule.dim { opacity: 0.4; }
 .capsule-num { font: 600 0.68rem/1 var(--sans); letter-spacing: 0.2em; color: var(--muted); }
 
-/* ---------- Soundspace ---------- */
-.wave { display: flex; align-items: flex-end; gap: 3px; height: 30px; margin-bottom: 0.9rem; }
-.wave span {
-  width: 3px; border-radius: 2px; background: var(--c);
-  transform-origin: bottom;
-  animation: pulse 2.4s ease-in-out infinite;
-}
 .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 1rem; }
 
 /* ---------- Universe ---------- */
@@ -477,7 +470,7 @@ button[data-variant="pills"] * { color: inherit !important; }
 @keyframes pulse { 0%, 100% { transform: scaleY(0.55); } 50% { transform: scaleY(1); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .planet, .capsule, .star, .ph-bar, .wave span, .reveal, .emo-track i { animation: none !important; }
+  .planet, .capsule, .star, .ph-bar, .reveal, .emo-track i { animation: none !important; }
 }
 
 /* ---------- Small screens ---------- */

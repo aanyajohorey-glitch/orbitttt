@@ -74,7 +74,6 @@ app at the mode you used last. There are three tabs:
 | **My Galaxy** | Wrapped | **ORBIT Wrapped**, like a year-in-review: for 7 days, 30 days, a year or all time, your top feelings, a mood tracker, an **abstract painting made from your emotion blend**, a playlist for the period, the world you visited most, and a card to download. |
 | | Patterns | **Pattern Insights** over 7 days, 14 days, 30 days or a year: feelings, mood line, calendar heatmap, when low moods cluster, and layered suggestions. |
 | | Saved worlds · Collection | Saved aesthetic worlds, as planets on an orbit, and as a collection. |
-| | Soundspace | Listening vibes, each with real songs from ORBIT's catalogue (Spotify and YouTube links). |
 | | Stress busters | Four gentle 2-5 minute games (Planet Builder, Tiny Wins Quest, Crack the Glass, Mandala Colouring; no scores). Also offered once per visit after a confident stress, anxiety, sadness or anger check-in, never for happy/neutral feelings, a crisis or repeated low moods. |
 | | Arcade | A realistic vending machine; tokens are **earned by self-care**. |
 
@@ -88,7 +87,7 @@ star; stronger = bigger and brighter) and the words that drove the decision glow
 check-in's constellation becomes its planet. After a feeling is detected, the **whole app
 takes on that feeling's world** (colours from `worlds.csv`, smooth fade).
 
-ORBIT plays no background music. **Soundspace** suggests real songs that open in Spotify or YouTube.
+ORBIT plays no background music.
 
 **Accessibility (Settings, top right):** reduce motion (also follows the device setting), larger text,
 high contrast, a dark theme and the Lexend readability font.
@@ -404,7 +403,7 @@ Mood-to-World/
 ├── onboarding.py     # Accessibility settings
 ├── settings_ui.py    # Settings menu: display, music, replies, demo mode, export/import
 ├── wrapped.py        # ORBIT Wrapped: painting, playlist, mood tracker, card
-├── views.py          # Check-in helpers, saved worlds, Soundspace, collection
+├── views.py          # Check-in helpers, saved worlds, collection
 ├── companion.py      # ORBIT's replies in the check-in (templates or optional AI)
 ├── llm.py            # Optional AI replies (Claude / Ollama) with injection + output guards
 ├── nudges.py         # "Talk to a real person" nudges
@@ -450,7 +449,7 @@ Mood-to-World/
 ├── soundscapes.py    # Generated soundscapes and arcade sound effects
 ├── components.py     # Reusable pieces: planets, cards, saving worlds
 ├── styles.py         # All the visual design (CSS)
-├── world_data.py     # Loads worlds.csv, matches emotions to worlds, Soundspace data
+├── world_data.py     # Loads worlds.csv, matches emotions to worlds
 ├── requirements.txt / requirements-dev.txt
 ├── tests/            # 452 pytest tests (safety, translation, analysis, games, Mood Studio, Creator Mode, Creative Feature Matching, online sources, bridges)
 ├── .github/workflows/tests.yml   # runs the tests on GitHub on every push
