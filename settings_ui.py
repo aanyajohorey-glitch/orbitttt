@@ -75,8 +75,10 @@ def settings_menu():
                   value=storage.get_setting("online_sources", "1") == "1", on_change=save_toggle,
                   args=("online_sources", "set_online"),
                   help="Moodboard images from Unsplash, Openverse and Pixabay, extra songs from Last.fm and "
-                       "MusicBrainz, and extra fonts from Google Fonts. Only ORBIT's own search words are sent, "
-                       "never what you type.")
+                       "MusicBrainz, and extra fonts from Google Fonts. Image searches use ORBIT's own words plus "
+                       "the first 8 words of the idea you type in Create (emails, links and long numbers are "
+                       "removed). Nothing you type is sent for a worrying message, in demo mode, or from your "
+                       "check-ins.")
 
         heading("Extras")
         st.toggle("Suggest a game when I'm stressed or low", key="set_games",

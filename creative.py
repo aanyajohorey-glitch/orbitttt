@@ -313,6 +313,7 @@ def universe(vector, discovery=None, locks=(), previous=None):
     out["concept"] = previous["concept"] if keep("concept") else concept(
         vector, out["palette"]["colours"], out["aesthetics"], out["fonts"])
     out["brief"] = creative_match.brief(found)
+    out["user_query"] = "" if vector.get("concern") else vector.get("user_query", "")
     out["online"] = online(out, found, previous, keep)
     out["vector"] = copy.deepcopy(vector)
     out["discovery"] = discovery
@@ -330,7 +331,7 @@ def online(out, found, previous, keep):
     if keep("moodboard") and keep("music") and keep("fonts") and previous.get("online"):
         return old
     fresh = online_sources.gather(out["brief"], found, out["palette"], out["music"],
-                                  list(fonts.load_fonts()["family"]))
+                                  list(fonts.load_fonts()["family"]), user_query=out["user_query"])
     for part, lock in (("images", "moodboard"), ("tracks", "music"), ("fonts", "fonts")):
         if keep(lock) and previous.get("online"):
             fresh[part] = old[part]

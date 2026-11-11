@@ -98,13 +98,71 @@ def test_moodboard_keeps_on_brief_images_with_credits_and_no_repeats(fake_intern
     assert {i["source"] for i in out["images"]} >= {"Unsplash", "Openverse"}
 
 
-def test_only_orbits_own_search_words_are_sent(fake_internet):
-    idea = "my secret diary entry about Dark Romance"
-    vector, found, brief = brief_for(idea)
-    creative_out = o.gather(brief, found, creative.style_palette(vector, found), [], ["Lora"])
-    assert creative_out["images"]
+def test_typed_idea_is_cleaned_to_eight_words():
+    text = ("Dark romance poster, mail me at asha@example.com or see https://x.com/a "
+            "call 98765 43210 candles roses velvet rain night extra words")
+    query = o.safe_query(text)
+    assert "@" not in query and "http" not in query and "98765" not in query and "43210" not in query
+    assert query.split() == ["Dark", "romance", "poster", "mail", "me", "at", "or", "see"]
+    assert o.safe_query("") == ""
+
+
+def test_typed_idea_is_the_first_search_but_not_sent_to_music_or_fonts(fake_internet):
+    vector, found, brief = brief_for("a candlelit poster about Dark Romance")
+    o.gather(brief, found, creative.style_palette(vector, found), [], ["Lora"],
+             user_query="a candlelit poster about Dark Romance")
+    image_searches = [(s, p) for s, p in fake_internet if s in ("unsplash", "openverse", "pixabay")]
+    for source in ("unsplash", "openverse", "pixabay"):
+        sent = [p.get("query") or p.get("q") for s, p in image_searches if s == source]
+        assert "a candlelit poster about Dark Romance" in sent, source
+    for source, params in fake_internet:
+        if source in ("lastfm", "musicbrainz", "googlefonts"):
+            assert "candlelit poster" not in str(params)
+
+
+def test_without_typed_text_only_orbits_own_words_are_sent(fake_internet):
+    vector, found, brief = brief_for("my secret diary entry about Dark Romance")
+    out = o.gather(brief, found, creative.style_palette(vector, found), [], ["Lora"])
+    assert out["images"]
     for _, params in fake_internet:
         assert "secret" not in str(params) and "diary" not in str(params)
+
+
+def _build(monkeypatch, text, online=True, demo=False):
+    """Run Create's real input handler and return the user_query it attached to the idea."""
+    import streamlit as st
+    import create_ui
+    monkeypatch.setattr(o, "enabled", lambda: online)
+    monkeypatch.setattr(demo_mode, "enabled", lambda: demo)
+    monkeypatch.setattr(create_ui, "read_emotions", lambda t: demo_mode.interpret_offline(t))
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.session_state.update(create_text=text, create_start=None, create_song="", create_word="",
+                            create_medium="Poster", create_audience=None, create_pending=None,
+                            create_offer=None, create_message=None)
+    create_ui.build_from_input()
+    pending = st.session_state.get("create_pending")
+    return pending["vector"]["user_query"] if pending else None
+
+
+def test_create_attaches_cleaned_typed_text(monkeypatch):
+    assert _build(monkeypatch, "a velvet poster for Dark Romance, email me@x.com") == \
+        "a velvet poster for Dark Romance email"
+
+
+def test_typed_text_is_never_sent_for_concern_demo_or_offline(monkeypatch):
+    assert _build(monkeypatch, "Dark Romance poster but i feel hopeless and worthless lately") in ("", None)
+    assert _build(monkeypatch, "a velvet poster for Dark Romance", demo=True) == ""
+    assert _build(monkeypatch, "a velvet poster for Dark Romance", online=False) == ""
+
+
+def test_the_feel_to_create_bridge_sends_no_typed_text():
+    import bridge
+    result = demo_mode.interpret_offline("I miss my grandmother's kitchen so much")
+    vector = bridge.feeling_to_vector(result)
+    assert not vector.get("user_query")
+    universe = creative.universe(vector, 0.5)
+    assert universe["user_query"] == ""
 
 
 def test_a_missing_key_skips_that_source_politely(monkeypatch, fake_internet):

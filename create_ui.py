@@ -4,7 +4,7 @@ The Create tab (Creator Mode).
 
 Flow:  big input box (+ optional chips)  ->  silent crisis check  ->  Vibe Vector
        ->  at most 3 tappable clarifying questions (skippable)  ->  Creative Universe
-       ->  refine chips, sliders, locks, three directions, version history, exports.
+       ->  refine chips, sliders, locks, three directions, version history.
 "I don't have an idea yet" opens the Spark path (spark_ui.py).
 
 Crisis rule: if any text typed here contains crisis wording, ONLY the safety
@@ -12,12 +12,11 @@ response is shown: nothing is generated, and the text is not kept.
 """
 import colorsys
 import copy
-from datetime import date, datetime
+from datetime import datetime
 from urllib.parse import quote_plus
 
 import streamlit as st
 
-import brief
 import bridge
 import creative
 import creative_match
@@ -134,6 +133,18 @@ def new_idea():
     st.session_state.create_locks = set()
 
 
+def search_words(text, result):
+    """The typed idea, cleaned, for the moodboard image search (online_sources.safe_query).
+    Empty for a crisis or concern message, in offline demo mode, or when online sources are off."""
+    import demo_mode
+    import online_sources
+    if result.get("safety") in ("crisis", "concern") or safety_check(text) in ("crisis", "concern"):
+        return ""
+    if demo_mode.enabled() or not online_sources.enabled():
+        return ""
+    return online_sources.safe_query(text)
+
+
 def build_from_input():
     s = st.session_state
     text = s.get("create_text", "").strip()
@@ -160,6 +171,7 @@ def build_from_input():
     vector["result"] = {k: result[k] for k in ("text", "model_text", "final", "translated")}
     st.session_state.create_offer = bridge.offer_for(full)
     vector["concern"] = result.get("safety") == "concern"
+    vector["user_query"] = search_words(text, result)
     if not vector["medium"]:
         words = vibe.words_in(result.get("model_text") or full)
         vector["medium"] = next((MEDIUM_HINTS[w] for w in words if w in MEDIUM_HINTS), None)
@@ -597,21 +609,6 @@ def universe_screen():
         how_it_was_made(universe)
 
     ratings_panel(universe)
-
-    with st.container(key="glass-cu-export"):
-        st.html('<div class="eyebrow">Export</div>')
-        name = f"orbit_brief_{date.today()}"
-        a, b, c, d = st.columns(4)
-        a.download_button("Creative brief (PDF)", brief.pdf(universe), file_name=f"{name}.pdf",
-                          mime="application/pdf", width="stretch")
-        b.download_button("Moodboard (PNG)", palette.png_board(universe["palette"], fonts_used,
-                          universe["moodboard"]["keywords"]), file_name=f"{name}.png", mime="image/png",
-                          width="stretch")
-        c.download_button("Palette (CSS)", palette.css_variables(universe["palette"]), file_name=f"{name}.css",
-                          mime="text/css", width="stretch")
-        d.download_button("Palette (JSON)", palette.as_json(universe["palette"], fonts_used,
-                          {"title": concept["title"]}), file_name=f"{name}.json", mime="application/json",
-                          width="stretch")
 
     if data["history"]:
         with st.expander(f"Version history ({len(data['history'])})"):

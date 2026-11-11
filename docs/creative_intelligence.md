@@ -168,7 +168,7 @@ Idea → crisis check (unchanged: a crisis idea gets only helplines, nothing is 
   1. ORBIT Creative Brief Builder (our own, no AI service)   → genre, aesthetic, atmosphere, emotion,
                                                                colours, patterns, typography, music
   2. ORBIT colour story palette (no API)                     → Primary, Secondary, Accent, Background, Text
-  3. Search free sources with the brief's own phrases         → Unsplash, Openverse, Pixabay (images)
+  3. Search free sources: typed idea (cleaned) + brief phrases → Unsplash, Openverse, Pixabay (images)
                                                                Last.fm + MusicBrainz (songs)
                                                                Google Fonts (fonts)
   4. ORBIT scores every result (simple points, below)
@@ -211,7 +211,8 @@ the old textures.
 
 ## 15. Moodboard images: the scoring
 
-The brief's search phrases (e.g. "red roses candlelight", "burgundy velvet") are sent to Unsplash,
+The cleaned typed idea (first) and the brief's search phrases (e.g. "red roses candlelight",
+"burgundy velvet") are sent to Unsplash,
 Openverse and Pixabay. Every image gets:
 
 | Rule | Points |
@@ -252,8 +253,12 @@ handwriting, ...): score = 0.6 × category fit + 0.4 × popularity.
 - If a key is missing, a limit is reached or a service is down, that source is skipped and a small line
   says so ("Unsplash: not set up"). If no image source works, the moodboard falls back to ORBIT's own
   tiles; music always has ORBIT's playlist; fonts always have ORBIT's list. Create Mode never crashes.
-- **Privacy:** only ORBIT's own search phrases are sent, never what the user typed. Nothing is sent after
-  a crisis check, in offline demo mode, or when *Settings → Online images, music and fonts* is off.
+- **Privacy:** image searches use ORBIT's own phrases plus, as the first search, the idea the user typed
+  in Create, cleaned by `safe_query()`: emails, web links and numbers of 5 or more digits are removed and
+  only the first 8 words are kept. The typed words are never sent for a crisis or concern message, in
+  offline demo mode, from the Feel → Create bridge (check-in text), or to Last.fm, MusicBrainz or Google
+  Fonts. Nothing at all is sent after a crisis check, in offline demo mode, or when *Settings → Online
+  images, music and fonts* is off.
 - **Safety:** Unsplash content filter "high", Pixabay safe search, Openverse "mature" off.
 
 ## 18. Before and after (8 test ideas)

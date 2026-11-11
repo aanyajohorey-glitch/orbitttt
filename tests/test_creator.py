@@ -84,7 +84,7 @@ def test_a_normal_idea_builds_a_universe(app):
     if app.session_state.create_pending:
         app.button(key="cq_skip").click().run()
     assert not app.exception and app.session_state.creative
-    assert len(page_downloads(app)) == 4
+    assert len(page_downloads(app)) == 0
 
 
 def test_vibe_words_are_understood():

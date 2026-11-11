@@ -8,8 +8,11 @@ Creative Feature Matching Algorithm (creative_match.py).
     Fonts       Google Fonts (the full list of families and categories)
 
 Rules this file follows:
-- Only ORBIT's own search phrases from the Creative Brief are sent, never the user's words.
-- Nothing is fetched after a crisis check, in offline demo mode, or when "Online images and music"
+- Image searches use ORBIT's own phrases from the Creative Brief, plus (first) a cleaned copy of the idea
+  the user typed in Create: at most 8 words, with emails, web links and long numbers removed (safe_query).
+  The typed words are never sent for a crisis or concern message, in offline demo mode, from the
+  Feel -> Create bridge, or to the music and font services.
+- Nothing is fetched after a crisis check, in offline demo mode, or when "Online images, music and fonts"
   is switched off in Settings. Tests run with ORBIT_OFFLINE=1.
 - Keys come from Streamlit Secrets or environment variables, never from the code.
 - Every search is remembered for 24 hours (Pixabay requires this) and each service has a request
@@ -148,6 +151,21 @@ def colour_closeness(colour, palette_hexes):
     r, g, b = hex_rgb(colour)
     distance = min(((r - x) ** 2 + (g - y) ** 2 + (b - z) ** 2) ** 0.5 for x, y, z in map(hex_rgb, palette_hexes))
     return max(0.0, 1 - distance / 200)
+
+
+QUERY_WORDS = 8
+EMAIL = re.compile(r"\S+@\S+")
+LINK = re.compile(r"(https?://|www\.)\S+", re.IGNORECASE)
+LONG_NUMBER = re.compile(r"\d[\d\s\-]{3,}\d")
+
+
+def safe_query(text):
+    """The user's typed idea, cleaned for an image search: emails, web links and numbers of 5 or more
+    digits (phone numbers, PINs) are removed, then only the first 8 words are kept."""
+    text = LONG_NUMBER.sub(" ", LINK.sub(" ", EMAIL.sub(" ", text or "")))
+    words = [w.strip(".,!?;:\"'()[]{}<>*#") for w in text.split()]
+    words = [w for w in words if w and not re.search(r"\d{5,}", w)]
+    return " ".join(words[:QUERY_WORDS])
 
 
 def unsplash(query):
@@ -295,22 +313,29 @@ def _run(jobs):
     return results, status
 
 
-def visuals(brief, found, palette_result):
-    """The moodboard images for a Creative Brief, plus a status line for each source."""
+def visuals(brief, found, palette_result, user_query=""):
+    """The moodboard images for a Creative Brief, plus a status line for each source.
+    user_query: the cleaned typed idea (safe_query); when given it is the first search for every source."""
     status = {}
     jobs = []
-    queries = brief["image_queries"]
-    openverse_queries = queries[1:3] or queries[:1]
+    user_query = safe_query(user_query)
+    own = brief["image_queries"]
+    first = [user_query] if user_query else []
+    queries = list(dict.fromkeys(first + own))
+    unsplash_queries = (first + own)[:2]
+    openverse_queries = first + (own[1:2] if first else own[1:3] or own[:1])
     if has_key("unsplash"):
-        jobs += [(f"u{i}", "unsplash", ("unsplash", q), lambda q=q: unsplash(q)) for i, q in enumerate(queries[:2])]
+        jobs += [(f"u{i}", "unsplash", ("unsplash", q), lambda q=q: unsplash(q))
+                 for i, q in enumerate(unsplash_queries)]
     else:
         status["unsplash"] = "no key"
-        openverse_queries = queries[:4]
+        openverse_queries = (first + own)[:4]
     jobs += [(f"o{i}", "openverse", ("openverse", q), lambda q=q: openverse(q))
              for i, q in enumerate(openverse_queries)]
     if has_key("pixabay"):
         pattern_query = f'{brief["patterns"][0]} pattern' if brief["patterns"] else queries[0]
-        jobs += [("p0", "pixabay", ("pixabay", queries[-1], "photo"), lambda: pixabay(queries[-1], "photo")),
+        photo_query = user_query or queries[-1]
+        jobs += [("p0", "pixabay", ("pixabay", photo_query, "photo"), lambda: pixabay(photo_query, "photo")),
                  ("p1", "pixabay", ("pixabay", pattern_query, "illustration"),
                   lambda: pixabay(pattern_query, "illustration"))]
     else:
@@ -318,6 +343,7 @@ def visuals(brief, found, palette_result):
     results, run_status = _run(jobs)
     status.update(run_status)
     keywords = creative_match.image_keywords(found)
+    keywords += [w for w in words_in(user_query) if len(w) > 3 and w not in keywords]
     palette_hexes = [c["hex"] for c in palette_result.get("story", palette_result["colours"])]
     candidates = []
     for images in results.values():
@@ -467,11 +493,11 @@ def more_fonts(found, known_families, size=4):
     return {"fonts": scored[:size], "status": {"googlefonts": "used"}}
 
 
-def gather(brief, found, palette_result, curated_music, known_fonts):
+def gather(brief, found, palette_result, curated_music, known_fonts, user_query=""):
     """Everything online for one creative universe. Never raises: problems become status notes."""
     empty = {"images": [], "status": {}, "checked": 0}
     try:
-        images = visuals(brief, found, palette_result)
+        images = visuals(brief, found, palette_result, user_query)
     except Exception:
         images = {**empty, "status": {"images": "unavailable"}}
     try:

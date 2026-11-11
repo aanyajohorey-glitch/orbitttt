@@ -31,7 +31,7 @@ from safety import safety_card_html
 from teach_ui import clarify, confidence_html, teach_panel
 from views import (final_stats_html, greeting, hero_html, other_emotions_html, refresh_home, save_home_name,
                    understood_html)
-from world_data import INTENTS, get_world, prompt_for
+from world_data import get_world, prompt_for
 
 STEPS = ["Check in", "What I noticed", "ORBIT's reply", "Try this", "How now?", "Your planet"]
 MOOD_SCALE = calm_room.MOOD_SCALE
@@ -107,18 +107,14 @@ def today_page():
                      placeholder="e.g. Exams finished today. I feel relieved but strangely empty…")
         if demo_mode.enabled():
             demo_mode.sample_buttons("home_text")
-        left, right = st.columns([1.2, 1])
-        with left:
-            st.select_slider("How are you, right now?", options=list(MOOD_SCALE), value=3,
-                             format_func=MOOD_SCALE.get, key="today_before")
-        with right:
-            st.pills("Creative intent · optional", INTENTS, key="home_intent")
+        st.select_slider("How are you, right now?", options=list(MOOD_SCALE), value=3,
+                         format_func=MOOD_SCALE.get, key="today_before")
 
         if st.button("Find my orbit", type="primary", key="find_orbit"):
             result = analyse(st.session_state.home_text.strip(),
                              empty_message="Write a few words about how you feel first.")
             if result:
-                result["intent"] = st.session_state.home_intent or "Explore"
+                result["intent"] = "Explore"
                 result["reply"], result["style"] = reply(result, name=name)
                 record_checkin(result, "Today")
             st.session_state.home_result = result
